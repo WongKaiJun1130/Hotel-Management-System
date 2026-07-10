@@ -4,7 +4,7 @@
  */
 package Hotel_Management_System;
 
-import System_UI.mainUI;
+import System_UI.MainUI;
 
 /**
  *
@@ -16,9 +16,9 @@ public class Hotel_Management_System {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        mainUI menu = new mainUI();
+        MainUI menu = new MainUI();
 
-        menu.UI();
+        menu.MainUI();
         
     }
     
