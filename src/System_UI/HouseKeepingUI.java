@@ -7,6 +7,7 @@ package System_UI;
 import System_Utility.Navigation;
 import System_Utility.Utility;
 import System_adt.StackInterface;
+import System_Control.RoomTracker;
 
 /**
  *
@@ -31,27 +32,24 @@ public class HouseKeepingUI {
     
     } // end HouseKeeping main menu //
     
-    private static final Runnable HouseKeepingMenu = () -> {
-        String[] options = {
-            "1. Manage Room",
-            "2. manageScheduleMenu",
-            "3. View Status",
-            "0. Back to Main Menu"
-        };
-
-        Runnable[] actions = {
-//            () -> Navigation.stack.push(manageRoom),
-//            () -> Navigation.stack.push(manageScheduleMenu),
-//            () -> Navigation.stack.push(StatusMenu),
-              () -> Navigation.stack.pop()
-        }; 
-
-        Utility.customMenu(options, "Housekeeping Management", "Enter your choice: ", actions);
-    };
+ 
+    private static RoomTracker room101 = new RoomTracker("101");
     
     private static final Runnable manageRoom = () -> {
-        System.out.println("Manage Room - coming soon...");
+    String[] options = {
+        "1. Update Status",
+        "2. Rollback Last Status",
+        "3. View Current Status",
+        "0. Back"
     };
+    Runnable[] actions = {
+        () -> room101.updateStatus("Cleaning In Progress"), // replace with actual input prompt
+        () -> room101.rollbackStatus(),
+        () -> System.out.println("Current status: " + room101.getCurrentStatus()),
+        () -> Navigation.stack.pop()
+    };
+    Utility.customMenu(options, "Manage Room 101", "Enter your choice: ", actions);
+};
 
     private static final Runnable manageScheduleMenu = () -> {
         System.out.println("Manage Doctor Schedule - coming soon...");
@@ -60,5 +58,23 @@ public class HouseKeepingUI {
     private static final Runnable StatusMenu = () -> {
         System.out.println("View Status - coming soon...");
     };
-}
 
+
+private static final Runnable HouseKeepingMenu = () -> {
+        String[] options = {
+            "1. Room Status",
+            "2. manage Schedule Menu",
+            "3. View Status",
+            "0. Back to Main Menu"
+        };
+
+        Runnable[] actions = {
+            () -> Navigation.stack.push(manageRoom),
+//            () -> Navigation.stack.push(manageScheduleMenu),
+//            () -> Navigation.stack.push(StatusMenu),
+            () -> Navigation.stack.pop()
+        }; 
+
+        Utility.customMenu(options, "Housekeeping Management", "Enter your choice: ", actions);
+    };
+}
