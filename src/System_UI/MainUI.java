@@ -5,6 +5,7 @@
 package System_UI;
 
 import System_Utility.Utility;
+import System_Utility.Navigation;
 
 /**
  *
@@ -12,8 +13,8 @@ import System_Utility.Utility;
  */
 public class MainUI { 
 
-    public static void MainUI() {
-
+    public static void mainUi() {
+        Navigation.stack.push(() -> mainUi());
         System.out.println("====================================");
         System.out.println("     HOTEL MANAGEMENT SYSTEM");
         System.out.println("====================================");
