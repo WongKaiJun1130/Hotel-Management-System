@@ -15,6 +15,8 @@ import System_Control.RoomTracker;
  */
 public class HouseKeepingUI {
     
+    private static RoomTracker room101 = new RoomTracker("101");
+    
     public static void menu() {
         Navigation.stack.push(HouseKeepingMenu);
 
@@ -33,7 +35,7 @@ public class HouseKeepingUI {
     } // end HouseKeeping main menu //
     
  
-    private static RoomTracker room101 = new RoomTracker("101");
+    
     
     private static final Runnable manageRoom = () -> {
     String[] options = {
@@ -51,30 +53,36 @@ public class HouseKeepingUI {
     Utility.customMenu(options, "Manage Room 101", "Enter your choice: ", actions);
 };
 
-    private static final Runnable manageScheduleMenu = () -> {
+    private static final Runnable manageSRoomStatus = () -> {
         System.out.println("Manage Doctor Schedule - coming soon...");
     };
 
-    private static final Runnable StatusMenu = () -> {
-        System.out.println("View Status - coming soon...");
+    private static final Runnable report1 = () -> {
+        System.out.println("report 111111.. .. . . ");
+    };
+    private static final Runnable report2 = () -> {
+        System.out.println("report 222222 . .. .. ");
     };
 
 
 private static final Runnable HouseKeepingMenu = () -> {
         String[] options = {
-            "1. Room Status",
-            "2. manage Schedule Menu",
-            "3. View Status",
+            "1. Show Room Status",
+            "2. Change Room Status",
+            "3. Report 1",
+            "4. Report 2",
             "0. Back to Main Menu"
         };
 
         Runnable[] actions = {
             () -> Navigation.stack.push(manageRoom),
-//            () -> Navigation.stack.push(manageScheduleMenu),
-//            () -> Navigation.stack.push(StatusMenu),
+            () -> Navigation.stack.push(manageSRoomStatus),
+            () -> Navigation.stack.push(report1),
+            () -> Navigation.stack.push(report2),
             () -> Navigation.stack.pop()
         }; 
+       
 
-        Utility.customMenu(options, "Housekeeping Management", "Enter your choice: ", actions);
+        Utility.customMenu(options, "Housekeeping Menu", "Enter your choice: ", actions);
     };
 }
