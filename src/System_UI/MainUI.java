@@ -2,10 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+
 package System_UI;
 
+
 import System_Utility.Utility;
-import System_Utility.Navigation;
+
 
 /**
  *
@@ -13,14 +15,12 @@ import System_Utility.Navigation;
  */
 public class MainUI { 
 
-    public static void mainUi() {
-        Navigation.stack.push(() -> mainUi());
-        System.out.println("====================================");
-        System.out.println("     HOTEL MANAGEMENT SYSTEM");
-        System.out.println("====================================");
 
-        System.out.println();
+    public static void MainUI() {
 
+
+        // Display Hotel Logo
+        displayLogo();
         Utility.customMenu(
                 new String[]{
                     "1.Register",
@@ -35,13 +35,26 @@ public class MainUI {
                     () -> RegisterUI.menu(),
                     () -> HouseKeepingUI.menu(),
                     () -> System.out.println("Loyalty & Prize Service coming soon..."),
-                    () -> System.out.println("VIP Allocation coming soon..."),
+                    () -> VIPAllocationUI.menu(),
                     () -> System.exit(0)
                 }
         );
-        
-        System.out.println("Please select an option: ");
 
     }
-}
-    
+
+
+    // Hotel Management System Logo
+
+    private static void displayLogo(){
+        System.out.println();
+        System.out.println("|==============================================|");
+        System.out.println("|                                              |");
+        System.out.println("|        *  HOTEL MANAGEMENT SYSTEM  *         |");
+        System.out.println("|                                              |");
+        System.out.println("|        Guest | Room | VIP | Loyalty          |");
+        System.out.println("|                                              |");
+        System.out.println("|==============================================|");
+        System.out.println();
+    }
+
+}   
