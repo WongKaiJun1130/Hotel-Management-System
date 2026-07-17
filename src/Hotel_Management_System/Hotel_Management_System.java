@@ -6,19 +6,13 @@ package Hotel_Management_System;
 
 import System_UI.MainUI;
 
-/**
- *
- * @author USER
- */
 public class Hotel_Management_System {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
 
-        MainUI.mainUi();
-        
+        MainUI menu = new MainUI();
+
+        menu.MainUI();
+
     }
-    
 }
