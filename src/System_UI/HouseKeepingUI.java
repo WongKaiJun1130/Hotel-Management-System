@@ -39,8 +39,6 @@ public class HouseKeepingUI {
             "0. Back to Main Menu"
         };
 
-        
-        
         Runnable[] actions = {
 //            () -> Navigation.stack.push(manageRoom),
 //            () -> Navigation.stack.push(manageScheduleMenu),
@@ -63,4 +61,3 @@ public class HouseKeepingUI {
         System.out.println("View Status - coming soon...");
     };
 }
-
