@@ -16,16 +16,19 @@ public class Utility {
         Scanner scanner = new Scanner(System.in);
         Boolean resume;
 
-        do {
+        do {    
             resume = false;
             System.out.println();
+            System.out.println("+----------------------------------------------+");
             if (menuTitle != null && !menuTitle.isEmpty()) {
-                System.out.printf("==== %s ====\n", menuTitle);
+                System.out.printf("|%46s|\n",String.format("%-" + ((46 + menuTitle.length()) / 2) + "s", menuTitle));
             }
+            System.out.println("+----------------------------------------------+");
 
             for (String titleItem : title) {
-                System.out.println(titleItem);
+                System.out.printf("|%46s|\n", String.format("%-" + ((46 + titleItem.length()) / 2) + "s", titleItem));
             }
+            System.out.println("+----------------------------------------------+");
 
             System.out.print(customMessage);
             String input = scanner.nextLine().trim();
@@ -41,9 +44,10 @@ public class Utility {
 
             if (choice == 0) {
                 action[title.length - 1].run();
-                break; // exit menu
+                return; 
             } else if (choice >= 1 && choice <= title.length - 1) {
                 action[choice - 1].run();
+                resume = true;
             } else {
                 resume = true;
                 showInvalidChoiceMessage();
