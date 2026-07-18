@@ -21,6 +21,7 @@ public class MainUI {
 
         // Display Hotel Logo
         displayLogo();
+        
         Utility.customMenu(
                 new String[]{
                     "1.Register",
