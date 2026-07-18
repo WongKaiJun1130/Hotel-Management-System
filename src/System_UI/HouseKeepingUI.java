@@ -85,4 +85,16 @@ private static final Runnable HouseKeepingMenu = () -> {
 
         Utility.customMenu(options, "Housekeeping Menu", "Enter your choice: ", actions);
     };
+    
+    private static final Runnable manageRoom = () -> {
+        System.out.println("Manage Room - coming soon...");
+    };
+
+    private static final Runnable manageScheduleMenu = () -> {
+        System.out.println("Manage Doctor Schedule - coming soon...");
+    };
+
+    private static final Runnable StatusMenu = () -> {
+        System.out.println("View Status - coming soon...");
+    };
 }
