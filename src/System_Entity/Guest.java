@@ -23,6 +23,7 @@ public class Guest {
                  String loyaltyTier, String roomType,
                  String roomStatus, String checkInDate) {
 
+        
         this.guestID = guestID;
         this.guestName = guestName;
         this.loyaltyTier = loyaltyTier;
