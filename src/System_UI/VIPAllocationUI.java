@@ -237,7 +237,6 @@ public class VIPAllocationUI {
 
             Guest guest = new Guest(id, name, tier, roomType, roomStatus, checkInDate);
             System.out.println();
-
             System.out.println("+----------------------------------------------+");
             System.out.println("|              GUEST INFORMATION               |");
             System.out.println("+----------------------------------------------+");
