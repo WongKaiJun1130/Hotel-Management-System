@@ -8,64 +8,108 @@ package System_Entity;
  *
  * @author user
  */
+
 public class Guest {
 
     private String guestID;
     private String guestName;
     private String loyaltyTier;
+    private String roomType;
+    private String roomStatus;
+    private String checkInDate;
 
+    //Constructor
+    public Guest(String guestID, String guestName,
+                 String loyaltyTier, String roomType,
+                 String roomStatus, String checkInDate) {
 
-    public Guest(String guestID, String guestName, String loyaltyTier) {
         this.guestID = guestID;
         this.guestName = guestName;
         this.loyaltyTier = loyaltyTier;
+        this.roomType = roomType;
+        this.roomStatus = roomStatus;
+        this.checkInDate = checkInDate;
     }
 
+    // =========================
+    // Getter Methods
+    // =========================
 
     public String getGuestID() {
         return guestID;
     }
 
-
     public String getGuestName() {
         return guestName;
     }
 
-
     public String getLoyaltyTier() {
         return loyaltyTier;
     }
-    
-     public void setLoyaltyTier(String newTier){
 
-        this.loyaltyTier = newTier;
-
+    public String getRoomType() {
+        return roomType;
     }
 
+    public String getRoomStatus() {
+        return roomStatus;
+    }
 
+    public String getCheckInDate() {
+        return checkInDate;
+    }
 
-    // Priority calculation
+    // =========================
+    // Setter Methods
+    // =========================
+
+    public void setLoyaltyTier(String loyaltyTier) {
+        this.loyaltyTier = loyaltyTier;
+    }
+
+    public void setRoomType(String roomType) {
+        this.roomType = roomType;
+    }
+
+    public void setRoomStatus(String roomStatus) {
+        this.roomStatus = roomStatus;
+    }
+
+    public void setCheckInDate(String checkInDate) {
+        this.checkInDate = checkInDate;
+    }
+
+    // =========================
+    // Priority
+    // =========================
+
     public int getPriority() {
-        if(loyaltyTier.equalsIgnoreCase("Elite")) {
-            return 4;
-        }
-        else if(loyaltyTier.equalsIgnoreCase("Diamond")) {
-            return 3;
-        }
-        else if(loyaltyTier.equalsIgnoreCase("Platinum")) {
-            return 2;
-        }
-        else {
-            return 1;
-        }
 
+        switch (loyaltyTier.toLowerCase()) {
+
+            case "elite":
+                return 4;
+
+            case "diamond":
+                return 3;
+
+            case "platinum":
+                return 2;
+
+            default:
+                return 1;   // Standard
+        }
     }
 
-
+    @Override
     public String toString() {
-        return "Guest ID: " + guestID +
-               "\nGuest Name: " + guestName +
-               "\nLoyalty Tier: " + loyaltyTier;
-    }
 
+        return "Guest ID      : " + guestID +
+               "\nGuest Name    : " + guestName +
+               "\nLoyalty Tier  : " + loyaltyTier +
+               "\nPriority      : " + getPriority() +
+               "\nRoom Type     : " + roomType +
+               "\nRoom Status   : " + roomStatus +
+               "\nCheck-In Date : " + checkInDate;
+    }
 }
