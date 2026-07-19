@@ -244,7 +244,6 @@ public class VIPAllocationUI {
             System.out.println(guest);
 
 
-
             // =========================
             // Confirmation
             // =========================
