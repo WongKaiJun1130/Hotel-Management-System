@@ -248,7 +248,6 @@ public class VIPAllocationUI {
             // =========================
             // Confirmation
             // =========================
-
             while(true){
 
                 System.out.println();
