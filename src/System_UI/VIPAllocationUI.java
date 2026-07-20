@@ -26,6 +26,7 @@ public class VIPAllocationUI {
 
     private static LinkedQueue<Guest> vipQueue = new LinkedQueue<>();
     private static Scanner input = new Scanner(System.in);
+    private static int nextGuestID = 1;
 
     public static void menu(){
         UtilityMenu();
@@ -67,7 +68,7 @@ public class VIPAllocationUI {
     private static void addGuest(){
 
         String roomType;
-        String id;
+        String id = generateGuestID();
         String tier;
         System.out.println();
         System.out.println("+----------------------------------------------+");
@@ -78,21 +79,8 @@ public class VIPAllocationUI {
         // =========================
         // Guest ID Validation
         // =========================
-        while(true){
-
-            System.out.print("Guest ID (RXXXX): ");
-            id = input.nextLine();
-
-            if(id.matches("R\\d{4}")){
-                break;
-            }
-            else{
-                System.out.println("Invalid format! Example: R0001");
-            }
-        }
-
-
-
+        System.out.println("Guest ID :" + id);
+        
         // =========================
         // Guest Name
         // =========================
@@ -240,8 +228,14 @@ public class VIPAllocationUI {
             System.out.println("+----------------------------------------------+");
             System.out.println("|              GUEST INFORMATION               |");
             System.out.println("+----------------------------------------------+");
-            System.out.println(guest);
-
+            System.out.printf("| %-18s : %-23s |\n", "Guest ID", guest.getGuestID());
+            System.out.printf("| %-18s : %-23s |\n", "Guest Name", guest.getGuestName());
+            System.out.printf("| %-18s : %-23s |\n", "Loyalty Tier", guest.getLoyaltyTier());
+            System.out.printf("| %-18s : %-23d |\n", "Priority", guest.getPriority());
+            System.out.printf("| %-18s : %-23s |\n", "Room Type", guest.getRoomType());
+            System.out.printf("| %-18s : %-23s |\n", "Room Status", guest.getRoomStatus());
+            System.out.printf("| %-18s : %-23s |\n", "Check-In Date", guest.getCheckInDate());
+            System.out.println("+----------------------------------------------+");
 
             // =========================
             // Confirmation
@@ -258,26 +252,18 @@ public class VIPAllocationUI {
                 String confirm = input.nextLine();
                 if(confirm.equals("1")){
                     insertPriority(guest);
+                    nextGuestID++;
                     System.out.println();
                     System.out.println("VIP Guest Added Successfully!");
                     break;
                 }
                 else if(confirm.equals("2")){
-
-
                     System.out.println();
                     System.out.println("Add VIP Guest Cancelled!");
-
                     break;
-
-
                 }
                 else{
-
-                    System.out.println(
-                        "Invalid choice! Please select 1 or 2."
-                    );
-
+                    System.out.println("Invalid choice! Please select 1 or 2." );
                 }
 
             }
@@ -285,176 +271,145 @@ public class VIPAllocationUI {
 
 
 
+    private static String generateGuestID(){
+        return String.format("R%04d" , nextGuestID);
+    }
+    
     // Priority Queue insertion
     private static void insertPriority(Guest guest){
         LinkedQueue<Guest> temp = new LinkedQueue<>();
         boolean inserted = false;
         Iterator<Guest> iterator = vipQueue.getIterator();
-
-
-
-
         while(iterator.hasNext()){
-
-
-            Guest current =
-                    iterator.next();
-
-
-
-            if(!inserted &&
-               guest.getPriority()
-               >
-               current.getPriority()){
-
-
+            Guest current = iterator.next();
+            if(!inserted && guest.getPriority() > current.getPriority()){
                 temp.enqueue(guest);
-
                 inserted = true;
-
-
             }
-
-
-
             temp.enqueue(current);
-
-
         }
-
-
-
-
-
         if(!inserted){
-
-
             temp.enqueue(guest);
-
-
         }
-
-
-
-
         vipQueue = temp;
-
-
     }
 
 
 
-
-
-
-
-
-
-
-    // ==============================
-    // 2. Upgrade Guest To VIP
-    // ==============================
-
-    private static void upgradeGuest(){
-
-
-
-        System.out.print(
-        "Enter Guest ID: "
-        );
-
-        String id = input.nextLine();
-        Guest guest = searchGuestByID(id);
-
-
-
-
-
-        if(guest == null){
-
-
-            System.out.println(
-            "Guest not found!"
-            );
-
-            return;
-
-        }
-
-
-
-
-
-        System.out.println(
-        "Current Tier: "
-        +
-        guest.getLoyaltyTier()
-        );
-
-
-
-        System.out.print(
-        "Enter New Tier: "
-        );
-
-
-        String newTier =
-                input.nextLine();
-
-
-
-        guest.setLoyaltyTier(newTier);
-
-
-
-        // Re-sort queue
-
-        LinkedQueue<Guest> temp =
-                new LinkedQueue<>();
-
-
-
-        Iterator<Guest> iterator =
-                vipQueue.getIterator();
-
-
-
-        while(iterator.hasNext()){
-
-
-            temp.enqueue(
-                    iterator.next()
-            );
-
-        }
-
-
-
-        vipQueue =
-                new LinkedQueue<>();
-
-
-
-        while(!temp.isEmpty()){
-
-
-            insertPriority(
-                    temp.dequeue()
-            );
-
-
-        }
-
-
-
-
-        System.out.println(
-        "Upgrade Successful!"
-        );
-
-
-    }
-
+     // ==============================
+     // 2. Upgrade Guest To VIP
+     // ==============================
+
+     private static void upgradeGuest(){
+         System.out.println();
+         System.out.println("+----------------------------------------------+");
+         System.out.println("|              UPGRADE VIP GUEST               |");
+         System.out.println("+----------------------------------------------+");
+         System.out.print("Enter Guest ID: ");
+         String id = input.nextLine();
+         Guest guest = searchGuestByID(id);
+         if(guest == null){
+             System.out.println();
+             System.out.println( "Guest not found!" );
+             return;
+         }
+         String oldTier = guest.getLoyaltyTier();
+         int oldPriority = guest.getPriority();
+         // =========================
+         // Display Current Guest Info
+         // =========================
+         System.out.println();
+         System.out.println("+------------------------------------------------------------+");
+         System.out.println("|                  CURRENT GUEST INFORMATION                 |");
+         System.out.println("+------------------------------------------------------------+");
+         System.out.printf("| %-18s : %-37s |\n", "Guest ID",guest.getGuestID());
+         System.out.printf("| %-18s : %-37s |\n","Guest Name",guest.getGuestName() );
+         System.out.printf("| %-18s : %-37s |\n", "Current Tier", oldTier);
+         System.out.printf("| %-18s : %-37d |\n", "Priority", oldPriority );
+         System.out.println("+------------------------------------------------------------+");
+         // =========================
+         // Select New Tier
+         // =========================
+         String newTier;
+         while(true){
+             System.out.println();
+             System.out.println("---------------------------------------------------------");
+             System.out.println("|                  NEW Loyalty Tier                     |");
+             System.out.println("---------------------------------------------------------");
+             System.out.println("| [1] Elite | [2] Diamond | [3] Platinum | [4] Standard |");
+             System.out.println("---------------------------------------------------------");
+             System.out.println("| Select New Loyalty Tier: |");
+             System.out.println("----------------------------");
+             System.out.print( "Enter Choice: " );
+             String choice = input.nextLine();
+             switch(choice){
+                 case "1":
+                     newTier = "Elite";
+                     break;
+                 case "2":
+                     newTier = "Diamond";
+                     break;
+                 case "3":
+                     newTier = "Platinum";
+                     break;
+                 case "4":
+                     newTier = "Standard";
+                     break;
+                 default:
+                     System.out.println(
+                         "Invalid choice! Please select 1-4."
+                     );
+                     continue;
+             }
+             break;
+         }
+         // =========================
+         // Confirmation
+         // =========================
+
+
+         System.out.println();
+         System.out.println("Upgrade " + guest.getGuestName() + " to " + newTier + "?");
+         System.out.println("[1] Confirm");
+         System.out.println("[2] Cancel");
+         System.out.print("Select option: ");
+         String confirm = input.nextLine();
+         if(confirm.equals("1")){
+             
+             // Update tier
+             guest.setLoyaltyTier(newTier);
+             
+             // =========================
+             // Re-sort Priority Queue
+             // =========================
+             LinkedQueue<Guest> temp = new LinkedQueue<>();
+             Iterator<Guest> iterator = vipQueue.getIterator();
+             while(iterator.hasNext()){
+                 temp.enqueue(
+                         iterator.next()
+                 );
+             }
+             vipQueue = new LinkedQueue<>();
+             while(!temp.isEmpty()){
+                 insertPriority( temp.dequeue());
+             }
+             System.out.println();
+             System.out.println("+------------------------------------------------------------+");
+             System.out.println("|             NEW UPGRADE GUEST INFORMATION                  |");
+             System.out.println("+------------------------------------------------------------+");
+             System.out.printf("| %-18s : %-37s |\n", "Guest ID",guest.getGuestID());
+             System.out.printf("| %-18s : %-37s |\n","Guest Name",guest.getGuestName() );
+             System.out.printf("| %-18s : %-37s |\n", "New Tier", guest.getLoyaltyTier());
+             System.out.printf("| %-18s : %-37d |\n", "Priority", guest.getPriority() );
+             System.out.println("+------------------------------------------------------------+");
+             System.out.println( "Upgrade Successful!" );         }
+         else{
+             System.out.println();
+             System.out.println(
+                 "Upgrade Cancelled!"
+             );
+         }
+     }
 
 
 
