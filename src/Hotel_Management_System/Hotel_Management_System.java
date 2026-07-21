@@ -5,13 +5,14 @@
 package Hotel_Management_System;
 
 import System_UI.MainUI;
+import System_UI.VIPAllocationUI;
 
 public class Hotel_Management_System {
 
     public static void main(String[] args) {
 
-        MainUI menu = new MainUI();
-        
+        VIPAllocationUI.loadGuestDatabase();
+        MainUI menu = new MainUI(); 
         menu.MainUI();
 
     }
