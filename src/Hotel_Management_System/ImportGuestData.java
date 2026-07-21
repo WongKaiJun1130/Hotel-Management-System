@@ -25,8 +25,7 @@ public class ImportGuestData {
         guests.add(new Guest("R0009","Kevin Lim","Standard","Small Room","Waiting","28/07/2026"));
         guests.add(new Guest("R0010","Jessica Ng","Diamond","Middle Room","Waiting","29/07/2026"));
         GuestDatabase.saveGuests(guests);
-        System.out.println("10 Guests Imported Successfully!");
-
+        System.out.println( guests.getNumberOfEntries() + " Guests Saved!" );
     }
 
 }
