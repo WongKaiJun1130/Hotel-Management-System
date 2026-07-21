@@ -11,7 +11,7 @@ package System_adt;
 import java.io.Serializable;
 import java.util.Comparator;
 
-public class ArrayList<T> implements ListInterface<T>, Serializable {
+public class ArrayList<T> implements ListInterface<T>, Serializable , Iterable<T>{
 
     private T[] array;
     private int numberOfEntries;
@@ -171,6 +171,25 @@ public class ArrayList<T> implements ListInterface<T>, Serializable {
                 }
             }
         }
+    }
+    
+    
+
+    //Enable your custom `System_adt.ArrayList` to use the for-each loop for iterating through its data.
+    @Override
+    public java.util.Iterator<T> iterator() {
+        return new java.util.Iterator<T>() {
+            private int index = 0;
+            @Override
+            public boolean hasNext() {
+
+                return index < numberOfEntries;
+            }
+            @Override
+            public T next() {
+                return array[index++];
+            }
+        };
     }
 
 }
