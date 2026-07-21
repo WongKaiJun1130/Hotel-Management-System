@@ -3,20 +3,25 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
 package System_Entity;
+import java.io.Serializable;
 
 /**
  *
  * @author user
  */
 
-public class Guest {
+// want to save Guest objects into a file
+public class Guest implements Serializable {
 
+    //This line is related to Java Serialization.
+    private static final long serialVersionUID = 1 ;
     private String guestID;
     private String guestName;
     private String loyaltyTier;
     private String roomType;
     private String roomStatus;
     private String checkInDate;
+    
 
     //Constructor
     public Guest(String guestID, String guestName,
