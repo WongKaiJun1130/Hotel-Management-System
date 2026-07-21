@@ -11,6 +11,8 @@ package System_UI;
 
 
 import System_Entity.Guest;
+import System_Utility.GuestDatabase;
+import System_adt.ArrayList;
 import System_adt.LinkedQueue;
 import System_Utility.Utility;
 import java.time.LocalDate;
@@ -583,8 +585,9 @@ public class VIPAllocationUI {
 
 
 
-
-
+// ======================================================================================================================================================
+// Other Function method 
+// ======================================================================================================================================================
 
 
      // ==============================
@@ -595,16 +598,8 @@ public class VIPAllocationUI {
         Iterator<Guest> iterator = vipQueue.getIterator();
         boolean found = false;
         int count = 1;
-
-
-
         while(iterator.hasNext()){
-
-
             Guest guest = iterator.next();
-
-
-
             String searchData =
                     guest.getGuestID() + " "
                     + guest.getGuestName() + " "
@@ -612,17 +607,10 @@ public class VIPAllocationUI {
                     + guest.getRoomType() + " "
                     + guest.getRoomStatus() + " "
                     + guest.getCheckInDate();
-
-
-
             // Search all information
             if(searchData.toLowerCase()
                     .contains(keyword.toLowerCase())){
-
-
                 if(!found){
-
-
                     System.out.println();
                     System.out.println("=====================================================================================================================");
                     System.out.printf("| %-3s | %-10s | %-20s | %-15s | %-8s | %-12s | %-12s | %-12s |\n",
@@ -635,14 +623,8 @@ public class VIPAllocationUI {
                             "Status",
                             "Check-In");
                     System.out.println("=====================================================================================================================");
-
-
                     found = true;
-
                 }
-
-
-
                 System.out.printf("| %-3d | %-10s | %-20s | %-15s | %-8d | %-12s | %-12s | %-12s |\n",
                         count,
                         guest.getGuestID(),
@@ -653,64 +635,44 @@ public class VIPAllocationUI {
                         guest.getRoomStatus(),
                         guest.getCheckInDate());
 
-
                 count++;
-
-
             }
-
-
         }
 
         if(!found){
-
-
             System.out.println();
             System.out.println("----------------------------------------------");
             System.out.println("|             Guest not found!               |");
             System.out.println("----------------------------------------------");
-
-
         }
         else{
-
-
             System.out.println("=====================================================================================================================");
-
             System.out.println(
                     "Total Matching Guests : " + (count - 1)
             );
 
             System.out.println("=====================================================================================================================");
-
         }
-
     }
      
  
     private static Guest searchGuestByID(String id) {
-
         Iterator<Guest> iterator = vipQueue.getIterator();
-
-
         while(iterator.hasNext()) {
-
             Guest guest = iterator.next();
-
-
-            if(guest.getGuestID()
-                    .equalsIgnoreCase(id)) {
-
+            if(guest.getGuestID().equalsIgnoreCase(id)) {
                 return guest;
-
             }
-
         }
-
-
         return null;
     }
-
-
-
+    
+    public static void loadGuestDatabase(){
+        ArrayList<Guest> guests = GuestDatabase.loadGuests();
+        for (int i = 1; i <= guests.getNumberOfEntries(); i++){
+            Guest guest = guests.getEntry(i);
+            insertPriority(guest);
+        }
+        System.out.println(guests.getNumberOfEntries() + " Guests Loaded!");
+    }
 }
