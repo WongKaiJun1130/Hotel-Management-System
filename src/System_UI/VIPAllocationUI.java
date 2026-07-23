@@ -224,13 +224,14 @@ public class VIPAllocationUI {
             // Create Guest Object
             // =========================
 
-            Guest guest = new Guest(id, name, tier, roomType, roomStatus, checkInDate);
+            Guest guest = new Guest(id, name, phoneNumber, tier, roomType, roomStatus, checkInDate);
             System.out.println();
             System.out.println("+----------------------------------------------+");
             System.out.println("|              GUEST INFORMATION               |");
             System.out.println("+----------------------------------------------+");
             System.out.printf("| %-18s : %-23s |\n", "Guest ID", guest.getGuestID());
             System.out.printf("| %-18s : %-23s |\n", "Guest Name", guest.getGuestName());
+            System.out.printf("| %-18s : %-23s |\n", "Phone Number", guest.getPhoneNumber());
             System.out.printf("| %-18s : %-23s |\n", "Loyalty Tier", guest.getLoyaltyTier());
             System.out.printf("| %-18s : %-23d |\n", "Priority", guest.getPriority());
             System.out.printf("| %-18s : %-23s |\n", "Room Type", guest.getRoomType());
@@ -325,6 +326,7 @@ public class VIPAllocationUI {
          System.out.println("+------------------------------------------------------------+");
          System.out.printf("| %-18s : %-37s |\n", "Guest ID",guest.getGuestID());
          System.out.printf("| %-18s : %-37s |\n","Guest Name",guest.getGuestName() );
+         System.out.printf("| %-18s : %-23s |\n", "Phone Number", guest.getPhoneNumber());
          System.out.printf("| %-18s : %-37s |\n", "Current Tier", oldTier);
          System.out.printf("| %-18s : %-37d |\n", "Priority", oldPriority );
          System.out.println("+------------------------------------------------------------+");
@@ -400,6 +402,7 @@ public class VIPAllocationUI {
              System.out.println("+------------------------------------------------------------+");
              System.out.printf("| %-18s : %-37s |\n", "Guest ID",guest.getGuestID());
              System.out.printf("| %-18s : %-37s |\n","Guest Name",guest.getGuestName() );
+             System.out.printf("| %-18s : %-23s |\n", "Phone Number", guest.getPhoneNumber());
              System.out.printf("| %-18s : %-37s |\n", "New Tier", guest.getLoyaltyTier());
              System.out.printf("| %-18s : %-37d |\n", "Priority", guest.getPriority() );
              System.out.println("+------------------------------------------------------------+");
