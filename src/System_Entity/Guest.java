@@ -94,12 +94,8 @@ public class Guest implements Serializable {
     public void setCheckInDate(String checkInDate) {
         this.checkInDate = checkInDate;
     }
-
-    // =========================
-    // Priority
-    // =========================
-
-    public int getPriority() {
+    
+     public int getPriority() {
 
         switch (loyaltyTier.toLowerCase()) {
 
@@ -117,16 +113,17 @@ public class Guest implements Serializable {
         }
     }
 
-    @Override
-    public String toString() {
 
-        return "Guest ID      : " + guestID +
-               "\nGuest Name    : " + guestName +
-               "\nPhone Number  : " + phoneNumber +
-               "\nLoyalty Tier  : " + loyaltyTier +
-               "\nPriority      : " + getPriority() +
-               "\nRoom Type     : " + roomType +
-               "\nRoom Status   : " + roomStatus +
-               "\nCheck-In Date : " + checkInDate;
+   @Override
+    public String toString() {
+        return "Guest {" +
+                "guestID='" + guestID + '\'' +
+                ", guestName='" + guestName + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", loyaltyTier='" + loyaltyTier + '\'' +
+                ", roomType='" + roomType + '\'' +
+                ", roomStatus='" + roomStatus + '\'' +
+                ", checkInDate='" + checkInDate + '\'' +
+                '}';
     }
 }
