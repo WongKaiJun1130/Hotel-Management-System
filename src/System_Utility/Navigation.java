@@ -4,17 +4,14 @@
  */
 package System_Utility;
 
-import System_adt.StackInterface;
-import System_adt.ArrayStack;
-
+import System_adt.*;
 /**
  *
  * @author USER
  */
 public class Navigation {
     
-    public static StackInterface<Runnable> stack = new ArrayStack<>();
-
+    public static DoublyLinkedList.ArrayStack<Runnable> stack = new DoublyLinkedList.ArrayStack<>();
     public static void goBack() {
         if (!stack.isEmpty()) {
             stack.pop();
