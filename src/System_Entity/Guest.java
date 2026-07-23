@@ -17,6 +17,7 @@ public class Guest implements Serializable {
     private static final long serialVersionUID = 1 ;
     private String guestID;
     private String guestName;
+    private String phoneNumber;
     private String loyaltyTier;
     private String roomType;
     private String roomStatus;
@@ -24,13 +25,14 @@ public class Guest implements Serializable {
     
 
     //Constructor
-    public Guest(String guestID, String guestName,
+    public Guest(String guestID, String guestName, String phoneNumber,
                  String loyaltyTier, String roomType,
                  String roomStatus, String checkInDate) {
 
         
         this.guestID = guestID;
         this.guestName = guestName;
+        this.phoneNumber = phoneNumber;
         this.loyaltyTier = loyaltyTier;
         this.roomType = roomType;
         this.roomStatus = roomStatus;
@@ -49,6 +51,10 @@ public class Guest implements Serializable {
         return guestName;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+    
     public String getLoyaltyTier() {
         return loyaltyTier;
     }
@@ -69,6 +75,10 @@ public class Guest implements Serializable {
     // Setter Methods
     // =========================
 
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+    
     public void setLoyaltyTier(String loyaltyTier) {
         this.loyaltyTier = loyaltyTier;
     }
@@ -112,6 +122,7 @@ public class Guest implements Serializable {
 
         return "Guest ID      : " + guestID +
                "\nGuest Name    : " + guestName +
+               "\nPhone Number  : " + phoneNumber +
                "\nLoyalty Tier  : " + loyaltyTier +
                "\nPriority      : " + getPriority() +
                "\nRoom Type     : " + roomType +
