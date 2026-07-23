@@ -5,8 +5,7 @@ import System_Entity.StatusEntry;
 import System_Utility.Navigation;
 import System_Utility.Utility;
 import System_Utility.RoomStatusUtil;
-import System_adt.ArrayList;
-import System_adt.StackInterface;
+import System_adt.*;
 import System_Utility.RoomTypeUtil;
 
 import java.util.Scanner;
@@ -15,7 +14,7 @@ import java.util.Iterator;
 
 public class HouseKeepingUI {
     
-    private static ArrayList<Room> rooms = new ArrayList<>();
+    private static DoublyLinkedList.ArrayList<Room> rooms = new DoublyLinkedList.ArrayList<>();
     private static Scanner input = new Scanner(System.in);
     
     // ==========================
