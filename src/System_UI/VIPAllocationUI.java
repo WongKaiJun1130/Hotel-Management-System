@@ -11,9 +11,8 @@ package System_UI;
 
 
 import System_Entity.Guest;
-import System_Utility.GuestDatabase;
-import System_adt.ArrayList;
-import System_adt.LinkedQueue;
+import dao.GuestDatabase;
+import System_adt.*;
 import System_Utility.Utility;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -26,7 +25,7 @@ import java.util.Scanner;
 public class VIPAllocationUI {
 
 
-    private static LinkedQueue<Guest> vipQueue = new LinkedQueue<>();
+    private static DoublyLinkedList.ArrayQueue<Guest> vipQueue =new DoublyLinkedList.ArrayQueue<>();    
     private static Scanner input = new Scanner(System.in);
     private static int nextGuestID = 1;
 
@@ -279,7 +278,7 @@ public class VIPAllocationUI {
     
     // Priority Queue insertion
     private static void insertPriority(Guest guest){
-        LinkedQueue<Guest> temp = new LinkedQueue<>();
+        DoublyLinkedList.ArrayQueue<Guest> temp = new DoublyLinkedList.ArrayQueue<>();
         boolean inserted = false;
         Iterator<Guest> iterator = vipQueue.getIterator();
         while(iterator.hasNext()){
@@ -384,14 +383,14 @@ public class VIPAllocationUI {
              // =========================
              // Re-sort Priority Queue
              // =========================
-             LinkedQueue<Guest> temp = new LinkedQueue<>();
+             DoublyLinkedList.ArrayQueue<Guest> temp = new DoublyLinkedList.ArrayQueue<>();
              Iterator<Guest> iterator = vipQueue.getIterator();
              while(iterator.hasNext()){
                  temp.enqueue(
                          iterator.next()
                  );
              }
-             vipQueue = new LinkedQueue<>();
+             vipQueue = new DoublyLinkedList.ArrayQueue<>();
              while(!temp.isEmpty()){
                  insertPriority( temp.dequeue());
              }
@@ -519,9 +518,10 @@ public class VIPAllocationUI {
     // ==============================
    private static void displayQueue() {
 
-        Iterator<Guest> iterator = vipQueue.getIterator();
-
-        if (!iterator.hasNext()) {
+       // Iterator<Guest> iterator = vipQueue.getIterator();
+    GuestDatabase dao = new GuestDatabase();
+    DoublyLinkedList.ArrayList<Guest> guests = dao.retrieveFromFile();
+        if (guests.isEmpty()) {
             System.out.println("\nVIP Queue is Empty.");
             return;
         }
@@ -536,9 +536,9 @@ public class VIPAllocationUI {
 
         int count = 1;
 
-        while (iterator.hasNext()) {
+        for(int i = 1; i <= guests.getNumberOfEntries(); i++){
 
-            Guest guest = iterator.next();
+            Guest guest = guests.getEntry(i);
 
             System.out.printf("| %-3d | %-10s | %-20s | %-15s | %-8d | %-12s | %-12s | %-12s |\n",                    
                     count,
@@ -668,11 +668,13 @@ public class VIPAllocationUI {
     }
     
     public static void loadGuestDatabase(){
-        ArrayList<Guest> guests = GuestDatabase.loadGuests();
-        for (int i = 1; i <= guests.getNumberOfEntries(); i++){
+    GuestDatabase dao = new GuestDatabase();
+    DoublyLinkedList.ArrayList<Guest> guests = dao.retrieveFromFile();        
+    for(int i = 1; i <= guests.getNumberOfEntries(); i++){
             Guest guest = guests.getEntry(i);
             insertPriority(guest);
         }
-        System.out.println(guests.getNumberOfEntries() + " Guests Loaded!");
+        System.out.println( guests.getNumberOfEntries()+" Guests Loaded!");
     }
+    
 }
