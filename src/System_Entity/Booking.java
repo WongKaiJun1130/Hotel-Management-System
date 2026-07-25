@@ -1,6 +1,4 @@
 
-
-
 // want to save booking objects into a file
 public class Booking  {
     private String bookingID;
