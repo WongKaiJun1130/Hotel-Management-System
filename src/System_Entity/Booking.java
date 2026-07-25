@@ -1,7 +1,12 @@
 package System_Entity;
 
+import java.io.Serializable;
+
 // want to save booking objects into a file
-public class Booking  {
+public class Booking implements Serializable {    
+    
+    private static final long serialVersionUID = 1L;
+    
     private String bookingID;
     private String guestName;
     private String roomType;
@@ -85,7 +90,6 @@ public class Booking  {
     public void setRoomStatus(String roomStatus) {
         this.roomStatus = roomStatus;
     }
-    
     
     @Override
     public String toString() {
