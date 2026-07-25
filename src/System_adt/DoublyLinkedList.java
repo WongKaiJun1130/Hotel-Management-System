@@ -296,6 +296,35 @@ public class DoublyLinkedList<T>{
         }
     }
     
+    @Override
+    public int indexOf(T element){
+        for(int i=0;i<numberOfEntries;i++){
+            if(array[i].equals(element))
+                return i;
+        }
+            return -1;
+    }
+
+    @Override
+    public T getLast(){
+        if(numberOfEntries==0)
+            return null;
+        return array[numberOfEntries-1];
+    }
+
+    @Override
+    public int getSize(){
+        return numberOfEntries;
+    }
+    
+    @Override
+    public boolean remove(T element){
+        int index=indexOf(element);
+        if(index==-1)
+            return false;
+        remove(index+1);
+        return true;
+    }
     
 
     //Enable your custom `System_adt.ArrayList` to use the for-each loop for iterating through its data.
