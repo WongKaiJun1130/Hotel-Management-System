@@ -1,3 +1,4 @@
+package System_Entity;
 
 // want to save booking objects into a file
 public class Booking  {
