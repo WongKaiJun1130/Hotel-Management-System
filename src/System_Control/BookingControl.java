@@ -1,7 +1,7 @@
 package System_Control;
 
 import System_adt.ListInterface;
-import System_adt.ArrayList;
+import System_adt.DoublyLinkedList;
 import System_Entity.Booking;
 import System_Entity.Guest;
 
@@ -10,7 +10,7 @@ public class BookingControl {
     private ListInterface<Booking> bookingList;
 
     public BookingControl() {
-        bookingList = new ArrayList<>();
+        bookingList = new DoublyLinkedList<>();    
     }
 
     public boolean addBooking(Booking booking) {
@@ -44,11 +44,11 @@ public class BookingControl {
         return bookingList;
     }
     
-    public ListInterface<Booking> getBookingByGuest(String guestID) {
-        ListInterface<Booking> result = new ArrayList<>();
+    public ListInterface<Booking> getBookingByGuest(String guestName) {
+        ListInterface<Booking> result = new DoublyLinkedList<>();
         for (int i = 1; i <= bookingList.getSize(); i++) {
             Booking book = bookingList.getEntry(i);
-            if (book.getGuestName().getGuestID().equals(guestID)) {
+            if (book.getGuestName().equals(guestName)) {
                 result.add(book);
             }
         }
@@ -56,19 +56,22 @@ public class BookingControl {
     }
 
     public Booking getLatestBooking() {
-        return bookingList.getLast();
+        if (bookingList.isEmpty()) {
+            return null;
+        }
+        return bookingList.getEntry(bookingList.getSize());
     }
 
     public void setBookingList(ListInterface<Booking> list) {
         this.bookingList = list;
     }
 
-    public boolean hasConflict(Guest guest, String date, String time) {
+    public boolean hasConflict(Guest guest, String checkInDate, String checkOutDate) {
         for (int i = 1; i <= bookingList.getSize(); i++) {
             Booking book = bookingList.getEntry(i);
-            if (book.getGuest().equals(guest) &&
-                book.getDate().equals(date) &&
-                book.getTime().equals(time)) {
+            if (book.getGuestName().equals(guest.getGuestName()) &&
+                book.getCheckInDate().equals(checkInDate) &&
+                book.getCheckOutDate().equals(checkOutDate)) {
                 return true;
             }
         }
