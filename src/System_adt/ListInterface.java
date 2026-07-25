@@ -40,6 +40,11 @@ import java.util.Comparator;
     public boolean isEmpty();
     public boolean isFull();
     public void sort(java.util.Comparator<T> comparator);
+    public int indexOf(T element);
+    public T getLast();
+    public int getSize();
+    public boolean remove(T element);
+
     
 }
 //==============================================================================
@@ -66,7 +71,6 @@ import java.util.Comparator;
     public void clear();
     public int getCurrentSize();
 }
-
 
 
     
