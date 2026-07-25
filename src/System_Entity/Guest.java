@@ -1,129 +1,144 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
-package System_Entity;
-import java.io.Serializable;
+    /*
+     * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+     * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
+     */
+    package System_Entity;
+    import java.io.Serializable;
 
-/**
- *
- * @author user
- */
+    /**
+     *
+     * @author user
+     */
 
-// want to save Guest objects into a file
-public class Guest implements Serializable {
+    // want to save Guest objects into a file
+    public class Guest implements Serializable {
 
-    //This line is related to Java Serialization.
-    private static final long serialVersionUID = 1 ;
-    private String guestID;
-    private String guestName;
-    private String phoneNumber;
-    private String loyaltyTier;
-    private String roomType;
-    private String roomStatus;
-    private String checkInDate;
-    
+        //This line is related to Java Serialization.
+        private static final long serialVersionUID = 1 ;
+        private String guestID;
+        private String guestName;
+        private String phoneNumber;
+        private String loyaltyTier;
+        private String roomType;
+        private String roomStatus;
+        private String checkInDate;
 
-    //Constructor
-    public Guest(String guestID, String guestName, String phoneNumber,
-                 String loyaltyTier, String roomType,
-                 String roomStatus, String checkInDate) {
 
+        //Constructor
+        public Guest(String guestID, String guestName, String phoneNumber,
+                     String loyaltyTier, String roomType,
+                     String roomStatus, String checkInDate) {
+
+
+            this.guestID = guestID;
+            this.guestName = guestName;
+            this.phoneNumber = phoneNumber;
+            this.loyaltyTier = loyaltyTier;
+            this.roomType = roomType;
+            this.roomStatus = roomStatus;
+            this.checkInDate = checkInDate;
+        }
+
+        // =========================
+        // Getter Methods
+        // =========================
+
+        public String getGuestID() {
+            return guestID;
+        }
+
+        public String getGuestName() {
+            return guestName;
+        }
+
+        public String getPhoneNumber() {
+            return phoneNumber;
+        }
+
+        public String getLoyaltyTier() {
+            return loyaltyTier;
+        }
+
+        public String getRoomType() {
+            return roomType;
+        }
+
+        public String getRoomStatus() {
+            return roomStatus;
+        }
+
+        public String getCheckInDate() {
+            return checkInDate;
+        }
+
+        // =========================
+        // Setter Methods
+        // =========================
         
-        this.guestID = guestID;
-        this.guestName = guestName;
-        this.phoneNumber = phoneNumber;
-        this.loyaltyTier = loyaltyTier;
-        this.roomType = roomType;
-        this.roomStatus = roomStatus;
-        this.checkInDate = checkInDate;
+        public void setGuestName(String guestName){
+            this.guestName = guestName;
+        }
+
+        public void setPhoneNumber(String phoneNumber) {
+            this.phoneNumber = phoneNumber;
+        }
+
+        public void setLoyaltyTier(String loyaltyTier) {
+            this.loyaltyTier = loyaltyTier;
+        }
+
+        public void setRoomType(String roomType) {
+            this.roomType = roomType;
+        }
+
+        public void setRoomStatus(String roomStatus) {
+            this.roomStatus = roomStatus;
+        }
+
+        public void setCheckInDate(String checkInDate) {
+            this.checkInDate = checkInDate;
+        }
+
+         public int getPriority() {
+
+            switch (loyaltyTier.toLowerCase()) {
+
+                case "elite":
+                    return 4;
+
+                case "diamond":
+                    return 3;
+
+                case "platinum":
+                    return 2;
+
+                default:
+                    return 1;   // Standard
+            }
+        }
+
+    @Override
+    public boolean equals(Object obj){
+        if(this == obj)
+            return true;
+        
+        if(!(obj instanceof Guest))
+            return false;
+        
+        Guest guest = (Guest)obj;
+        return guestID.equals(guest.guestID);
     }
 
-    // =========================
-    // Getter Methods
-    // =========================
-
-    public String getGuestID() {
-        return guestID;
-    }
-
-    public String getGuestName() {
-        return guestName;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-    
-    public String getLoyaltyTier() {
-        return loyaltyTier;
-    }
-
-    public String getRoomType() {
-        return roomType;
-    }
-
-    public String getRoomStatus() {
-        return roomStatus;
-    }
-
-    public String getCheckInDate() {
-        return checkInDate;
-    }
-
-    // =========================
-    // Setter Methods
-    // =========================
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-    
-    public void setLoyaltyTier(String loyaltyTier) {
-        this.loyaltyTier = loyaltyTier;
-    }
-
-    public void setRoomType(String roomType) {
-        this.roomType = roomType;
-    }
-
-    public void setRoomStatus(String roomStatus) {
-        this.roomStatus = roomStatus;
-    }
-
-    public void setCheckInDate(String checkInDate) {
-        this.checkInDate = checkInDate;
-    }
-    
-     public int getPriority() {
-
-        switch (loyaltyTier.toLowerCase()) {
-
-            case "elite":
-                return 4;
-
-            case "diamond":
-                return 3;
-
-            case "platinum":
-                return 2;
-
-            default:
-                return 1;   // Standard
+       @Override
+        public String toString() {
+            return "Guest {" +
+                    "guestID='" + guestID + '\'' +
+                    ", guestName='" + guestName + '\'' +
+                    ", phoneNumber='" + phoneNumber + '\'' +
+                    ", loyaltyTier='" + loyaltyTier + '\'' +
+                    ", roomType='" + roomType + '\'' +
+                    ", roomStatus='" + roomStatus + '\'' +
+                    ", checkInDate='" + checkInDate + '\'' +
+                    '}';
         }
     }
-
-
-   @Override
-    public String toString() {
-        return "Guest {" +
-                "guestID='" + guestID + '\'' +
-                ", guestName='" + guestName + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", loyaltyTier='" + loyaltyTier + '\'' +
-                ", roomType='" + roomType + '\'' +
-                ", roomStatus='" + roomStatus + '\'' +
-                ", checkInDate='" + checkInDate + '\'' +
-                '}';
-    }
-}
