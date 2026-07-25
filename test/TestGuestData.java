@@ -1,18 +1,20 @@
+
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
-package Hotel_Management_System;
 
+
+import dao.*;
 import System_Entity.Guest;
-import System_Utility.GuestDatabase;
-import System_adt.ArrayList;
+import System_adt.*;
 
-public class ImportGuestData {
+public class TestGuestData {
 
     public static void main(String[] args) {
 
-        ArrayList<Guest> guests = new ArrayList<>();
+        DoublyLinkedList.ArrayList<Guest> guests = new DoublyLinkedList.ArrayList<>();
 
         guests.add(new Guest("R0001","John Tan","Elite","Big Room","Waiting","20/07/2026"));
         guests.add(new Guest("R0002","Wong Lee","Diamond","Middle Room","Waiting","21/07/2026"));
@@ -24,7 +26,8 @@ public class ImportGuestData {
         guests.add(new Guest("R0008","Emily Wong","Elite","Big Room","Waiting","27/07/2026"));
         guests.add(new Guest("R0009","Kevin Lim","Standard","Small Room","Waiting","28/07/2026"));
         guests.add(new Guest("R0010","Jessica Ng","Diamond","Middle Room","Waiting","29/07/2026"));
-        GuestDatabase.saveGuests(guests);
+        GuestDatabase dao = new GuestDatabase();
+        dao.saveToFile(guests);
         
         
         System.out.println( guests.getNumberOfEntries() + " Guests Saved!" );
