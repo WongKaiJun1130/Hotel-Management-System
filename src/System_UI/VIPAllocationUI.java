@@ -88,6 +88,13 @@ public class VIPAllocationUI {
 
         System.out.print("Guest Name: ");
         String name = input.nextLine();
+        
+        
+        // =========================
+        // Phone number
+        // =========================
+        System.out.print("Phone Number: ");
+        String phoneNumber = input.nextLine();
 
 
 
