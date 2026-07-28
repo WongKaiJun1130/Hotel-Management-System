@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 
 /*
- * @author User
+ * Author: CHUNWAI
  */
 public class LoyaltyControl {
 
