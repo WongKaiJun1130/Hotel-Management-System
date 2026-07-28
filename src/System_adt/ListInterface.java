@@ -6,12 +6,20 @@ import java.util.Comparator;
 //================================================
 // List Interface for DoublyLinkedList
 //================================================
-public interface ListInterface<T>{
+public interface ListInterface<T> {
+
     void insertAndAdvance(T data);
     T rollback();
     T redo();
     void spliceAfterCurrent(T data);
     T getCurrentData();
+
+    boolean add(T data);
+    int getSize();
+    T getEntry(int position);
+    T remove(int position);
+    boolean remove(T data);
+
     boolean isEmpty();
     Iterator<T> getIterator();
 }
