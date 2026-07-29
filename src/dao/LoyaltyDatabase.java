@@ -60,15 +60,6 @@ public class LoyaltyDatabase {
         Guest guest9 = guests.getEntry(9);
         Guest guest10 = guests.getEntry(10);
 
-        loyaltyRecords.add(
-                new LoyaltyRecord(
-                        guest1,
-                        2200,
-                        6500,
-                        LocalDate.of(2026, 12, 31)
-                )
-        );
-
         loyaltyRecords.add(new LoyaltyRecord(guest1, 2200, 6500, LocalDate.of(2026, 12, 31)));
         loyaltyRecords.add(new LoyaltyRecord(guest2, 1800, 4800, LocalDate.of(2026, 11, 30)));
         loyaltyRecords.add(new LoyaltyRecord(guest3, 1200, 3200, LocalDate.of(2027, 1, 15)));
