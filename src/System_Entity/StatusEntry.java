@@ -25,11 +25,11 @@ public class StatusEntry {
         return statusCode;
     }
     
-    public String node(){
+    public String getNote(){
         return note;
     }
     
-    public long timeStamp(){
+    public long getTimestamp(){
         return timeStamp;
     }
     
