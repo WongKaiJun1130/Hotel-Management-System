@@ -6,12 +6,15 @@ package Hotel_Management_System;
 
 import System_UI.MainUI;
 import dao.GuestDatabase;
+import dao.LoyaltyDatabase;
 
 public class Hotel_Management_System {
 
     public static void main(String[] args) {
-        GuestDatabase dao = new GuestDatabase();
-        dao.createGuestData();
+        GuestDatabase guestDatabase = new GuestDatabase();
+        LoyaltyDatabase loyaltyDatabase = new LoyaltyDatabase();
+        guestDatabase.createGuestData();
+        loyaltyDatabase.createLoyaltyData();
         MainUI.MainUI();
 
     }
