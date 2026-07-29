@@ -5,6 +5,7 @@
 package System_UI;
 
 import System_Utility.Navigation;
+import System_Utility.Utility;
 
 /**
  *
@@ -36,6 +37,19 @@ public class RegisterUI {
             "2. Register",
             "0. Back"
         };
+        
+        Runnable[] actions = {
+            () -> System.out.println("Customer Management is not implemented yet."),
+            () -> System.out.println("Register is not implemented yet."),
+            () -> Navigation.stack.pop()
+        };
+
+        Utility.customMenu(
+                options,
+                "Register Menu",
+                "Enter your choice: ",
+                actions
+        );
     
     };
 }
