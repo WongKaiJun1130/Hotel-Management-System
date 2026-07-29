@@ -10,6 +10,7 @@ public class VIPAllocationControl {
 
     private DoublyLinkedList.ArrayQueue<Guest> vipQueue;
     private int nextGuestID;
+    
 
     //==========================================================
     // Constructor
