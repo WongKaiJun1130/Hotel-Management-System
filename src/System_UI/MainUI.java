@@ -15,6 +15,8 @@ import System_Utility.Utility;
  */
 public class MainUI { 
 
+    private static VIPAllocationUI allocationUI = new VIPAllocationUI();
+    private static final LoyaltyAndRewardsUI loyaltyUI = new LoyaltyAndRewardsUI();
 
     public static void MainUI() {
 
@@ -35,8 +37,8 @@ public class MainUI {
                 new Runnable[]{
                     () -> RegisterUI.menu(),
                     () -> HouseKeepingUI.menu(),
-                    () -> System.out.println("Loyalty & Prize Service coming soon..."),
-                    () -> VIPAllocationUI.menu(),
+                    () -> loyaltyUI.loyaltyMenu(),
+                    () -> allocationUI.allocationMenu(),
                     () -> System.exit(0)
                 }
         );

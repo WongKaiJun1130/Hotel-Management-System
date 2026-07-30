@@ -1,690 +1,794 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package System_UI;
 
-/**
- *
- * @author user
- */
-
-
+import System_Control.VIPAllocationControl;
 import System_Entity.Guest;
-import dao.GuestDatabase;
-import System_adt.*;
-import System_Utility.Utility;
+import System_adt.ListInterface;
+import System_Utility.InputUtility;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
-import java.util.Iterator;
-import java.util.Scanner;
-
-
+import java.time.format.DateTimeParseException;
 
 public class VIPAllocationUI {
 
+    private VIPAllocationControl allocationControl;
 
-    private static DoublyLinkedList.ArrayQueue<Guest> vipQueue =new DoublyLinkedList.ArrayQueue<>();    
-    private static Scanner input = new Scanner(System.in);
-    private static int nextGuestID = 1;
+    // Green background colour for graph bars
+    private static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
+    private static final String ANSI_RESET = "\u001B[0m";
 
-    public static void menu(){
-        UtilityMenu();
+    //==========================================================
+    // Default Constructor
+    //==========================================================
+    public VIPAllocationUI() {
+        allocationControl = new VIPAllocationControl();
     }
 
-    private static void UtilityMenu(){
-        Utility.customMenu(
-                new String[]{
-                    "[1] Add VIP Guest",
-                    "[2] Upgrade Guest To VIP",
-                    "[3] Allocate Room",
-                    "[4] View Next Priority Guest",
-                    "[5] Display VIP Queue",
-                    "[6] Search Guest",
-                    "[0] Back"
-                },
-                "VIP & Loyalty Tier Priority Room Allocation",
-                "Select option: ",
-                new Runnable[]{
-                    () -> addGuest(),
-                    () -> upgradeGuest(),
-                    () -> allocateRoom(),
-                    () -> viewNextGuest(),
-                    () -> displayQueue(),
-                    () -> searchGuest(),
-                    () -> MainUI.MainUI()
+    //==========================================================
+    // Constructor With Control
+    //==========================================================
+    public VIPAllocationUI(VIPAllocationControl allocationControl) {
+        this.allocationControl = allocationControl;
+    }
+
+    //==========================================================
+    // Main Allocation Menu
+    //==========================================================
+    public void allocationMenu() {
+
+        int choice;
+
+        do {
+
+            InputUtility.clearScreen();
+
+            System.out.println("+----------------------------------------------------------+");
+            System.out.println("|        VIP & LOYALTY ROOM ALLOCATION MENU               |");
+            System.out.println("+----------------------------------------------------------+");
+            System.out.println("| 1. Add Guest To Allocation Queue                        |");
+            System.out.println("| 2. Allocate Room                                        |");
+            System.out.println("| 3. View Next Priority Guest                             |");
+            System.out.println("| 4. Display Allocation Queue                             |");
+            System.out.println("| 5. Search Guest Allocation                              |");
+            System.out.println("| 6. View Available Rooms                                 |");
+            System.out.println("| 7. Summary Report                                       |");
+            System.out.println("| 0. Back                                                 |");
+            System.out.println("+----------------------------------------------------------+");
+            System.out.print("Enter Choice: ");
+
+            choice = InputUtility.getIntInput();
+
+            switch (choice) {
+
+                case 1:
+                    addGuest();
+                    break;
+
+                case 2:
+                    allocateRoom();
+                    break;
+
+                case 3:
+                    viewNextPriorityGuest();
+                    break;
+
+                case 4:
+                    displayAllocationQueue();
+                    InputUtility.pressEnterToContinue();
+                    break;
+
+                case 5:
+                    searchGuestAllocation();
+                    break;
+
+                case 6:
+                    viewAvailableRooms();
+                    break;
+
+                case 7:
+                    displaySummaryReport();
+                    break;
+
+                case 0:
+                    break;
+
+                default:
+                    System.out.println("\nInvalid Choice.");
+                    InputUtility.pressEnterToContinue();
+            }
+
+        } while (choice != 0);
+    }
+
+    //==========================================================
+    // 1. Add Guest To Allocation Queue
+    //==========================================================
+    private void addGuest() {
+
+        InputUtility.clearScreen();
+
+        System.out.println("+----------------------------------------------------------+");
+        System.out.println("|           ADD GUEST TO ALLOCATION QUEUE                 |");
+        System.out.println("+----------------------------------------------------------+");
+
+        String guestID = allocationControl.generateGuestID();
+
+        System.out.println("Guest ID        : " + guestID);
+
+        System.out.print("Guest Name      : ");
+        String guestName = InputUtility.getStringInput();
+
+        System.out.print("Phone Number    : ");
+        String phoneNumber = InputUtility.getStringInput();
+
+        String loyaltyTier = inputLoyaltyTier();
+        String roomType = inputRoomType();
+        String checkInDate = inputCheckInDate();
+        String arrivalDateTime = inputArrivalDateTime();
+
+        Guest guest = new Guest(guestID, guestName, phoneNumber, loyaltyTier, roomType, "Waiting", checkInDate, arrivalDateTime);
+
+        System.out.println();
+        System.out.println("Guest Information");
+        displayGuestInformation(guest);
+
+        System.out.println();
+        System.out.println("1. Confirm");
+        System.out.println("2. Cancel");
+        System.out.print("Choose: ");
+
+        int confirmation = InputUtility.getIntInput();
+
+        switch (confirmation) {
+
+            case 1:
+
+                boolean added = allocationControl.addGuestToQueue(guest);
+
+                if (added) {
+                    System.out.println("\nGuest added to allocation queue successfully.");
+                } else {
+                    System.out.println("\nUnable to add guest.");
+                    System.out.println("Guest ID may already exist.");
                 }
 
-
-        );
-
-
-    }
-
-    // ==============================
-    // 1. Add VIP Guest
-    // ==============================
-
-    private static void addGuest(){
-
-        String roomType;
-        String id = generateGuestID();
-        String tier;
-        System.out.println();
-        System.out.println("+----------------------------------------------+");
-        System.out.println("|              ADD VIP GUEST                   |");
-        System.out.println("+----------------------------------------------+");
-
-
-        // =========================
-        // Guest ID Validation
-        // =========================
-        System.out.println("Guest ID :" + id);
-        
-        // =========================
-        // Guest Name
-        // =========================
-
-        System.out.print("Guest Name: ");
-        String name = input.nextLine();
-        
-        
-        // =========================
-        // Phone number
-        // =========================
-        System.out.print("Phone Number: ");
-        String phoneNumber = input.nextLine();
-
-
-
-        // =========================
-        // Loyalty Tier
-        // =========================
-        while(true){
-            
-            System.out.println("---------------------------------------------------------");
-            System.out.println("|                     Loyalty Tier                      |");
-            System.out.println("---------------------------------------------------------");
-            System.out.println("| [1] Elite | [2] Diamond | [3] Platinum | [4] Standard |");
-            System.out.println("---------------------------------------------------------");
-            System.out.print("Select Tier: ");
-            String choice = input.nextLine();
-
-
-            switch(choice){
-
-                case "1":
-                    tier = "Elite";
-                    break;
-
-                case "2":
-                    tier = "Diamond";
-                    break;
-
-                case "3":
-                    tier = "Platinum";
-                    break;
-
-                case "4":
-                    tier = "Standard";
-                    break;
-
-                default:
-                    System.out.println("Invalid choice! Please enter 1-4.");
-                    continue;
-            }
-
-            break;
-        }
-
-
-
-        // =========================
-        // Room Information
-        // =========================
-        while(true){
-
-            System.out.println("-------------------");
-            System.out.println("|    Room Type    |");
-            System.out.println("-------------------");
-            System.out.println("| [1] Small Room  |");
-            System.out.println("| [2] Medium Room |");
-            System.out.println("| [3] Big Room    |");
-            System.out.println("-------------------");
-            System.out.print("Select Room Type [1-3]: ");
-            String choice = input.nextLine();
-            switch(choice){
-
-                case "1":
-                    roomType = "Small Room";
-                    break;
-
-
-                case "2":
-                    roomType = "Medium Room";
-                    break;
-
-
-                case "3":
-                    roomType = "Big Room";
-                    break;
-
-
-                default:
-                    System.out.println("Invalid choice! Please select 1-3.");
-                    continue;
-
-            }
-
-
-            break;
-
-        }
-
-
-        String roomStatus = "Waiting";
-
-        LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String checkInDate =today.format(formatter);
-        System.out.println();
-        System.out.println("Default Check-In Date: " + checkInDate);
-        String changeDate;
-        while(true){
-            System.out.print("Change Check-In Date? (Y/N): ");
-            changeDate = input.nextLine();
-            if(changeDate.equalsIgnoreCase("Y") || changeDate.equalsIgnoreCase("N")){
                 break;
-            }
-            else{
-                System.out.println(
-                    "Invalid choice! Please enter Y or N."
-                );
-            }
+
+            case 2:
+                System.out.println("\nAdd guest cancelled.");
+                break;
+
+            default:
+                System.out.println("\nInvalid choice.");
+                System.out.println("Guest was not added.");
         }
 
+        InputUtility.pressEnterToContinue();
+    }
 
+    //==========================================================
+    // Input Loyalty Tier
+    //==========================================================
+    private String inputLoyaltyTier() {
 
-        if(changeDate.equalsIgnoreCase("Y")){
+        while (true) {
 
-            while(true){
-                System.out.print( "Enter New Check-In Date (DD/MM/YYYY): ");
-                String newDate = input.nextLine();
-
-                // Date format validation
-                if(newDate.matches("\\d{2}/\\d{2}/\\d{4}")){
-                    checkInDate = newDate;
-                    break;
-                }
-                else{
-                    System.out.println( "Invalid date format! Example: 20/07/2026"
-                    );
-                }
-            }
-        }
-        else if(changeDate.equalsIgnoreCase("N")){
-            System.out.println( "Using default check-in date.");
-        }
-
-            // =========================
-            // Create Guest Object
-            // =========================
-
-            Guest guest = new Guest(id, name, phoneNumber, tier, roomType, roomStatus, checkInDate);
             System.out.println();
-            System.out.println("+----------------------------------------------+");
-            System.out.println("|              GUEST INFORMATION               |");
-            System.out.println("+----------------------------------------------+");
-            System.out.printf("| %-18s : %-23s |\n", "Guest ID", guest.getGuestID());
-            System.out.printf("| %-18s : %-23s |\n", "Guest Name", guest.getGuestName());
-            System.out.printf("| %-18s : %-23s |\n", "Phone Number", guest.getPhoneNumber());
-            System.out.printf("| %-18s : %-23s |\n", "Loyalty Tier", guest.getLoyaltyTier());
-            System.out.printf("| %-18s : %-23d |\n", "Priority", guest.getPriority());
-            System.out.printf("| %-18s : %-23s |\n", "Room Type", guest.getRoomType());
-            System.out.printf("| %-18s : %-23s |\n", "Room Status", guest.getRoomStatus());
-            System.out.printf("| %-18s : %-23s |\n", "Check-In Date", guest.getCheckInDate());
-            System.out.println("+----------------------------------------------+");
+            System.out.println("+--------------------------------------+");
+            System.out.println("|            LOYALTY TIER              |");
+            System.out.println("+--------------------------------------+");
+            System.out.println("| 1. Elite                             |");
+            System.out.println("| 2. Diamond                           |");
+            System.out.println("| 3. Platinum                          |");
+            System.out.println("| 4. Standard                          |");
+            System.out.println("+--------------------------------------+");
+            System.out.print("Choose Loyalty Tier: ");
 
-            // =========================
-            // Confirmation
-            // =========================
-            while(true){
+            int choice = InputUtility.getIntInput();
 
-                System.out.println();
-                System.out.println("------------------------------");
-                System.out.println("|The VIP Guest is Successful?|");
-                System.out.println("------------------------------");
-                System.out.println("|       [1] Yes   [2] No     |");
-                System.out.println("------------------------------");
-                System.out.print("Select option: ");
-                String confirm = input.nextLine();
-                if(confirm.equals("1")){
-                    insertPriority(guest);
-                    nextGuestID++;
-                    System.out.println();
-                    System.out.println("VIP Guest Added Successfully!");
-                    break;
-                }
-                else if(confirm.equals("2")){
-                    System.out.println();
-                    System.out.println("Add VIP Guest Cancelled!");
-                    break;
-                }
-                else{
-                    System.out.println("Invalid choice! Please select 1 or 2." );
-                }
+            switch (choice) {
 
+                case 1:
+                    return "Elite";
+
+                case 2:
+                    return "Diamond";
+
+                case 3:
+                    return "Platinum";
+
+                case 4:
+                    return "Standard";
+
+                default:
+                    System.out.println("\nInvalid choice.");
+                    System.out.println("Please select 1 to 4.");
             }
+        }
     }
 
+    //==========================================================
+    // Input Room Type
+    //==========================================================
+    private String inputRoomType() {
 
+        while (true) {
 
-    private static String generateGuestID(){
-        return String.format("R%04d" , nextGuestID);
-    }
-    
-    // Priority Queue insertion
-    private static void insertPriority(Guest guest){
-        DoublyLinkedList.ArrayQueue<Guest> temp = new DoublyLinkedList.ArrayQueue<>();
-        boolean inserted = false;
-        Iterator<Guest> iterator = vipQueue.getIterator();
-        while(iterator.hasNext()){
-            Guest current = iterator.next();
-            if(!inserted && guest.getPriority() > current.getPriority()){
-                temp.enqueue(guest);
-                inserted = true;
+            System.out.println();
+            System.out.println("+--------------------------------------+");
+            System.out.println("|              ROOM TYPE               |");
+            System.out.println("+--------------------------------------+");
+            System.out.println("| 1. Small Room                        |");
+            System.out.println("| 2. Medium Room                       |");
+            System.out.println("| 3. Big Room                          |");
+            System.out.println("+--------------------------------------+");
+            System.out.print("Choose Room Type: ");
+
+            int choice = InputUtility.getIntInput();
+
+            switch (choice) {
+
+                case 1:
+                    return "Small Room";
+
+                case 2:
+                    return "Medium Room";
+
+                case 3:
+                    return "Big Room";
+
+                default:
+                    System.out.println("\nInvalid choice.");
+                    System.out.println("Please select 1 to 3.");
             }
-            temp.enqueue(current);
         }
-        if(!inserted){
-            temp.enqueue(guest);
-        }
-        vipQueue = temp;
     }
 
+    //==========================================================
+    // Input Check-In Date
+    //==========================================================
+    private String inputCheckInDate() {
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String defaultDate = LocalDate.now().format(formatter);
 
-     // ==============================
-     // 2. Upgrade Guest To VIP
-     // ==============================
+        while (true) {
 
-     private static void upgradeGuest(){
-         System.out.println();
-         System.out.println("+----------------------------------------------+");
-         System.out.println("|              UPGRADE VIP GUEST               |");
-         System.out.println("+----------------------------------------------+");
-         System.out.print("Enter Guest ID: ");
-         String id = input.nextLine();
-         Guest guest = searchGuestByID(id);
-         if(guest == null){
-             System.out.println();
-             System.out.println( "Guest not found!" );
-             return;
-         }
-         String oldTier = guest.getLoyaltyTier();
-         int oldPriority = guest.getPriority();
-         // =========================
-         // Display Current Guest Info
-         // =========================
-         System.out.println();
-         System.out.println("+------------------------------------------------------------+");
-         System.out.println("|                  CURRENT GUEST INFORMATION                 |");
-         System.out.println("+------------------------------------------------------------+");
-         System.out.printf("| %-18s : %-37s |\n", "Guest ID",guest.getGuestID());
-         System.out.printf("| %-18s : %-37s |\n","Guest Name",guest.getGuestName() );
-         System.out.printf("| %-18s : %-23s |\n", "Phone Number", guest.getPhoneNumber());
-         System.out.printf("| %-18s : %-37s |\n", "Current Tier", oldTier);
-         System.out.printf("| %-18s : %-37d |\n", "Priority", oldPriority );
-         System.out.println("+------------------------------------------------------------+");
-         // =========================
-         // Select New Tier
-         // =========================
-         String newTier;
-         while(true){
-             System.out.println();
-             System.out.println("---------------------------------------------------------");
-             System.out.println("|                  NEW Loyalty Tier                     |");
-             System.out.println("---------------------------------------------------------");
-             System.out.println("| [1] Elite | [2] Diamond | [3] Platinum | [4] Standard |");
-             System.out.println("---------------------------------------------------------");
-             System.out.println("| Select New Loyalty Tier: |");
-             System.out.println("----------------------------");
-             System.out.print( "Enter Choice: " );
-             String choice = input.nextLine();
-             switch(choice){
-                 case "1":
-                     newTier = "Elite";
-                     break;
-                 case "2":
-                     newTier = "Diamond";
-                     break;
-                 case "3":
-                     newTier = "Platinum";
-                     break;
-                 case "4":
-                     newTier = "Standard";
-                     break;
-                 default:
-                     System.out.println(
-                         "Invalid choice! Please select 1-4."
-                     );
-                     continue;
-             }
-             break;
-         }
-         // =========================
-         // Confirmation
-         // =========================
+            System.out.println();
+            System.out.println("+--------------------------------------+");
+            System.out.println("|            CHECK-IN DATE             |");
+            System.out.println("+--------------------------------------+");
+            System.out.println("Default Check-In Date: " + defaultDate);
+            System.out.println("1. Use Default Date");
+            System.out.println("2. Change Date");
+            System.out.print("Choose: ");
 
+            int choice = InputUtility.getIntInput();
 
-         System.out.println();
-         System.out.println("Upgrade " + guest.getGuestName() + " to " + newTier + "?");
-         System.out.println("[1] Confirm");
-         System.out.println("[2] Cancel");
-         System.out.print("Select option: ");
-         String confirm = input.nextLine();
-         if(confirm.equals("1")){
-             
-             // Update tier
-             guest.setLoyaltyTier(newTier);
-             
-             // =========================
-             // Re-sort Priority Queue
-             // =========================
-             DoublyLinkedList.ArrayQueue<Guest> temp = new DoublyLinkedList.ArrayQueue<>();
-             Iterator<Guest> iterator = vipQueue.getIterator();
-             while(iterator.hasNext()){
-                 temp.enqueue(
-                         iterator.next()
-                 );
-             }
-             vipQueue = new DoublyLinkedList.ArrayQueue<>();
-             while(!temp.isEmpty()){
-                 insertPriority( temp.dequeue());
-             }
-             System.out.println();
-             System.out.println("+------------------------------------------------------------+");
-             System.out.println("|             NEW UPGRADE GUEST INFORMATION                  |");
-             System.out.println("+------------------------------------------------------------+");
-             System.out.printf("| %-18s : %-37s |\n", "Guest ID",guest.getGuestID());
-             System.out.printf("| %-18s : %-37s |\n","Guest Name",guest.getGuestName() );
-             System.out.printf("| %-18s : %-23s |\n", "Phone Number", guest.getPhoneNumber());
-             System.out.printf("| %-18s : %-37s |\n", "New Tier", guest.getLoyaltyTier());
-             System.out.printf("| %-18s : %-37d |\n", "Priority", guest.getPriority() );
-             System.out.println("+------------------------------------------------------------+");
-             System.out.println( "Upgrade Successful!" );         }
-         else{
-             System.out.println();
-             System.out.println(
-                 "Upgrade Cancelled!"
-             );
-         }
-     }
+            switch (choice) {
 
+                case 1:
+                    return defaultDate;
 
+                case 2:
+                    return inputNewCheckInDate(formatter);
 
-
-
-
-
-
-    // ==============================
-    // 3. Allocate Room
-    // ==============================
-
-    private static void allocateRoom(){
-
-
-
-        Guest guest =
-                vipQueue.dequeue();
-
-
-
-        if(guest == null){
-
-
-            System.out.println(
-            "No waiting guest."
-            );
-
-
+                default:
+                    System.out.println("\nInvalid choice.");
+                    System.out.println("Please select 1 or 2.");
+            }
         }
-        else{
-
-
-            System.out.println(
-            "Room Assigned To:"
-            );
-
-
-            System.out.println(guest);
-
-
-        }
-
-
     }
 
+    //==========================================================
+    // Input New Check-In Date
+    //==========================================================
+    private String inputNewCheckInDate(DateTimeFormatter formatter) {
 
+        while (true) {
 
+            System.out.print("Enter Check-In Date (DD/MM/YYYY): ");
+            String newDate = InputUtility.getStringInput();
 
+            try {
 
+                LocalDate parsedDate = LocalDate.parse(newDate, formatter);
 
+                return parsedDate.format(formatter);
 
+            } catch (DateTimeParseException exception) {
 
-
-
-    // ==============================
-    // 4. View Next Priority Guest
-    // ==============================
-
-    private static void viewNextGuest(){
-
-
-
-        Guest guest =
-                vipQueue.getFront();
-
-
-
-
-        if(guest == null){
-
-
-            System.out.println(
-            "No waiting guest."
-            );
-
-
+                System.out.println("\nInvalid date.");
+                System.out.println("Example: 20/07/2026");
+            }
         }
-        else{
-
-
-            System.out.println(
-            "Next Priority Guest:"
-            );
-
-
-            System.out.println(guest);
-
-
-        }
-
-
     }
 
+    //==========================================================
+    // Input Arrival Date And Time
+    //==========================================================
+    private String inputArrivalDateTime() {
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
+        while (true) {
 
+            String currentDateTime = LocalDateTime.now().format(formatter);
 
+            System.out.println();
+            System.out.println("+---------------------------------------------+");
+            System.out.println("|          ARRIVAL DATE AND TIME              |");
+            System.out.println("+---------------------------------------------+");
+            System.out.println("Current Date & Time: " + currentDateTime);
+            System.out.println("1. Use Current Date & Time");
+            System.out.println("2. Enter Arrival Date & Time");
+            System.out.print("Choose: ");
 
+            int choice = InputUtility.getIntInput();
 
+            switch (choice) {
 
+                case 1:
+                    return currentDateTime;
 
-    // ==============================
-    // 5. display Guest
-    // ==============================
-   private static void displayQueue() {
+                case 2:
+                    return inputCustomArrivalDateTime(formatter);
 
-       // Iterator<Guest> iterator = vipQueue.getIterator();
-    GuestDatabase dao = new GuestDatabase();
-    DoublyLinkedList.ArrayList<Guest> guests = dao.retrieveFromFile();
-        if (guests.isEmpty()) {
-            System.out.println("\nVIP Queue is Empty.");
+                default:
+                    System.out.println("\nInvalid choice.");
+                    System.out.println("Please select 1 or 2.");
+            }
+        }
+    }
+
+    //==========================================================
+    // Input Custom Arrival Date And Time
+    //==========================================================
+    private String inputCustomArrivalDateTime(DateTimeFormatter formatter) {
+
+        while (true) {
+
+            System.out.print("Enter Arrival Date & Time (DD/MM/YYYY HH:MM): ");
+            String arrivalDateTime = InputUtility.getStringInput();
+
+            try {
+
+                LocalDateTime parsedDateTime = LocalDateTime.parse(arrivalDateTime, formatter);
+
+                return parsedDateTime.format(formatter);
+
+            } catch (DateTimeParseException exception) {
+
+                System.out.println("\nInvalid arrival date or time.");
+                System.out.println("Example: 29/07/2026 14:30");
+            }
+        }
+    }
+
+    //==========================================================
+    // 2. Allocate Room
+    //==========================================================
+    private void allocateRoom() {
+
+        InputUtility.clearScreen();
+
+        System.out.println("+----------------------------------------------------------+");
+        System.out.println("|                    ALLOCATE ROOM                         |");
+        System.out.println("+----------------------------------------------------------+");
+
+        Guest guest = allocationControl.allocateRoom();
+
+        if (guest == null) {
+            System.out.println("\nNo waiting guest in the allocation queue.");
+            InputUtility.pressEnterToContinue();
             return;
         }
 
+        System.out.println("\nRoom allocated to:");
+        System.out.println();
 
-        System.out.println("====================================================================================================================");
-        System.out.printf("|%55s%-59s|\n", "Customer VIP Queue", "");
-        System.out.println("====================================================================================================================");
-        System.out.printf("| %-3s | %-10s | %-20s | %-15s | %-8s | %-12s | %-12s | %-12s |\n",
-                "No", "Guest ID", "Guest Name ", "Loyalty Tier" , "Priority" , "Room Type" , "Status" , "Check-In");
-        System.out.println("====================================================================================================================");
+        displayGuestInformation(guest);
 
-        int count = 1;
+        System.out.println("\nRoom allocated successfully.");
 
-        for(int i = 1; i <= guests.getNumberOfEntries(); i++){
+        InputUtility.pressEnterToContinue();
+    }
 
-            Guest guest = guests.getEntry(i);
+    //==========================================================
+    // 3. View Next Priority Guest
+    //==========================================================
+    private void viewNextPriorityGuest() {
 
-            System.out.printf("| %-3d | %-10s | %-20s | %-15s | %-8d | %-12s | %-12s | %-12s |\n",                    
-                    count,
-                    guest.getGuestID(),
-                    guest.getGuestName(),
-                    guest.getLoyaltyTier(),
-                    guest.getPriority(),
-                    guest.getRoomType(),
-                    guest.getRoomStatus(),
-                    guest.getCheckInDate());
+        InputUtility.clearScreen();
 
-            count++;
+        System.out.println("+----------------------------------------------------------+");
+        System.out.println("|                 NEXT PRIORITY GUEST                      |");
+        System.out.println("+----------------------------------------------------------+");
+
+        Guest guest = allocationControl.getNextPriorityGuest();
+
+        if (guest == null) {
+            System.out.println("\nNo waiting guest in the allocation queue.");
+            InputUtility.pressEnterToContinue();
+            return;
         }
-
-        System.out.println("--------------------------------------------------------------------------------------------------------------------");
-        System.out.printf("| Total VIP Guests : %-93d |\n", count - 1);
-        System.out.println("--------------------------------------------------------------------------------------------------------------------");
-
-}
-
-
-
-
-
-
-
-
-    // ==============================
-    // 6. Search Guest
-    // ==============================
-
-    private static void searchGuest() {
 
         System.out.println();
-        System.out.println("+----------------------------------------------+");
-        System.out.println("|              SEARCH VIP GUEST                |");
-        System.out.println("+----------------------------------------------+");
+        displayGuestInformation(guest);
+
+        InputUtility.pressEnterToContinue();
+    }
+
+    //==========================================================
+    // 4. Display Allocation Queue
+    //==========================================================
+    private void displayAllocationQueue() {
+
+        InputUtility.clearScreen();
+
+        System.out.println("+----------------------------------------------------------------------------------------------------------------------------------------------------------------+");
+        System.out.println("|                                                                   ALLOCATION QUEUE                                                                             |");
+        System.out.println("+----------------------------------------------------------------------------------------------------------------------------------------------------------------+");
+
+        ListInterface<Guest> guestList = allocationControl.getAllGuestAllocations();
+
+        if (guestList.isEmpty()) {
+            System.out.println("\nNo guest records in the allocation queue.");
+            return;
+        }
+
+        System.out.println();
+        displayGuestTableHeader();
+
+        for (int i = 1; i <= guestList.getSize(); i++) {
+
+            Guest guest = guestList.getEntry(i);
+
+            displayGuestTableRow(i, guest);
+        }
+
+        System.out.println("================================================================================================================================================================");
+        System.out.println("Total Guests: " + guestList.getSize());
+    }
+
+    //==========================================================
+    // 5. Search Guest Allocation
+    //==========================================================
+    private void searchGuestAllocation() {
+
+        InputUtility.clearScreen();
+
+        System.out.println("+----------------------------------------------------------+");
+        System.out.println("|                SEARCH GUEST ALLOCATION                   |");
+        System.out.println("+----------------------------------------------------------+");
         System.out.print("Enter Search Keyword: ");
-        String keyword = input.nextLine();
-        searchGuestObject(keyword);
 
+        String keyword = InputUtility.getStringInput();
+
+        ListInterface<Guest> result = allocationControl.searchGuest(keyword);
+
+        if (result.isEmpty()) {
+            System.out.println("\nGuest allocation record not found.");
+            InputUtility.pressEnterToContinue();
+            return;
+        }
+
+        System.out.println();
+        System.out.println("Search Result");
+        System.out.println();
+
+        displayGuestTableHeader();
+
+        for (int i = 1; i <= result.getSize(); i++) {
+
+            Guest guest = result.getEntry(i);
+
+            displayGuestTableRow(i, guest);
+        }
+
+        System.out.println("================================================================================================================================================================");
+        System.out.println("Total Matching Guests: " + result.getSize());
+
+        InputUtility.pressEnterToContinue();
     }
 
+    //==========================================================
+    // 6. View Available Rooms
+    //==========================================================
+    private void viewAvailableRooms() {
 
+        InputUtility.clearScreen();
 
+        System.out.println("+----------------------------------------------------------+");
+        System.out.println("|                   AVAILABLE ROOMS                        |");
+        System.out.println("+----------------------------------------------------------+");
 
-// ======================================================================================================================================================
-// Other Function method 
-// ======================================================================================================================================================
+        String[][] rooms = allocationControl.getAvailableRooms();
 
+        System.out.println();
+        System.out.printf("%-5s %-20s %-15s%n", "No.", "Room Type", "Availability");
+        System.out.println("---------------------------------------------");
 
-     // ==============================
-     // Search Guest Object By Name
-     // ==============================
+        for (int i = 0; i < rooms.length; i++) {
+            System.out.printf("%-5d %-20s %-15s%n", i + 1, rooms[i][0], rooms[i][1]);
+        }
 
-     private static void searchGuestObject(String keyword) {
-        Iterator<Guest> iterator = vipQueue.getIterator();
-        boolean found = false;
-        int count = 1;
-        while(iterator.hasNext()){
-            Guest guest = iterator.next();
-            String searchData =
-                    guest.getGuestID() + " "
-                    + guest.getGuestName() + " "
-                    + guest.getLoyaltyTier() + " "
-                    + guest.getRoomType() + " "
-                    + guest.getRoomStatus() + " "
-                    + guest.getCheckInDate();
-            // Search all information
-            if(searchData.toLowerCase()
-                    .contains(keyword.toLowerCase())){
-                if(!found){
-                    System.out.println();
-                    System.out.println("=====================================================================================================================");
-                    System.out.printf("| %-3s | %-10s | %-20s | %-15s | %-8s | %-12s | %-12s | %-12s |\n",
-                            "No",
-                            "Guest ID",
-                            "Guest Name",
-                            "Loyalty Tier",
-                            "Priority",
-                            "Room Type",
-                            "Status",
-                            "Check-In");
-                    System.out.println("=====================================================================================================================");
-                    found = true;
+        InputUtility.pressEnterToContinue();
+    }
+
+    //==========================================================
+    // 7. Display Summary Report
+    //==========================================================
+    private void displaySummaryReport() {
+
+        InputUtility.clearScreen();
+
+        if (allocationControl.isQueueEmpty()) {
+            System.out.println("\nNo guest records available for summary report.");
+            InputUtility.pressEnterToContinue();
+            return;
+        }
+
+        int[] loyaltyTierCounts = allocationControl.getLoyaltyTierCounts();
+        int[] roomTypeCounts = allocationControl.getRoomTypeCounts();
+
+        String[] loyaltyLabels = {"Elite", "Diamond", "Platinum", "Standard"};
+        String[] roomLabels = {"Small", "Medium", "Big"};
+
+        String[] loyaltyGraph = buildVerticalBarChart("Guests by Loyalty Tier", loyaltyLabels, loyaltyTierCounts, "Loyalty Tiers");
+        String[] roomGraph = buildVerticalBarChart("Guests by Room Type", roomLabels, roomTypeCounts, "Room Types");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String generatedDateTime = LocalDateTime.now().format(formatter);
+
+        System.out.println("========================================================================================================================");
+        System.out.println("                                             VIP ROOM ALLOCATION SUBSYSTEM");
+        System.out.println();
+        System.out.println("                                              SUMMARY OF ALLOCATION REPORT");
+        System.out.println("                                    ------------------------------------------");
+        System.out.println();
+        System.out.println("Generated at: " + generatedDateTime);
+        System.out.println("========================================================================================================================");
+        System.out.printf("%-10s | %-20s | %-15s | %-10s | %-15s | %-18s%n", "Guest ID", "Guest Name", "Loyalty Tier", "Priority", "Room Type", "Arrival DateTime");
+        System.out.println("------------------------------------------------------------------------------------------------------------------------");
+
+        ListInterface<Guest> guestList = allocationControl.getAllGuestAllocations();
+
+        for (int i = 1; i <= guestList.getSize(); i++) {
+
+            Guest guest = guestList.getEntry(i);
+
+            System.out.printf("%-10s | %-20s | %-15s | %-10d | %-15s | %-18s%n", guest.getGuestID(), guest.getGuestName(), guest.getLoyaltyTier(), guest.getPriority(), guest.getRoomType(), guest.getArrivalDateTime());
+        }
+
+        System.out.println("------------------------------------------------------------------------------------------------------------------------");
+        System.out.println("Total Number of Guests: " + allocationControl.getTotalGuests());
+        System.out.println();
+        System.out.println("                                      GRAPHICAL REPRESENTATION OF VIP ALLOCATION MODULE");
+        System.out.println();
+
+        printSideBySideGraphs(loyaltyGraph, roomGraph);
+
+        System.out.println();
+        System.out.println("Loyalty Tier Summary");
+        System.out.println("+----------------------------------------------------------+");
+        System.out.println("| Elite      : " + loyaltyTierCounts[0]);
+        System.out.println("| Diamond    : " + loyaltyTierCounts[1]);
+        System.out.println("| Platinum   : " + loyaltyTierCounts[2]);
+        System.out.println("| Standard   : " + loyaltyTierCounts[3]);
+        System.out.println("+----------------------------------------------------------+");
+
+        System.out.println();
+        System.out.println("Room Type Summary");
+        System.out.println("+----------------------------------------------------------+");
+        System.out.println("| Small Room  : " + roomTypeCounts[0]);
+        System.out.println("| Medium Room : " + roomTypeCounts[1]);
+        System.out.println("| Big Room    : " + roomTypeCounts[2]);
+        System.out.println("+----------------------------------------------------------+");
+
+        System.out.println();
+        System.out.println("========================================================================================================================");
+        System.out.println("                                                  END OF REPORT");
+        System.out.println("========================================================================================================================");
+
+        InputUtility.pressEnterToContinue();
+    }
+
+    //==========================================================
+    // Build Vertical Bar Chart
+    //==========================================================
+    private String[] buildVerticalBarChart(String title, String[] labels, int[] values, String xAxisTitle) {
+
+        int maximumValue = getMaximumValue(values);
+        int lineCount = maximumValue + 4;
+        String[] graphLines = new String[lineCount];
+
+        graphLines[0] = title;
+        graphLines[1] = "     ^";
+
+        int lineIndex = 2;
+
+        for (int level = maximumValue; level >= 1; level--) {
+
+            String graphLine = String.format("%3d  |", level);
+
+            for (int i = 0; i < values.length; i++) {
+
+                if (values[i] >= level) {
+                    graphLine += centerText(ANSI_GREEN_BACKGROUND + "     " + ANSI_RESET, 11);
+                } else {
+                    graphLine += centerText("", 11);
                 }
-                System.out.printf("| %-3d | %-10s | %-20s | %-15s | %-8d | %-12s | %-12s | %-12s |\n",
-                        count,
-                        guest.getGuestID(),
-                        guest.getGuestName(),
-                        guest.getLoyaltyTier(),
-                        guest.getPriority(),
-                        guest.getRoomType(),
-                        guest.getRoomStatus(),
-                        guest.getCheckInDate());
+            }
 
-                count++;
+            graphLines[lineIndex] = graphLine;
+            lineIndex++;
+        }
+
+        graphLines[lineIndex] = "   0  +" + repeatCharacter('-', labels.length * 11) + "> " + xAxisTitle;
+        lineIndex++;
+
+        String labelLine = "      ";
+
+        for (int i = 0; i < labels.length; i++) {
+            labelLine += centerText(labels[i], 11);
+        }
+
+        graphLines[lineIndex] = labelLine;
+
+        return graphLines;
+    }
+
+    //==========================================================
+    // Print Two Graphs Side By Side
+    //==========================================================
+    private void printSideBySideGraphs(String[] leftGraph, String[] rightGraph) {
+
+        int maximumLines = Math.max(leftGraph.length, rightGraph.length);
+
+        for (int i = 0; i < maximumLines; i++) {
+
+            String leftLine = "";
+            String rightLine = "";
+
+            if (i < leftGraph.length && leftGraph[i] != null) {
+                leftLine = leftGraph[i];
+            }
+
+            if (i < rightGraph.length && rightGraph[i] != null) {
+                rightLine = rightGraph[i];
+            }
+
+            System.out.println(padVisibleRight(leftLine, 68) + " | " + rightLine);
+        }
+    }
+
+    //==========================================================
+    // Get Maximum Graph Value
+    //==========================================================
+    private int getMaximumValue(int[] values) {
+
+        int maximumValue = 1;
+
+        for (int value : values) {
+
+            if (value > maximumValue) {
+                maximumValue = value;
             }
         }
 
-        if(!found){
-            System.out.println();
-            System.out.println("----------------------------------------------");
-            System.out.println("|             Guest not found!               |");
-            System.out.println("----------------------------------------------");
-        }
-        else{
-            System.out.println("=====================================================================================================================");
-            System.out.println(
-                    "Total Matching Guests : " + (count - 1)
-            );
+        return maximumValue;
+    }
 
-            System.out.println("=====================================================================================================================");
+    //==========================================================
+    // Repeat Character
+    //==========================================================
+    private String repeatCharacter(char character, int total) {
+
+        StringBuilder result = new StringBuilder();
+
+        for (int i = 0; i < total; i++) {
+            result.append(character);
         }
+
+        return result.toString();
     }
-     
- 
-    private static Guest searchGuestByID(String id) {
-        Iterator<Guest> iterator = vipQueue.getIterator();
-        while(iterator.hasNext()) {
-            Guest guest = iterator.next();
-            if(guest.getGuestID().equalsIgnoreCase(id)) {
-                return guest;
-            }
+
+    //==========================================================
+    // Center Text
+    //==========================================================
+    private String centerText(String text, int width) {
+
+        if (text == null) {
+            text = "";
         }
-        return null;
-    }
-    
-    public static void loadGuestDatabase(){
-    GuestDatabase dao = new GuestDatabase();
-    DoublyLinkedList.ArrayList<Guest> guests = dao.retrieveFromFile();        
-    for(int i = 1; i <= guests.getNumberOfEntries(); i++){
-            Guest guest = guests.getEntry(i);
-            insertPriority(guest);
+
+        int visibleLength = removeAnsiCodes(text).length();
+
+        if (visibleLength >= width) {
+            return text;
         }
-        System.out.println( guests.getNumberOfEntries()+" Guests Loaded!");
+
+        int totalPadding = width - visibleLength;
+        int leftPadding = totalPadding / 2;
+        int rightPadding = totalPadding - leftPadding;
+
+        return repeatCharacter(' ', leftPadding) + text + repeatCharacter(' ', rightPadding);
     }
-    
+
+    //==========================================================
+    // Pad Visible Text To Right
+    //==========================================================
+    private String padVisibleRight(String text, int width) {
+
+        if (text == null) {
+            text = "";
+        }
+
+        int visibleLength = removeAnsiCodes(text).length();
+
+        if (visibleLength >= width) {
+            return text;
+        }
+
+        return text + repeatCharacter(' ', width - visibleLength);
+    }
+
+    //==========================================================
+    // Remove ANSI Colour Codes
+    //==========================================================
+    private String removeAnsiCodes(String text) {
+
+        if (text == null) {
+            return "";
+        }
+
+        return text.replaceAll("\u001B\\[[;\\d]*m", "");
+    }
+
+    //==========================================================
+    // Display Guest Information
+    //==========================================================
+    private void displayGuestInformation(Guest guest) {
+
+        System.out.println("-----------------------------------------------");
+        System.out.println("Guest ID         : " + guest.getGuestID());
+        System.out.println("Guest Name       : " + guest.getGuestName());
+        System.out.println("Phone Number     : " + guest.getPhoneNumber());
+        System.out.println("Loyalty Tier     : " + guest.getLoyaltyTier());
+        System.out.println("Priority         : " + guest.getPriority());
+        System.out.println("Room Type        : " + guest.getRoomType());
+        System.out.println("Room Status      : " + guest.getRoomStatus());
+        System.out.println("Check-In Date    : " + guest.getCheckInDate());
+        System.out.println("Arrival DateTime : " + guest.getArrivalDateTime());
+        System.out.println("-----------------------------------------------");
+    }
+
+    //==========================================================
+    // Display Guest Table Header
+    //==========================================================
+    private void displayGuestTableHeader() {
+
+        System.out.println("================================================================================================================================================================");
+        System.out.printf("%-4s %-10s %-20s %-15s %-9s %-15s %-12s %-12s %-18s%n", "No.", "Guest ID", "Guest Name", "Loyalty Tier", "Priority", "Room Type", "Status", "Check-In", "Arrival DateTime");
+        System.out.println("================================================================================================================================================================");
+    }
+
+    //==========================================================
+    // Display Guest Table Row
+    //==========================================================
+    private void displayGuestTableRow(int number, Guest guest) {
+
+        System.out.printf("%-4d %-10s %-20s %-15s %-9d %-15s %-12s %-12s %-18s%n", number, guest.getGuestID(), guest.getGuestName(), guest.getLoyaltyTier(), guest.getPriority(), guest.getRoomType(), guest.getRoomStatus(), guest.getCheckInDate(), guest.getArrivalDateTime());
+    }
+
+    //==========================================================
+    // Load Guest Database
+    //==========================================================
+    public void loadGuestDatabase() {
+
+        int totalLoaded = allocationControl.loadGuestDatabase();
+
+        System.out.println(totalLoaded + " Guests Loaded!");
+    }
 }
