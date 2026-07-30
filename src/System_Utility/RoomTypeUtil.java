@@ -10,9 +10,9 @@ package System_Utility;
  */
 public class RoomTypeUtil {
     
-    private static final int Normal_Room = 0;
-    private static final int Deluxe_Room = 1;
-    private static final int VIP_Room = 2;
+    public static final int Normal_Room = 0;
+    public static final int Deluxe_Room = 1;
+    public static final int VIP_Room = 2;
     
     // prevent instantiation
     private RoomTypeUtil(){

@@ -4,13 +4,17 @@ import System_Entity.Guest;
 import System_adt.DoublyLinkedList;
 import System_adt.ListInterface;
 import dao.GuestDatabase;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Iterator;
 
 public class VIPAllocationControl {
 
     private DoublyLinkedList.ArrayQueue<Guest> vipQueue;
     private int nextGuestID;
-    
+
+    private static final DateTimeFormatter ARRIVAL_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     //==========================================================
     // Constructor
@@ -48,7 +52,7 @@ public class VIPAllocationControl {
     }
 
     //==========================================================
-    // Insert Guest Based On Priority
+    // Insert Guest Based On Priority And Arrival Time
     //==========================================================
     private void insertPriority(Guest guest) {
 
@@ -60,7 +64,7 @@ public class VIPAllocationControl {
 
             Guest currentGuest = iterator.next();
 
-            if (!inserted && guest.getPriority() > currentGuest.getPriority()) {
+            if (!inserted && shouldInsertBefore(guest, currentGuest)) {
                 temporaryQueue.enqueue(guest);
                 inserted = true;
             }
@@ -73,6 +77,45 @@ public class VIPAllocationControl {
         }
 
         vipQueue = temporaryQueue;
+    }
+
+    //==========================================================
+    // Compare Priority And Arrival Time
+    //==========================================================
+    private boolean shouldInsertBefore(Guest newGuest, Guest currentGuest) {
+
+        if (newGuest.getPriority() > currentGuest.getPriority()) {
+            return true;
+        }
+
+        if (newGuest.getPriority() < currentGuest.getPriority()) {
+            return false;
+        }
+
+        LocalDateTime newArrival = parseArrivalDateTime(newGuest.getArrivalDateTime());
+        LocalDateTime currentArrival = parseArrivalDateTime(currentGuest.getArrivalDateTime());
+
+        if (newArrival == null || currentArrival == null) {
+            return false;
+        }
+
+        return newArrival.isBefore(currentArrival);
+    }
+
+    //==========================================================
+    // Parse Arrival Date And Time
+    //==========================================================
+    private LocalDateTime parseArrivalDateTime(String arrivalDateTime) {
+
+        if (arrivalDateTime == null || arrivalDateTime.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return LocalDateTime.parse(arrivalDateTime.trim(), ARRIVAL_FORMATTER);
+        } catch (DateTimeParseException exception) {
+            return null;
+        }
     }
 
     //==========================================================
@@ -142,7 +185,8 @@ public class VIPAllocationControl {
                     + guest.getPriority() + " "
                     + guest.getRoomType() + " "
                     + guest.getRoomStatus() + " "
-                    + guest.getCheckInDate();
+                    + guest.getCheckInDate() + " "
+                    + guest.getArrivalDateTime();
 
             if (searchData.toLowerCase().contains(searchKeyword)) {
                 matchingGuests.add(guest);
@@ -254,5 +298,88 @@ public class VIPAllocationControl {
         }
 
         return total;
+    }
+
+    //==========================================================
+    // Get Loyalty Tier Counts
+    //==========================================================
+    public int[] getLoyaltyTierCounts() {
+
+        int[] counts = new int[4];
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+
+            Guest guest = iterator.next();
+            String loyaltyTier = guest.getLoyaltyTier();
+
+            if (loyaltyTier == null) {
+                continue;
+            }
+
+            switch (loyaltyTier.trim().toLowerCase()) {
+
+                case "elite":
+                    counts[0]++;
+                    break;
+
+                case "diamond":
+                    counts[1]++;
+                    break;
+
+                case "platinum":
+                    counts[2]++;
+                    break;
+
+                case "standard":
+                    counts[3]++;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        return counts;
+    }
+
+    //==========================================================
+    // Get Room Type Counts
+    //==========================================================
+    public int[] getRoomTypeCounts() {
+
+        int[] counts = new int[3];
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+
+            Guest guest = iterator.next();
+            String roomType = guest.getRoomType();
+
+            if (roomType == null) {
+                continue;
+            }
+
+            switch (roomType.trim().toLowerCase()) {
+
+                case "small room":
+                    counts[0]++;
+                    break;
+
+                case "medium room":
+                case "middle room":
+                    counts[1]++;
+                    break;
+
+                case "big room":
+                    counts[2]++;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        return counts;
     }
 }

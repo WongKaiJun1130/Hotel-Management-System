@@ -25,6 +25,10 @@ public class StatusEntry {
         return statusCode;
     }
     
+    public String getNote() {
+        return note;
+    }
+    
     public String node(){
         return note;
     }
