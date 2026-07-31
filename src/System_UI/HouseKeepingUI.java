@@ -20,6 +20,8 @@ public class HouseKeepingUI {
     // Main Housekeeping Menu
     // ==========================
     public static void menu() {
+        
+        HousekeepingControl.loadRoomDatabase();
 
         Navigation.stack.push(HouseKeepingMenu);
 

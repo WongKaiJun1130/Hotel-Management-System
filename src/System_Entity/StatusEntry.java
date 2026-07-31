@@ -4,11 +4,13 @@
  */
 package System_Entity;
 
+
+import java.io.Serializable;
 /**
  *
  * @author USER
  */
-public class StatusEntry {
+public class StatusEntry implements Serializable{
     
     private int statusCode;
     private String note;

@@ -7,6 +7,7 @@ package Hotel_Management_System;
 import System_UI.MainUI;
 import dao.GuestDatabase;
 import dao.LoyaltyDatabase;
+import dao.RoomDao;
 
 public class Hotel_Management_System {
 
@@ -15,6 +16,7 @@ public class Hotel_Management_System {
         LoyaltyDatabase loyaltyDatabase = new LoyaltyDatabase();
         guestDatabase.createGuestData();
         loyaltyDatabase.createLoyaltyData();
+        RoomDao.createRoomData();
         MainUI.MainUI();
 
     }

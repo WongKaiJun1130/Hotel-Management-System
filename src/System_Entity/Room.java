@@ -6,11 +6,12 @@ package System_Entity;
 
 
 import System_adt.DoublyLinkedList;
+import java.io.Serializable;
 /**
  *
  * @author USER
  */
-public class Room {
+public class Room implements Serializable{
     
     private String roomNum;
     private int roomType;

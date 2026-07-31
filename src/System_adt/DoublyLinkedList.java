@@ -5,7 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class DoublyLinkedList<T> implements ListInterface<T>{
+public class DoublyLinkedList<T> implements ListInterface<T>, Serializable{
     
     private Node<T> head;
     private Node<T> tail;
@@ -177,7 +177,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>{
         }
     }
  
-    private static class Node<T> {
+    private static class Node<T> implements Serializable{
         private T data;
         private Node<T> previous;
         private Node<T> next;
