@@ -25,10 +25,10 @@ public class RoomStatusUtil {
     
         switch(statusCode){
             case Dirty : return "Dirty";
-            case Clean_In_Progress : return "Clean_In_Progress";
+            case Clean_In_Progress : return "Clean In Progress";
             case Inspected : return "Inspected";
-            case Ready_For_CheckIN : return "Ready_For_CheckIN";
-            case Late_CheckOut_Hold : return "Late_CheckOut_Hold";
+            case Ready_For_CheckIN : return "Ready For CheckIN";
+            case Late_CheckOut_Hold : return "Late CheckOut Hold";
             default : return "unknown";
         }
     }
