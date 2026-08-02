@@ -121,10 +121,9 @@ public class BookingUI {
         InputUtility.clearScreen();
         System.out.println("========== PROCESS NEXT RESERVATION ==========");
         Booking booking = bookingControl.processNextReservation();
-
         if(booking == null) {
             System.out.println("\nNo waiting reservation.");
-        }
+        } 
         else {
             System.out.println("\nRoom assigned to:");
             System.out.println("--------------------------------");
@@ -133,13 +132,13 @@ public class BookingUI {
             System.out.println("Room Type      : " + booking.getRoomType());
             System.out.println("Check-In Date  : " + booking.getCheckInDate());
             System.out.println("Check-Out Date : " + booking.getCheckOutDate());
+            System.out.println("Status         : " + booking.getRoomStatus());
             System.out.println("--------------------------------");
-            booking.setRoomStatus("Checked-In");
             System.out.println("\nReservation processed successfully.");
         }
         InputUtility.pressEnterToContinue();
     }
-
+    
     //==========================================================
     // View Next Waiting Reservation
     // FIFO Queue Peek
