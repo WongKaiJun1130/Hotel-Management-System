@@ -4,6 +4,7 @@ import System_adt.ListInterface;
 import System_adt.DoublyLinkedList;
 import System_Entity.Booking;
 import System_Entity.Guest;
+import java.util.Iterator;
 
 public class BookingControl {
 
@@ -23,12 +24,13 @@ public class BookingControl {
     public boolean cancelBooking(String bookingID) {
         for (int i = 1; i <= bookingList.getSize(); i++) {
             Booking book = bookingList.getEntry(i);
-            if (book.getBookingID().equals(bookingID)) {
+            if (book.getBookingID().equalsIgnoreCase(bookingID)) {
                 return bookingList.remove(book);
             }
         }
         return false;
     }
+
 
     public Booking searchBooking(String bookingID) {
         for (int i = 1; i <= bookingList.getSize(); i++) {
@@ -76,5 +78,16 @@ public class BookingControl {
             }
         }
         return false;
+    }
+    
+   public Booking getBookingByID(String bookingID) {
+   Iterator<Booking> iterator = bookingList.getIterator();
+        while (iterator.hasNext()) {
+            Booking booking = iterator.next();
+            if (booking.getBookingID().equalsIgnoreCase(bookingID)) {
+                return booking;
+            }
+        }
+        return null;
     }
 }
