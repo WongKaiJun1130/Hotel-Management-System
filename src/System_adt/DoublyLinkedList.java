@@ -5,8 +5,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class DoublyLinkedList<T> implements ListInterface<T>, Serializable{
-    
+public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>, Serializable{    
     private Node<T> head;
     private Node<T> tail;
     private Node<T> current;
@@ -191,23 +190,34 @@ public class DoublyLinkedList<T> implements ListInterface<T>, Serializable{
         }
     }
     
-
+    @Override
     public void enqueue(T data){
         add(data);
     }
 
+    @Override
     public T dequeue(){
         if(isEmpty())
             return null;
         return remove(1);
     }
-
+    
+    @Override
     public T getFront(){
         if(isEmpty())
             return null;
         return getEntry(1);
     }
 
+    @Override
+    public void clear(){
+
+        head = null;
+        tail = null;
+        current = null;
+        size = 0;
+    }
+    
     //==========================================================================
     // ArrayList 
     //==========================================================================
