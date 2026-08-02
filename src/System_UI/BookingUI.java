@@ -176,8 +176,6 @@ public class BookingUI {
 
             if(booking == null) {
                 System.out.println("\nBooking ID does not exist.");
-                InputUtility.pressEnterToContinue();
-                return;
             }
             System.out.println("\n========== BOOKING DETAILS ==========");
             displayBookingInformation(booking);
