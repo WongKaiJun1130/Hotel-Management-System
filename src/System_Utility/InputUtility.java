@@ -1,5 +1,10 @@
 package System_Utility;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
+
 import java.util.Scanner;
 
 public class InputUtility {
@@ -98,4 +103,45 @@ public class InputUtility {
             System.out.print("Input cannot be empty. Please try again: ");
         }
     }
+    
+    public static String getValidName() {
+        while (true) {
+            String name = getStringInput();
+
+            //match letters,spaces,Hyphen(-),Apostrophe(')
+            if (!name.trim().isEmpty() && name.matches("[a-zA-Z'\\- ]+")) {
+                return name.trim();
+            }
+
+            System.out.print("Invalid name. Name must contain letters only. Please try again: ");
+        }
+    }
+    
+    public static String getValidRoomType() {
+        while (true) {
+            String roomType = getStringInput().trim();
+
+            if (roomType.equalsIgnoreCase("Single") ||
+                roomType.equalsIgnoreCase("Medium") ||
+                roomType.equalsIgnoreCase("Large")) {
+
+                return roomType;
+            }
+
+            System.out.print("Invalid room type. Please enter Single, Medium, or Large: ");
+        }
+    }
+    
+    public static String getYOrNInput() {
+        while (true) {
+            String input = scanner.nextLine();
+            if (input.equalsIgnoreCase("Y") || input.equalsIgnoreCase("N")) {
+                return input;
+            } else {
+                System.out.print("Invalid input. Please enter Y or N: ");
+            }
+        }
+    }
+
 }
+
