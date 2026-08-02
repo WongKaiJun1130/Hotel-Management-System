@@ -130,4 +130,32 @@ public class BookingControl {
         }
         return false;
     }
+    
+    //==========================================================
+    // Get All Waiting Booking
+    //==========================================================
+    public ListInterface<Booking> getWaitingBookings() {
+        ListInterface<Booking> waitingList = new DoublyLinkedList<>();
+        for(int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if(booking.getRoomStatus().equalsIgnoreCase("Waiting")) {
+                waitingList.add(booking);
+            }
+        }
+        return waitingList;
+    }
+
+    //==========================================================
+    // Get All Completed Booking
+    //==========================================================
+    public ListInterface<Booking> getCompletedBookings() {
+        ListInterface<Booking> completedList = new DoublyLinkedList<>();
+        for(int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if(booking.getRoomStatus().equalsIgnoreCase("Completed")) {
+                completedList.add(booking);
+            }
+        }
+        return completedList;
+    }
 }
