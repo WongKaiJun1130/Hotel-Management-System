@@ -108,18 +108,19 @@ public class DoublyLinkedList<T> implements ListInterface<T>, Serializable{
         for(int i=1;i<position;i++){
             temp=temp.next;
         }
-
         if(temp.previous != null)
             temp.previous.next=temp.next;
         else
             head=temp.next;
-
         if(temp.next != null)
             temp.next.previous=temp.previous;
         else
             tail=temp.previous;
-            size--;
-            return temp.data;
+        if(current == temp){
+            current = temp.previous;
+        }
+        size--;
+        return temp.data;
     }
 
     @Override
@@ -134,16 +135,17 @@ public class DoublyLinkedList<T> implements ListInterface<T>, Serializable{
         }return false;
     }
 
-    private void removeNode(Node<T> node){
+   private void removeNode(Node<T> node){
         if(node.previous != null)
             node.previous.next=node.next;
         else
             head=node.next;
-
         if(node.next != null)
             node.next.previous=node.previous;
         else
             tail=node.previous;
+        if(current == node)
+            current=node.previous;
         size--;
     }
     
@@ -187,6 +189,23 @@ public class DoublyLinkedList<T> implements ListInterface<T>, Serializable{
             this.previous = null;
             this.next = null;
         }
+    }
+    
+
+    public void enqueue(T data){
+        add(data);
+    }
+
+    public T dequeue(){
+        if(isEmpty())
+            return null;
+        return remove(1);
+    }
+
+    public T getFront(){
+        if(isEmpty())
+            return null;
+        return getEntry(1);
     }
 
     //==========================================================================
