@@ -14,13 +14,12 @@ public class Hotel_Management_System {
 
     public static void main(String[] args) {
         GuestDatabase guestDatabase = new GuestDatabase();
-        BookingUI bookingUI = new BookingUI();
+       //BookingUI bookingUI = new BookingUI();
         LoyaltyDatabase loyaltyDatabase = new LoyaltyDatabase();
         guestDatabase.createGuestData();
-        bookingUI.bookingMenu();
+        //bookingUI.bookingMenu();
         loyaltyDatabase.createLoyaltyData();
         RoomDao.createRoomData();
         MainUI.MainUI();
-       
     }
 }
