@@ -7,6 +7,7 @@ import System_Utility.InputUtility;
 
 public class BookingUI {
     private BookingControl bookingControl;
+    
     //==========================================================
     // Constructor
     //==========================================================
@@ -35,6 +36,8 @@ public class BookingUI {
             System.out.println("5. Search Booking");
             System.out.println("6. Edit Booking");
             System.out.println("7. Display Booking Queue");
+            System.out.println("8. Display Waiting Booking");
+            System.out.println("9. Display Completed Booking");            
             System.out.println("0. Back");
             System.out.print("\nEnter Choice : ");
             choice = InputUtility.getIntInput();
@@ -54,6 +57,10 @@ public class BookingUI {
 
                 case 7 -> displayBooking();
 
+                case 8 -> displayWaitingBooking();
+
+                case 9 -> displayCompletedBooking();
+                
                 case 0 -> {}
 
                 default -> {
@@ -169,13 +176,15 @@ public class BookingUI {
     private void cancelBooking() {
         InputUtility.clearScreen();
         System.out.println("========== CANCEL BOOKING ==========");
+        
         while(true) {
             System.out.print("Enter Booking ID : ");
             String bookingID = InputUtility.getStringInput();
             Booking booking = bookingControl.getBookingByID(bookingID);
-
+            
             if(booking == null) {
-                System.out.println("\nBooking ID does not exist.");
+                System.out.println("\nBooking ID does not exist. Please enter again.");
+                continue;  // return to the start of while loop
             }
             System.out.println("\n========== BOOKING DETAILS ==========");
             displayBookingInformation(booking);
@@ -204,16 +213,19 @@ public class BookingUI {
     private void searchBooking() {
         InputUtility.clearScreen();
         System.out.println("========== SEARCH BOOKING ==========");
-        System.out.print("Enter Booking ID : ");
-        String bookingID = InputUtility.getStringInput();
-        Booking booking = bookingControl.getBookingByID(bookingID);
 
-        if(booking == null) {
-            System.out.println("\nBooking ID does not exist.");
-        }
-        else {
+        while(true) {
+            System.out.print("Enter Booking ID : ");
+            String bookingID = InputUtility.getStringInput();
+            Booking booking = bookingControl.getBookingByID(bookingID);
+
+            if(booking == null) {
+                System.out.println("\nBooking ID does not exist. Please enter again.");
+                continue;
+            }
             System.out.println("\n========== BOOKING DETAILS ==========");
             displayBookingInformation(booking);
+            break;
         }
         InputUtility.pressEnterToContinue();
     }
@@ -224,93 +236,98 @@ public class BookingUI {
     private void editBooking() {
         InputUtility.clearScreen();
         System.out.println("========== UPDATE BOOKING ==========");
-        System.out.print("Enter Booking ID : ");
-        String bookingID = InputUtility.getStringInput();
-        Booking booking = bookingControl.getBookingByID(bookingID);
+        while(true) {
+            System.out.print("Enter Booking ID : ");
+            String bookingID = InputUtility.getStringInput();
+            Booking booking = bookingControl.getBookingByID(bookingID);
+                if(booking == null) {
+                    System.out.println("\nBooking ID does not exist. Please enter again.");
+                    continue;
+                }
 
-        if(booking == null) {
-            System.out.println("\nBooking ID does not exist.");
+            int choice;
+            do {
+                System.out.println("\n========== BOOKING DETAILS ==========");
+                displayBookingInformation(booking);
+
+                System.out.println("\n========== EDIT OPTION ==========");
+                System.out.println("1. Edit Guest Name");
+                System.out.println("2. Edit Room Type");
+                System.out.println("3. Edit Check-In Date");
+                System.out.println("4. Edit Check-Out Date");
+                System.out.println("5. Edit All Details");
+                System.out.println("6. Back");
+                System.out.print("\nEnter Choice : ");
+                choice = InputUtility.getIntInput();
+
+                switch(choice) {
+                    case 1 -> {
+                        System.out.print("\nNew Guest Name : ");
+                        booking.setGuestName(InputUtility.getValidName());
+                        if (bookingControl.updateBooking(booking)) {
+                            System.out.println("\nGuest name updated.");
+                        } else {
+                            System.out.println("\nFailed to update booking.");
+                        }
+                    }
+
+                    case 2 -> {
+                        System.out.print("\nNew Room Type : ");
+                        booking.setRoomType(InputUtility.getValidRoomType());
+                       if (bookingControl.updateBooking(booking)) {
+                            System.out.println("\nRoom type updated.");
+                        } else {
+                            System.out.println("\nFailed to update booking.");
+                        }
+                    }
+
+                    case 3 -> {
+                        System.out.print("\nNew Check-In Date : ");
+                        booking.setCheckInDate(InputUtility.getDateInput());
+                       if (bookingControl.updateBooking(booking)) {
+                            System.out.println("\nCheck-In date updated.");
+                        } else {
+                            System.out.println("\nFailed to update booking.");
+                        }
+                    }
+
+                    case 4 -> {
+                        System.out.print("\nNew Check-Out Date : ");
+                        booking.setCheckOutDate(InputUtility.getDateInput()); 
+                       if (bookingControl.updateBooking(booking)) {
+                            System.out.println("\nCheck-Out date updated.");
+                        } else {
+                            System.out.println("\nFailed to update booking.");
+                        }
+                    }
+
+                    case 5 -> {
+                        System.out.print("\nNew Guest Name : ");
+                        booking.setGuestName(InputUtility.getValidName());                   
+                        
+                        System.out.print("New Room Type : ");
+                        booking.setRoomType(InputUtility.getValidRoomType());             
+
+                        System.out.print("New Check-In Date : ");
+                        booking.setCheckInDate(InputUtility.getDateInput());
+
+                        System.out.print("New Check-Out Date : ");
+                        booking.setCheckOutDate(InputUtility.getDateInput());
+                        if (bookingControl.updateBooking(booking)) {
+                            System.out.println("\nAll details updated.");
+                        } else {
+                            System.out.println("\nFailed to update booking.");
+                        }
+                    }
+
+                    case 6 -> {}
+
+                    default -> System.out.println("\nInvalid choice.Please enter again.");
+                }
+            }while(choice != 6);
             InputUtility.pressEnterToContinue();
-            return;
+            break;
         }
-
-        int choice;
-        do {
-            System.out.println("\n========== BOOKING DETAILS ==========");
-            displayBookingInformation(booking);
-            
-            System.out.println("\n========== EDIT OPTION ==========");
-            System.out.println("1. Edit Guest Name");
-            System.out.println("2. Edit Room Type");
-            System.out.println("3. Edit Check-In Date");
-            System.out.println("4. Edit Check-Out Date");
-            System.out.println("5. Edit All Details");
-            System.out.println("6. Back");
-            System.out.print("\nEnter Choice : ");
-            choice = InputUtility.getIntInput();
-
-            switch(choice) {
-                case 1 -> {
-                    System.out.print("\nNew Guest Name : ");
-                    booking.setGuestName(
-                            InputUtility.getValidName()
-                    );
-                    System.out.println("\nGuest name updated.");
-                }
-
-                case 2 -> {
-                    System.out.print("\nNew Room Type : ");
-                    booking.setRoomType(
-                            InputUtility.getValidRoomType()
-                    );
-                    System.out.println("\nRoom type updated.");
-                }
-
-                case 3 -> {
-                    System.out.print("\nNew Check-In Date : ");
-                    booking.setCheckInDate(
-                            InputUtility.getDateInput()
-                    );
-                    System.out.println("\nCheck-In date updated.");
-                }
-
-                case 4 -> {
-                    System.out.print("\nNew Check-Out Date : ");
-                    booking.setCheckOutDate(
-                            InputUtility.getDateInput()
-                    ); 
-                    System.out.println("\nCheck-Out date updated.");
-                }
-
-                case 5 -> {
-                    System.out.print("\nNew Guest Name : ");
-                    booking.setGuestName(
-                            InputUtility.getValidName()
-                    );                   
-                    
-                    System.out.print("New Room Type : ");
-                    booking.setRoomType(
-                            InputUtility.getValidRoomType()
-                    );             
-                    
-                    System.out.print("New Check-In Date : ");
-                    booking.setCheckInDate(
-                            InputUtility.getDateInput()
-                    );
-                    
-                    System.out.print("New Check-Out Date : ");
-                    booking.setCheckOutDate(
-                            InputUtility.getDateInput()
-                    );
-                    System.out.println("\nAll details updated.");
-                }
-
-                case 6 -> {}
-
-                default -> System.out.println("\nInvalid choice.Please enter again.");
-            }
-        }while(choice != 6);
-        InputUtility.pressEnterToContinue();
     }
 
     //==========================================================
@@ -348,4 +365,45 @@ public class BookingUI {
         System.out.println("Status         : " + booking.getRoomStatus());
         System.out.println("--------------------------------");
     }
+    
+    //==========================================================
+    // Display Waiting Booking
+    //==========================================================
+    private void displayWaitingBooking() {
+        InputUtility.clearScreen();
+        System.out.println("========== WAITING BOOKING ==========");
+        ListInterface<Booking> list = bookingControl.getWaitingBookings();
+        if(list.isEmpty()) {
+            System.out.println("\nNo waiting booking available.");
+        }
+        else {
+            for(int i = 1; i <= list.getSize(); i++) {
+                Booking booking = list.getEntry(i);
+                System.out.println("\n========== BOOKING " + i + " ==========");
+                displayBookingInformation(booking);
+            }
+        }
+        InputUtility.pressEnterToContinue();
+    }
+
+    //==========================================================
+    // Display Completed Booking
+    //==========================================================
+    private void displayCompletedBooking() {
+        InputUtility.clearScreen();
+        System.out.println("========== COMPLETED BOOKING ==========");
+        ListInterface<Booking> list = bookingControl.getCompletedBookings();
+        if(list.isEmpty()) {
+            System.out.println("\nNo completed booking available.");
+        }
+        else {
+            for(int i = 1; i <= list.getSize(); i++) {
+                Booking booking = list.getEntry(i);
+                System.out.println("\n========== BOOKING " + i + " ==========");
+                displayBookingInformation(booking);
+            }
+        }
+        InputUtility.pressEnterToContinue();
+    }
+    
 }
