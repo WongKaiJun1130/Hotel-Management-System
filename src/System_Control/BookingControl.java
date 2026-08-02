@@ -30,26 +30,11 @@ public class BookingControl {
     // Cancel Booking
     //==========================================================
     public boolean cancelBooking(String bookingID) {
-        for (int i = 1; i <= bookingList.getSize(); i++) {
-            Booking booking = bookingList.getEntry(i);
-            if (booking.getBookingID().equalsIgnoreCase(bookingID)) {
-                return bookingList.remove(booking);
-            }
+        Booking booking = getBookingByID(bookingID);
+        if(booking != null) {
+            return bookingList.remove(booking);
         }
         return false;
-    }
-
-    //==========================================================
-    // Search Booking By ID
-    //==========================================================
-    public Booking searchBooking(String bookingID) {
-        for (int i = 1; i <= bookingList.getSize(); i++) {
-            Booking booking = bookingList.getEntry(i);
-            if (booking.getBookingID().equalsIgnoreCase(bookingID)) {
-                return booking;
-            }
-        }
-        return null;
     }
 
     //==========================================================
@@ -93,6 +78,7 @@ public class BookingControl {
             return null;
         }
         Booking booking = bookingList.getEntry(1);
+        booking.setRoomStatus("Checked-In");
         bookingList.remove(1);
         return booking;
     }
@@ -134,15 +120,14 @@ public class BookingControl {
     public boolean hasConflict(Guest guest, String checkInDate, String checkOutDate) {
         for(int i = 1; i <= bookingList.getSize(); i++) {
             Booking booking = bookingList.getEntry(i);
-            if(booking.getGuestName().equalsIgnoreCase(guest.getGuestName())
-                    &&
-               booking.getCheckInDate().equals(checkInDate)
-                    &&
-               booking.getCheckOutDate().equals(checkOutDate)) {
-                return true;
+            if(booking.getGuestName().equalsIgnoreCase(guest.getGuestName())) {
+                if(checkInDate.compareTo(booking.getCheckOutDate()) < 0
+                &&
+                checkOutDate.compareTo(booking.getCheckInDate()) > 0) {
+                    return true;
+                }
             }
         }
         return false;
     }
-
 }
