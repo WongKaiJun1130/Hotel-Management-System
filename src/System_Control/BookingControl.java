@@ -141,6 +141,37 @@ public class BookingControl {
         return false;
     }
     
+    //==========================================================
+    // Update Booking And Save
+    //==========================================================
+    public boolean updateBooking(Booking booking){
+        boolean found = false;
+
+        // Check waiting list
+        for(int i = 1; i <= waitingBookingList.getSize(); i++){
+            Booking temp = waitingBookingList.getEntry(i);
+            if(temp.getBookingID().equalsIgnoreCase(booking.getBookingID())){
+                found = true;
+                break;
+            }
+        }
+        // Check completed list
+        if(!found){
+            for(int i = 1; i <= completedBookingList.getSize(); i++){
+                Booking temp = completedBookingList.getEntry(i);
+                if(temp.getBookingID().equalsIgnoreCase(booking.getBookingID())){
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if(found){
+            saveData();
+            return true;
+        }
+        return false;
+    }
+
     private void saveData(){
         bookingDatabase.saveToFile(waitingBookingList, completedBookingList);
     }
