@@ -22,7 +22,7 @@ public class HouseKeepingUI {
     // ==========================
     public static void menu() {
         
-        HousekeepingControl.loadRoomDatabase();
+        //HousekeepingControl.loadRoomDatabase();
 
         Navigation.stack.push(HouseKeepingMenu);
 
