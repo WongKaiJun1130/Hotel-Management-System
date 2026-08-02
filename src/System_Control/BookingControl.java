@@ -142,6 +142,20 @@ public class BookingControl {
     }
     
     //==========================================================
+    // Get All Waiting Booking
+    //==========================================================
+    public ListInterface<Booking> getWaitingBookings() {
+        return waitingBookingList;
+    }
+
+    //==========================================================
+    // Get All Completed Booking
+    //==========================================================
+    public ListInterface<Booking> getCompletedBookings() {
+        return completedBookingList;
+    }
+
+    //==========================================================
     // Update Booking And Save
     //==========================================================
     public boolean updateBooking(Booking booking){
