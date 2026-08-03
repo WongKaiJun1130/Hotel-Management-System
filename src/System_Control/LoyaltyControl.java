@@ -300,12 +300,12 @@ public class LoyaltyControl {
         saveLoyaltyData();
 
         lastMessage = "Reward redeemed successfully!"
-                + "\nGuest ID: " + record.getGuestID()
-                + "\nGuest Name: " + record.getGuestName()
-                + "\nReward: " + rewardName
-                + "\nPoints Used: " + requiredPoints
-                + "\nRemaining Points: " + record.getAvailablePoints()
-                + "\nRedemption Date: " + LocalDate.now();
+                + "\nGuest ID         : " + record.getGuestID()
+                + "\nGuest Name       : " + record.getGuestName()
+                + "\nReward           : " + rewardName
+                + "\nPoints Used      : " + requiredPoints
+                + "\nRemaining Points : " + record.getAvailablePoints()
+                + "\nRedemption Date  : " + LocalDate.now();
 
         return true;
     }
@@ -487,21 +487,54 @@ public class LoyaltyControl {
     // ==================================================
     // 13. Top Loyalty Members Report
     // ==================================================
-    public DoublyLinkedList.ArrayList<LoyaltyRecord> getTopFiveGuestsByTier(String tier) {
-        DoublyLinkedList.ArrayList<LoyaltyRecord> filteredList = getGuestsByTier(tier);
+    public DoublyLinkedList.ArrayList<LoyaltyRecord>
+            getTopFiveMembersByPointsUsed(String tier) {
 
-        filteredList.sort(new Comparator<LoyaltyRecord>() {
-            @Override
-            public int compare(LoyaltyRecord first, LoyaltyRecord second) {
-                return Integer.compare(second.getLifetimePoints(), first.getLifetimePoints());
+        // loyalty members
+        DoublyLinkedList.ArrayList<LoyaltyRecord> allMembers
+                = getGuestsByTier("All");
+
+        int totalMembers = allMembers.getNumberOfEntries();
+
+        // array
+        LoyaltyRecord[] sortedMembers
+                = new LoyaltyRecord[totalMembers];
+
+        for (int i = 1; i <= totalMembers; i++) {
+            sortedMembers[i - 1] = allMembers.getEntry(i);
+        }
+
+        // Selection Sort：Points Used
+        for (int i = 0; i < sortedMembers.length - 1; i++) {
+            int highestIndex = i;
+
+            for (int j = i + 1; j < sortedMembers.length; j++) {
+                int currentPointsUsed
+                        = sortedMembers[j].getLifetimePoints()
+                        - sortedMembers[j].getAvailablePoints();
+
+                int highestPointsUsed
+                        = sortedMembers[highestIndex].getLifetimePoints()
+                        - sortedMembers[highestIndex].getAvailablePoints();
+
+                if (currentPointsUsed > highestPointsUsed) {
+                    highestIndex = j;
+                }
             }
-        });
 
-        DoublyLinkedList.ArrayList<LoyaltyRecord> topFive = new DoublyLinkedList.ArrayList<>();
-        int limit = Math.min(5, filteredList.getNumberOfEntries());
+            LoyaltyRecord temporary = sortedMembers[i];
+            sortedMembers[i] = sortedMembers[highestIndex];
+            sortedMembers[highestIndex] = temporary;
+        }
 
-        for (int i = 1; i <= limit; i++) {
-            topFive.add(filteredList.getEntry(i));
+        // top 5
+        DoublyLinkedList.ArrayList<LoyaltyRecord> topFive
+                = new DoublyLinkedList.ArrayList<>();
+
+        int limit = Math.min(5, sortedMembers.length);
+
+        for (int i = 0; i < limit; i++) {
+            topFive.add(sortedMembers[i]);
         }
 
         return topFive;
