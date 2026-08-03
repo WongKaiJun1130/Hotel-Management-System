@@ -74,10 +74,10 @@ public class LoyaltyRecord implements Serializable {
     @Override
     public String toString() {
         return "Guest ID: " + getGuestID()
-                + "\nGuest Name: " + getGuestName()
-                + "\nLoyalty Tier: " + getLoyaltyTier()
-                + "\nAvailable Points: " + availablePoints
-                + "\nLifetime Points: " + lifetimePoints
-                + "\nExpiry Date: " + expiryDate;
+                + "\nGuest Name       : " + getGuestName()
+                + "\nLoyalty Tier     : " + getLoyaltyTier()
+                + "\nAvailable Points : " + availablePoints
+                + "\nLifetime Points  : " + lifetimePoints
+                + "\nExpiry Date      : " + expiryDate;
     }
 }
