@@ -31,10 +31,9 @@ public class LoyaltyAndRewardsUI {
     // ==================================================
     public void loyaltyMenu() {
         int choice;
-
+        
+        InputUtility.clearScreen();
         do {
-            InputUtility.clearScreen();
-
             System.out.println("+------------------------------------------------+");
             System.out.println("|           LOYALTY AND REWARDS MENU             |");
             System.out.println("+------------------------------------------------+");
@@ -46,7 +45,7 @@ public class LoyaltyAndRewardsUI {
             System.out.println("| 6. Top Loyalty Members Report                  |");
             System.out.println("| 0. Back                                        |");
             System.out.println("+------------------------------------------------+");
-            System.out.print("Enter Choice: ");
+            System.out.print("Please enter your choice: ");
 
             choice = InputUtility.getIntInput();
 
@@ -79,8 +78,8 @@ public class LoyaltyAndRewardsUI {
                     break;
 
                 default:
-                    System.out.println("\nInvalid choice.");
-                    InputUtility.pressEnterToContinue();
+                    InputUtility.clearScreen();
+                    System.out.println("\nInvalid choice. Try again! ");
             }
 
         } while (choice != 0);
@@ -102,7 +101,7 @@ public class LoyaltyAndRewardsUI {
         System.out.println("| 5. All                                         |");
         System.out.println("| 0. Back                                        |");
         System.out.println("+------------------------------------------------+");
-        System.out.print("Select Tier: ");
+        System.out.print("Please Enter your choice : ");
 
         String tier = selectTier();
 
@@ -117,38 +116,41 @@ public class LoyaltyAndRewardsUI {
         displayLoyaltyResult(result, "LOYALTY MEMBER LIST");
 
         InputUtility.pressEnterToContinue();
+        InputUtility.clearScreen();
     }
     
     // ==================================================
     // Select Tier
     // ==================================================
     private String selectTier() {
-        int choice = InputUtility.getIntInput();
+            while (true) {
+                int choice = InputUtility.getIntInput();
 
-        switch (choice) {
-            case 1:
-                return "Standard";
+                switch (choice) {
+                    case 1:
+                        return "Standard";
 
-            case 2:
-                return "Platinum";
+                    case 2:
+                        return "Platinum";
 
-            case 3:
-                return "Diamond";
+                    case 3:
+                        return "Diamond";
 
-            case 4:
-                return "Elite";
+                    case 4:
+                        return "Elite";
 
-            case 5:
-                return "All";
+                    case 5:
+                        return "All";
 
-            case 0:
-                return null;
+                    case 0:
+                        return null;
 
-            default:
-                System.out.println("\nInvalid tier choice.");
-                return null;
+                    default:
+                        System.out.println("\nInvalid choice. Please try again.");
+                        System.out.print("Please Enter your choice (0-5) : ");
+                }
+            }
         }
-    }
 
     // ==================================================
     // Display Loyalty Result
@@ -188,10 +190,7 @@ public class LoyaltyAndRewardsUI {
                 + "|"
         );
 
-        // Column header border
         System.out.println(columnBorder);
-
-        // Column headings
         System.out.printf(
                 "| %-4s | %-10s | %-23s | %-12s | %-17s | %-17s | %-12s |%n",
                 "No.",
@@ -221,7 +220,6 @@ public class LoyaltyAndRewardsUI {
             );
         }
 
-        // Border below records
         System.out.println(columnBorder);
 
         // Total members
@@ -248,7 +246,7 @@ public class LoyaltyAndRewardsUI {
         System.out.println(fullBorder);
         System.out.println("|             SEARCH LOYALTY MEMBER              |");
         System.out.println(fullBorder);
-        System.out.print("Enter Guest ID: ");
+        System.out.print("Please enter Guest ID (RXXXX) : ");
 
         String guestID = InputUtility.getStringInput();
         LoyaltyRecord record = loyaltyControl.searchGuest(guestID);
@@ -292,267 +290,323 @@ public class LoyaltyAndRewardsUI {
         }
 
         InputUtility.pressEnterToContinue();
+        InputUtility.clearScreen();
     }
 
     // ==================================================
     // 3. Redeem Reward
     // ==================================================
     private void redeemReward() {
-        InputUtility.clearScreen();
+            InputUtility.clearScreen();
 
-        String fullBorder
-                = "+------------------------------------------------+";
+            String fullBorder
+                    = "+------------------------------------------------+";
 
-        String detailBorder
-                = "+--------------------+---------------------------+";
+            String detailBorder
+                    = "+--------------------+---------------------------+";
 
-        String rewardBorder
-                = "+------+----------------------------------+------------+";
+            String rewardBorder
+                    = "+------+----------------------------------+------------+";
 
-        System.out.println(fullBorder);
-        System.out.println("|                 REDEEM REWARD                  |");
-        System.out.println(fullBorder);
-        System.out.print("Enter Guest ID: ");
+            System.out.println(fullBorder);
+            System.out.println("|                 REDEEM REWARD                  |");
+            System.out.println(fullBorder);
+            System.out.print("Please Enter Guest ID (RXXXX): ");
 
-        String guestID = InputUtility.getStringInput();
-        LoyaltyRecord record = loyaltyControl.searchGuest(guestID);
+            String guestID = InputUtility.getStringInput();
+            LoyaltyRecord record = loyaltyControl.searchGuest(guestID);
 
-        if (record == null) {
+            // ==================================================
+            // Member Not Found
+            // ==================================================
+            if (record == null) {
+                System.out.println();
+                System.out.println(fullBorder);
+                System.out.println("| Loyalty member not found.                      |");
+                System.out.println(fullBorder);
+
+                InputUtility.pressEnterToContinue();
+                InputUtility.clearScreen();
+                return;
+            }
+
+            // ==================================================
+            // Display Member Details
+            // ==================================================
             System.out.println();
             System.out.println(fullBorder);
-            System.out.println("| Loyalty member not found.                      |");
-            System.out.println(fullBorder);
-
-            InputUtility.pressEnterToContinue();
-            return;
-        }
-
-        System.out.println();
-        System.out.println(fullBorder);
-        System.out.println("|            LOYALTY MEMBER DETAILS              |");
-        System.out.println(detailBorder);
-
-        System.out.printf(
-                "| %-18s : %-25s |%n",
-                "Guest ID",
-                record.getGuestID()
-        );
-
-        System.out.printf(
-                "| %-18s : %-25s |%n",
-                "Guest Name",
-                limitText(record.getGuestName(), 25)
-        );
-
-        System.out.printf(
-                "| %-18s : %-25s |%n",
-                "Loyalty Tier",
-                record.getLoyaltyTier()
-        );
-
-        System.out.printf(
-                "| %-18s : %-25d |%n",
-                "Available Points",
-                record.getAvailablePoints()
-        );
-
-        System.out.printf(
-                "| %-18s : %-25d |%n",
-                "Lifetime Points",
-                record.getLifetimePoints()
-        );
-
-        System.out.printf(
-                "| %-18s : %-25s |%n",
-                "Expiry Date",
-                record.getExpiryDate()
-        );
-
-        System.out.println(detailBorder);
-
-        String[] rewards
-                = loyaltyControl.getRewardsByTier(record.getLoyaltyTier());
-
-        if (rewards.length == 0) {
-            System.out.println();
-            System.out.println(fullBorder);
-            System.out.println("| No rewards available.                          |");
-            System.out.println(fullBorder);
-
-            InputUtility.pressEnterToContinue();
-            return;
-        }
-
-        System.out.println();
-        System.out.println(rewardBorder);
-        System.out.println("|                  AVAILABLE REWARDS                   |");
-        System.out.println(rewardBorder);
-
-        System.out.printf(
-                "| %-4s | %-32s | %-10s |%n",
-                "No.",
-                "Reward",
-                "Points"
-        );
-
-        System.out.println(rewardBorder);
-
-        for (int i = 0; i < rewards.length; i++) {
-            int points = loyaltyControl.getRewardPoints(rewards[i]);
+            System.out.println("|            LOYALTY MEMBER DETAILS              |");
+            System.out.println(detailBorder);
 
             System.out.printf(
-                    "| %-4d | %-32s | %-10s |%n",
-                    i + 1,
-                    limitText(rewards[i], 32),
-                    String.format("%,d", points)
+                    "| %-18s : %-25s |%n",
+                    "Guest ID",
+                    record.getGuestID()
             );
-        }
 
-        System.out.printf(
-                "| %-4d | %-32s | %-10s |%n",
-                0,
-                "Cancel",
-                "-"
-        );
+            System.out.printf(
+                    "| %-18s : %-25s |%n",
+                    "Guest Name",
+                    limitText(record.getGuestName(), 25)
+            );
 
-        System.out.println(rewardBorder);
-        System.out.print("Select Reward: ");
+            System.out.printf(
+                    "| %-18s : %-25s |%n",
+                    "Loyalty Tier",
+                    record.getLoyaltyTier()
+            );
 
-        int rewardChoice = InputUtility.getIntInput();
+            System.out.printf(
+                    "| %-18s : %-25d |%n",
+                    "Available Points",
+                    record.getAvailablePoints()
+            );
 
-        if (rewardChoice == 0) {
-            return;
-        }
+            System.out.printf(
+                    "| %-18s : %-25d |%n",
+                    "Lifetime Points",
+                    record.getLifetimePoints()
+            );
 
-        if (rewardChoice < 1 || rewardChoice > rewards.length) {
+            System.out.printf(
+                    "| %-18s : %-25s |%n",
+                    "Expiry Date",
+                    record.getExpiryDate()
+            );
+
+            System.out.println(detailBorder);
+
+            String[] rewards
+                    = loyaltyControl.getRewardsByTier(
+                            record.getLoyaltyTier()
+                    );
+
+            // ==================================================
+            // No Rewards Available
+            // ==================================================
+            if (rewards.length == 0) {
+                System.out.println();
+                System.out.println(fullBorder);
+                System.out.println("| No rewards available.                          |");
+                System.out.println(fullBorder);
+
+                InputUtility.pressEnterToContinue();
+                InputUtility.clearScreen();
+                return;
+            }
+
+            // ==================================================
+            // Display Available Rewards
+            // ==================================================
             System.out.println();
-            System.out.println(fullBorder);
-            System.out.println("| Invalid reward choice.                         |");
-            System.out.println(fullBorder);
+            System.out.println(rewardBorder);
+            System.out.println("|                  AVAILABLE REWARDS                   |");
+            System.out.println(rewardBorder);
 
-            InputUtility.pressEnterToContinue();
-            return;
-        }
+            System.out.printf(
+                    "| %-4s | %-32s | %-10s |%n",
+                    "No.",
+                    "Reward",
+                    "Points"
+            );
 
-        String selectedReward = rewards[rewardChoice - 1];
-        int requiredPoints
-                = loyaltyControl.getRewardPoints(selectedReward);
+            System.out.println(rewardBorder);
 
-        System.out.println();
-        System.out.println(fullBorder);
-        System.out.println("|           REDEMPTION CONFIRMATION              |");
-        System.out.println(detailBorder);
+            for (int i = 0; i < rewards.length; i++) {
+                int points
+                        = loyaltyControl.getRewardPoints(
+                                rewards[i]
+                        );
 
-        System.out.printf(
-                "| %-18s : %-25s |%n",
-                "Guest Name",
-                limitText(record.getGuestName(), 25)
-        );
-
-        System.out.printf(
-                "| %-18s : %-25s |%n",
-                "Loyalty Tier",
-                record.getLoyaltyTier()
-        );
-
-        System.out.printf(
-                "| %-18s : %-25s |%n",
-                "Selected Reward",
-                limitText(selectedReward, 25)
-        );
-
-        System.out.printf(
-                "| %-18s : %-25d |%n",
-                "Required Points",
-                requiredPoints
-        );
-
-        System.out.printf(
-                "| %-18s : %-25d |%n",
-                "Available Points",
-                record.getAvailablePoints()
-        );
-
-        System.out.println(detailBorder);
-        System.out.println("| 1. Confirm Redemption                          |");
-        System.out.println("| 2. Cancel                                      |");
-        System.out.println(fullBorder);
-        System.out.print("Enter Choice: ");
-
-        int confirm = InputUtility.getIntInput();
-
-        if (confirm == 1) {
-            loyaltyControl.redeemReward(guestID, selectedReward);
-
-            System.out.println();
-            System.out.println();
-            System.out.println(fullBorder);
-
-            String[] messageLines
-                    = loyaltyControl.getLastMessage().split("\\R");
-
-            for (String line : messageLines) {
                 System.out.printf(
-                        "| %-46s |%n",
-                        limitText(line, 46)
+                        "| %-4d | %-32s | %-10s |%n",
+                        i + 1,
+                        limitText(rewards[i], 32),
+                        String.format("%,d", points)
                 );
             }
 
-            System.out.println(fullBorder);
-        } else {
+            System.out.printf(
+                    "| %-4d | %-32s | %-10s |%n",
+                    0,
+                    "Cancel",
+                    "-"
+            );
+
+            System.out.println(rewardBorder);
+            System.out.print("Select Reward: ");
+
+            int rewardChoice = InputUtility.getIntInput();
+
+            // ==================================================
+            // Reward Choice Validation
+            // ==================================================
+            while (rewardChoice < 0 || rewardChoice > rewards.length) {
+                System.out.println(
+                        "Invalid reward choice. Please enter again."
+                );
+                System.out.print("Select Reward: ");
+
+                rewardChoice = InputUtility.getIntInput();
+            }
+
+            // ==================================================
+            // Cancel Reward Selection
+            // ==================================================
+            if (rewardChoice == 0) {
+                System.out.println();
+                System.out.println(fullBorder);
+                System.out.println("| Redemption cancelled.                          |");
+                System.out.println(fullBorder);
+
+                InputUtility.pressEnterToContinue();
+                InputUtility.clearScreen();
+                return;
+            }
+
+            String selectedReward
+                    = rewards[rewardChoice - 1];
+
+            int requiredPoints
+                    = loyaltyControl.getRewardPoints(
+                            selectedReward
+                    );
+
+            // ==================================================
+            // Redemption Confirmation
+            // ==================================================
             System.out.println();
             System.out.println(fullBorder);
-            System.out.println("| Redemption cancelled.                          |");
-            System.out.println(fullBorder);
-        }
+            System.out.println("|           REDEMPTION CONFIRMATION              |");
+            System.out.println(detailBorder);
 
-        InputUtility.pressEnterToContinue();
+            System.out.printf(
+                    "| %-18s : %-25s |%n",
+                    "Guest Name",
+                    limitText(record.getGuestName(), 25)
+            );
+
+            System.out.printf(
+                    "| %-18s : %-25s |%n",
+                    "Loyalty Tier",
+                    record.getLoyaltyTier()
+            );
+
+            System.out.printf(
+                    "| %-18s : %-25s |%n",
+                    "Selected Reward",
+                    limitText(selectedReward, 25)
+            );
+
+            System.out.printf(
+                    "| %-18s : %-25d |%n",
+                    "Required Points",
+                    requiredPoints
+            );
+
+            System.out.printf(
+                    "| %-18s : %-25d |%n",
+                    "Available Points",
+                    record.getAvailablePoints()
+            );
+
+            System.out.println(detailBorder);
+            System.out.println("| 1. Confirm Redemption                          |");
+            System.out.println("| 2. Cancel                                      |");
+            System.out.println(fullBorder);
+            System.out.print("Enter Choice: ");
+
+            int confirm = InputUtility.getIntInput();
+
+            // ==================================================
+            // Confirmation Validation
+            // ==================================================
+            while (confirm != 1 && confirm != 2) {
+                System.out.println(
+                        "Invalid choice. Please enter 1 or 2."
+                );
+                System.out.print("Enter Choice: ");
+
+                confirm = InputUtility.getIntInput();
+            }
+
+            // ==================================================
+            // Confirm Redemption
+            // ==================================================
+            if (confirm == 1) {
+                loyaltyControl.redeemReward(
+                        guestID,
+                        selectedReward
+                );
+
+                System.out.println();
+                System.out.println(fullBorder);
+
+                String[] messageLines
+                        = loyaltyControl.getLastMessage()
+                                .split("\\R");
+
+                for (String line : messageLines) {
+                    System.out.printf(
+                            "| %-46s |%n",
+                            limitText(line, 46)
+                    );
+                }
+
+                System.out.println(fullBorder);
+
+            } else {
+                System.out.println();
+                System.out.println(fullBorder);
+                System.out.println("| Redemption cancelled.                          |");
+                System.out.println(fullBorder);
+            }
+
+            InputUtility.pressEnterToContinue();
+            InputUtility.clearScreen();
     }
 
     // ==================================================
     // 4. Points Expiry Management
     // ==================================================
     private void pointsExpiryManagement() {
-        int choice;
-
-        do {
+            int choice;
+            
             InputUtility.clearScreen();
 
-            String border = "+------------------------------------------------+";
+            do {
+                String border = "+------------------------------------------------+";
 
-            System.out.println(border);
-            System.out.println("|          POINTS EXPIRY MANAGEMENT              |");
-            System.out.println(border);
-            System.out.println("| 1. View Points Expiring Within 30 Days         |");
-            System.out.println("| 2. Process Expired Points                      |");
-            System.out.println("| 0. Back                                        |");
-            System.out.println(border);
-            System.out.print("Enter Choice: ");
+                System.out.println(border);
+                System.out.println("|          POINTS EXPIRY MANAGEMENT              |");
+                System.out.println(border);
+                System.out.println("| 1. View Points Expiring Within 30 Days         |");
+                System.out.println("| 2. Process Expired Points                      |");
+                System.out.println("| 0. Back to Loyalty Main Menu                   |");
+                System.out.println(border);
+                System.out.print("Please enter your choice: ");
 
-            choice = InputUtility.getIntInput();
+                choice = InputUtility.getIntInput();
 
-            switch (choice) {
-                case 1:
-                    viewPointsExpiringWithin30Days();
-                    break;
+                switch (choice) {
+                    case 1:
+                        viewPointsExpiringWithin30Days();
+                        break;
 
-                case 2:
-                    processExpiredPoints();
-                    break;
+                    case 2:
+                        processExpiredPoints();
+                        break;
 
-                case 0:
-                    break;
+                    case 0:
+                        InputUtility.clearScreen();
+                        break;
 
-                default:
-                    System.out.println();
-                    System.out.println(border);
-                    System.out.println("| Invalid choice.                                |");
-                    System.out.println(border);
-                    InputUtility.pressEnterToContinue();
-            }
+                    default:
+                        System.out.println("\nInvalid choice. Please try again.");
+                }
 
-        } while (choice != 0);
-    }
+            } while (choice != 0);
+        }
 
     // ==================================================
     // View Points Expiring Within 30 Days
@@ -613,6 +667,7 @@ public class LoyaltyAndRewardsUI {
         }
 
         InputUtility.pressEnterToContinue();
+        InputUtility.clearScreen();
     }
 
     // ==================================================
@@ -636,6 +691,7 @@ public class LoyaltyAndRewardsUI {
             System.out.println(border);
 
             InputUtility.pressEnterToContinue();
+            InputUtility.clearScreen();
             return;
         }
 
@@ -727,6 +783,7 @@ public class LoyaltyAndRewardsUI {
         }
 
         InputUtility.pressEnterToContinue();
+        InputUtility.clearScreen();
     }
     
     // ==================================================
@@ -906,7 +963,7 @@ public class LoyaltyAndRewardsUI {
         if (choice < 1 || choice > rewards.length + 1) {
             System.out.println();
             System.out.println(border);
-            System.out.println("| Invalid reward choice.                         |");
+            System.out.println("| Invalid reward choice.                      |");
             System.out.println(border);
 
             InputUtility.pressEnterToContinue();
@@ -949,7 +1006,7 @@ public class LoyaltyAndRewardsUI {
                 "DAILY REWARD REDEMPTION REPORT",
                 insideWidth
         );
-        System.out.println(detailBorder);
+        System.out.println(fullBorder);
 
         System.out.printf(
                 "| %-20s : %-32s |%n",
@@ -1072,13 +1129,13 @@ public class LoyaltyAndRewardsUI {
         System.out.println(fullBorder);
 
         System.out.printf(
-                "| %-11s : %-102s |%n",
+                "| %-11s : %-103s |%n",
                 "Date",
                 LocalDate.now()
         );
 
         System.out.printf(
-                "| %-11s : %-102s |%n",
+                "| %-11s : %-103s |%n",
                 "Filter",
                 "All Rewards"
         );
@@ -1088,6 +1145,7 @@ public class LoyaltyAndRewardsUI {
                     "| %-117s |%n",
                     "No redemption records found."
             );
+            System.out.println(fullBorder);
 
             return;
         }
@@ -1368,6 +1426,7 @@ public class LoyaltyAndRewardsUI {
         System.out.println(fullBorder);
 
         InputUtility.pressEnterToContinue();
+        InputUtility.clearScreen();
     }
     
 
