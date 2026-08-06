@@ -8,27 +8,10 @@ import System_Entity.Guest;
 import java.util.Iterator;
 
 public class BookingControl {
-    private DoublyLinkedList<Booking> waitingBookingList;
-    private DoublyLinkedList<Booking> completedBookingList;
+    private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
+    private ListInterface<Booking> completedBookingList = new DoublyLinkedList<>();
     private BookingDatabase bookingDatabase;
-    
-    //==========================================================
-    // Constructor
-    //==========================================================
-    public BookingControl(){
-        bookingDatabase = new BookingDatabase();
-        
-        waitingBookingList = bookingDatabase.getWaitingBooking();
-        completedBookingList = bookingDatabase.getCompletedBooking();
-        
-        if(waitingBookingList == null){
-            waitingBookingList = new DoublyLinkedList<>();
-        }
-            
-        if(completedBookingList == null){
-            completedBookingList = new DoublyLinkedList<>();
-        }
-    }
+   
     
     //==========================================================
     // Add Standard Reservation

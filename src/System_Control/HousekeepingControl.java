@@ -8,6 +8,7 @@ import System_adt.DoublyLinkedList;
 import System_Entity.StatusEntry;
 import System_Utility.RoomStatusUtil;
 import System_Entity.Room;
+import dao.RoomDao;
 
 /**
  *
@@ -17,8 +18,24 @@ public class HousekeepingControl {
     
     public static DoublyLinkedList.ArrayList<Room> rooms = new DoublyLinkedList.ArrayList<>();
     
-     // Room register
+    private static boolean roomDatabaseLoaded = false;
     
+    public static void loadRoomDatabase(){
+        if(roomDatabaseLoaded){
+            return;
+        }
+        
+        RoomDao dao = new RoomDao();
+        DoublyLinkedList.ArrayList<Room> loadedRooms = dao.retrieveFromFile();
+        
+        for(int i = 1 ; i <= loadedRooms.getNumberOfEntries() ; i++){
+            rooms.add(loadedRooms.getEntry(i));
+        }
+        
+        roomDatabaseLoaded = true;
+    }
+    
+     // Room register
     public static Room registerRoom(String roomNum,  int roomType){
         Room room = new Room(roomNum , roomType);
         room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty,"Room Registered"));

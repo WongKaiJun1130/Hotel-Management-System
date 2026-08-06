@@ -1,6 +1,7 @@
 package dao;
 
 import System_adt.DoublyLinkedList;
+import System_adt.ListInterface;
 import System_Entity.Booking;
 
 import java.io.*;
@@ -13,8 +14,8 @@ public class BookingDatabase {
     // Create Initial Booking Data
     //====================================================
     public static void createBookingData() {
-        DoublyLinkedList<Booking> waitingBooking = new DoublyLinkedList<>();
-        DoublyLinkedList<Booking> completedBooking = new DoublyLinkedList<>();
+        ListInterface<Booking> waitingBooking = new DoublyLinkedList<>();
+        ListInterface<Booking> completedBooking = new DoublyLinkedList<>();
 
         //==============================
         // Waiting Booking
@@ -184,5 +185,9 @@ public class BookingDatabase {
             System.out.println("No completed booking database found.");
         }
         return completed;
+    }
+
+    public void saveToFile(ListInterface<Booking> waitingBookingList, ListInterface<Booking> completedBookingList) {
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
 }
