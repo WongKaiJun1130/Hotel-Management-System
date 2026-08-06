@@ -14,8 +14,8 @@ public class BookingControl {
     private BookingDatabase bookingDatabase = new BookingDatabase();
 
     public BookingControl() {
-        waitingBookingList = bookingDatabase.getWaitingBooking();
-        completedBookingList = bookingDatabase.getCompletedBooking();
+        waitingBookingList = bookingDatabase.initializeWaitingBookingDAO();
+        completedBookingList = bookingDatabase.initializeCompletedBookingDAO();
     }
  
     //==========================================================
@@ -27,9 +27,7 @@ public class BookingControl {
             return false;
         }
         booking.setRoomStatus("Waiting");
-        boolean result = waitingBookingList.add(booking);
-        saveData();
-        return result;
+        return waitingBookingList.add(booking);
     }
 
     //==========================================================
@@ -39,9 +37,7 @@ public class BookingControl {
         for(int i=1; i<=waitingBookingList.getSize(); i++){
             Booking booking = waitingBookingList.getEntry(i);
             if(booking.getBookingID().equalsIgnoreCase(bookingID)){
-                boolean result = waitingBookingList.remove(booking);
-                saveData();
-                return result;
+               return waitingBookingList.remove(booking);
             }
         }
         return false;
@@ -105,7 +101,6 @@ public class BookingControl {
         waitingBookingList.remove(1);
         booking.setRoomStatus("Completed");
         completedBookingList.add(booking);
-        saveData();
         return booking;
     }
   
@@ -168,13 +163,8 @@ public class BookingControl {
             }
         }
         if(found){
-            saveData();
             return true;
         }
         return false;
-    }
-
-    private void saveData(){
-        bookingDatabase.saveToFile(waitingBookingList, completedBookingList);
     }
 }
