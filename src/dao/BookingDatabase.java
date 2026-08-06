@@ -187,7 +187,16 @@ public class BookingDatabase {
         return completed;
     }
 
-    public void saveToFile(ListInterface<Booking> waitingBookingList, ListInterface<Booking> completedBookingList) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+    public void saveToFile(ListInterface<Booking> waitingBooking, ListInterface<Booking> completedBooking) {
+        File file = new File(fileName);
+
+        try (ObjectOutputStream output = new ObjectOutputStream(new FileOutputStream(file))) {
+            output.writeObject(waitingBooking);
+            output.writeObject(completedBooking);
+            System.out.println("Booking Database Saved Successfully!");
+
+        } catch (IOException ex) {
+            System.out.println("Cannot save booking database.");
+        }
     }
 }

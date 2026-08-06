@@ -8,11 +8,16 @@ import System_Entity.Guest;
 import java.util.Iterator;
 
 public class BookingControl {
+
     private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
     private ListInterface<Booking> completedBookingList = new DoublyLinkedList<>();
-    private BookingDatabase bookingDatabase;
-   
-    
+    private BookingDatabase bookingDatabase = new BookingDatabase();
+
+    public BookingControl() {
+        waitingBookingList = bookingDatabase.getWaitingBooking();
+        completedBookingList = bookingDatabase.getCompletedBooking();
+    }
+ 
     //==========================================================
     // Add Standard Reservation
     // Linear ADT Queue Enqueue
