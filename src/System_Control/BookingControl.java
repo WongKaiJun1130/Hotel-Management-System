@@ -7,13 +7,8 @@ import System_Entity.Guest;
 import java.util.Iterator;
 
 public class BookingControl {
-    private ListInterface<Booking> bookingList;
-    //==========================================================
-    // Constructor
-    //==========================================================
-    public BookingControl() {
-        bookingList = new DoublyLinkedList<>();
-    }
+    private ListInterface<Booking> bookingList = new DoublyLinkedList<>();
+ 
 
     //==========================================================
     // Add Standard Reservation
