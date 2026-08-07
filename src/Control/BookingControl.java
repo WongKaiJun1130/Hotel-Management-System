@@ -1,0 +1,170 @@
+package Control;
+
+import dao.BookingDao;
+import Adt.ListInterface;
+import Adt.DoublyLinkedList;
+import Entity.Booking;
+import Entity.Guest;
+import java.util.Iterator;
+
+public class BookingControl {
+
+    private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
+    private ListInterface<Booking> completedBookingList = new DoublyLinkedList<>();
+    private BookingDao bookingDatabase = new BookingDao();
+
+    public BookingControl() {
+        waitingBookingList = bookingDatabase.initializeWaitingBookingDAO();
+        completedBookingList = bookingDatabase.initializeCompletedBookingDAO();
+    }
+ 
+    //==========================================================
+    // Add Standard Reservation
+    // Linear ADT Queue Enqueue
+    //==========================================================
+    public boolean addBooking(Booking booking) {
+        if(getBookingByID(booking.getBookingID()) != null){
+            return false;
+        }
+        booking.setRoomStatus("Waiting");
+        return waitingBookingList.add(booking);
+    }
+
+    //==========================================================
+    // Cancel Booking
+    //==========================================================
+    public boolean cancelBooking(String bookingID){
+        for(int i=1; i<=waitingBookingList.getSize(); i++){
+            Booking booking = waitingBookingList.getEntry(i);
+            if(booking.getBookingID().equalsIgnoreCase(bookingID)){
+               return waitingBookingList.remove(booking);
+            }
+        }
+        return false;
+    }
+
+    //==========================================================
+    // Get Booking By ID
+    //==========================================================
+    public Booking getBookingByID(String bookingID){
+        Iterator<Booking> waiting = waitingBookingList.getIterator();
+            while(waiting.hasNext()){
+            Booking booking = waiting.next();
+                if(booking.getBookingID().equalsIgnoreCase(bookingID)){
+                    return booking;
+                }
+            }
+        Iterator<Booking> completed = completedBookingList.getIterator();
+            while(completed.hasNext()){
+            Booking booking = completed.next();
+                if(booking.getBookingID().equalsIgnoreCase(bookingID)){
+                    return booking;
+                }
+            }
+        return null;
+    }
+
+    //==========================================================
+    // Get All Booking
+    //==========================================================
+    public ListInterface<Booking> getAllBooking(){
+    ListInterface<Booking> all = new DoublyLinkedList<>();
+        for(int i=1; i<=waitingBookingList.getSize(); i++){
+            all.add(waitingBookingList.getEntry(i));
+        }
+        for(int i=1; i<=completedBookingList.getSize(); i++){
+            all.add(completedBookingList.getEntry(i));
+        }
+        return all;
+    }
+
+    //==========================================================
+    // FIFO Queue Peek
+    // View Next Waiting Reservation
+    //==========================================================
+    public Booking getNextWaitingBooking() {
+        if(waitingBookingList.isEmpty()) {
+            return null;
+        }
+        return waitingBookingList.getEntry(1);
+    }
+
+    //==========================================================
+    // FIFO Queue Dequeue
+    // Process Next Reservation
+    //==========================================================
+    public Booking processNextReservation() {
+        if(waitingBookingList.isEmpty()){
+            return null;
+        }
+        Booking booking = waitingBookingList.getEntry(1);
+        waitingBookingList.remove(1);
+        booking.setRoomStatus("Completed");
+        completedBookingList.add(booking);
+        return booking;
+    }
+  
+    //==========================================================
+    // Booking Conflict
+    //==========================================================
+    public boolean hasConflict(
+            Guest guest,
+            String checkInDate,
+            String checkOutDate){
+        for(int i=1;i<=waitingBookingList.getSize();i++){
+            Booking booking = waitingBookingList.getEntry(i);
+            
+            if(booking.getGuestName().equalsIgnoreCase(guest.getGuestName())){
+                if(checkInDate.compareTo(booking.getCheckOutDate()) < 0 && 
+                   checkOutDate.compareTo(booking.getCheckInDate()) > 0){
+                   return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    //==========================================================
+    // Get All Waiting Booking
+    //==========================================================
+    public ListInterface<Booking> getWaitingBookings() {
+        return waitingBookingList;
+    }
+
+    //==========================================================
+    // Get All Completed Booking
+    //==========================================================
+    public ListInterface<Booking> getCompletedBookings() {
+        return completedBookingList;
+    }
+
+    //==========================================================
+    // Update Booking And Save
+    //==========================================================
+    public boolean updateBooking(Booking booking){
+        boolean found = false;
+
+        // Check waiting list
+        for(int i = 1; i <= waitingBookingList.getSize(); i++){
+            Booking temp = waitingBookingList.getEntry(i);
+            if(temp.getBookingID().equalsIgnoreCase(booking.getBookingID())){
+                found = true;
+                break;
+            }
+        }
+        // Check completed list
+        if(!found){
+            for(int i = 1; i <= completedBookingList.getSize(); i++){
+                Booking temp = completedBookingList.getEntry(i);
+                if(temp.getBookingID().equalsIgnoreCase(booking.getBookingID())){
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if(found){
+            return true;
+        }
+        return false;
+    }
+}

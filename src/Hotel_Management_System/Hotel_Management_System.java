@@ -4,17 +4,17 @@
  */
 package Hotel_Management_System;
 
-import System_UI.*;
-import dao.GuestDatabase;
-import dao.LoyaltyDatabase;
+import UI.MainUI;
+import dao.GuestDao;
+import dao.LoyaltyDao;
 import dao.RoomDao;
 
 
 public class Hotel_Management_System {
 
     public static void main(String[] args) {
-        GuestDatabase guestDatabase = new GuestDatabase();
-        LoyaltyDatabase loyaltyDatabase = new LoyaltyDatabase();
+        GuestDao guestDatabase = new GuestDao();
+        LoyaltyDao loyaltyDatabase = new LoyaltyDao();
        
         guestDatabase.createGuestData();
         loyaltyDatabase.createLoyaltyData();

@@ -1,10 +1,10 @@
 package dao;
 
-import System_adt.DoublyLinkedList;
-import System_adt.ListInterface;
-import System_Entity.Booking;
+import Adt.DoublyLinkedList;
+import Adt.ListInterface;
+import Entity.Booking;
 
-public class BookingDatabase {
+public class BookingDao {
 
     //====================================================
     // Initialize Waiting Booking Data

@@ -5,11 +5,11 @@
 package dao;
 
 
-import System_Entity.Room;
-import System_Entity.StatusEntry;
-import System_Utility.RoomStatusUtil;
-import System_Utility.RoomTypeUtil;
-import System_adt.DoublyLinkedList;
+import Entity.Room;
+import Entity.StatusEntry;
+import Utility.RoomStatusUtil;
+import Utility.RoomTypeUtil;
+import Adt.DoublyLinkedList;
 import java.io.*;
 
 /**

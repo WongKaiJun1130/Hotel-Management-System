@@ -1,0 +1,71 @@
+package Adt;
+
+import java.util.Iterator;
+import java.util.Comparator;
+
+//================================================
+// List Interface for DoublyLinkedList
+//================================================
+public interface ListInterface<T> {
+
+    void insertAndAdvance(T data);
+    T rollback();
+    T redo();
+    void spliceAfterCurrent(T data);
+    T getCurrentData();
+
+    boolean add(T data);
+    int getSize();
+    T getEntry(int position);
+    T remove(int position);
+    boolean remove(T data);
+
+    boolean isEmpty();
+    Iterator<T> getIterator();
+}
+
+//==============================================================================
+// Array List Interface 
+//==============================================================================
+interface ArrayListInterface<T>{
+    boolean add(T newEntry);
+    boolean add(int newPosition,T newEntry);
+    T remove(int removePosition);
+    void clear();
+    boolean replace(int replacePosition,T newEntry);
+    T getEntry(int givenPosition);
+    int getNumberOfEntries();
+    boolean contains(T anEntry);
+    boolean isEmpty();
+    boolean isFull();
+    int indexOf(T element);
+    T getLast();
+    int getSize();
+    boolean remove(T element);
+}
+
+
+//==============================================================================
+// Stack Interface 
+//==============================================================================
+interface StackInterface<T>{
+    void push(T newEntry);
+    T pop();
+    T peek();
+    boolean isEmpty();
+    void clear();
+    int getCurrentSize();
+}
+
+
+//==============================================================================
+// Queue Interface 
+//==============================================================================
+interface QueueInterface<T>{
+    Iterator<T> getIterator();
+    void enqueue(T newEntry);
+    T dequeue();
+    T getFront();
+    boolean isEmpty();
+    void clear();
+}
