@@ -1,53 +1,33 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
-import System_Entity.Guest;
-import System_Entity.LoyaltyRecord;
-import System_adt.DoublyLinkedList;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import entity.Guest;
+import entity.LoyaltyRecord;
+import adt.DoublyLinkedList;
 import java.time.LocalDate;
 
-/*
- * @author User
- */
 public class LoyaltyDatabase {
 
-    private final String fileName = "LoyaltyDatabase.dat";
+    private static DoublyLinkedList<LoyaltyRecord> loyaltyData = new DoublyLinkedList<>();
 
-    // ==================================================
+    //====================================================
     // Create Initial Loyalty Data
-    // ==================================================
+    //====================================================
     public static void createLoyaltyData() {
 
         GuestDatabase guestDatabase = new GuestDatabase();
-
-        DoublyLinkedList.ArrayList<Guest> guests =
-                guestDatabase.retrieveFromFile();
+        DoublyLinkedList<Guest> guests = guestDatabase.retrieveFromFile();
 
         if (guests == null || guests.isEmpty()) {
             System.out.println("No guest records found.");
             return;
         }
 
-        if (guests.getNumberOfEntries() < 10) {
-            System.out.println(
-                    "Not enough guest records. At least 10 guests are required."
-            );
+        if (guests.getSize() < 10) {
+            System.out.println("Not enough guest records. At least 10 guests are required.");
             return;
         }
 
-        DoublyLinkedList.ArrayList<LoyaltyRecord> loyaltyRecords =
-                new DoublyLinkedList.ArrayList<>();
+        DoublyLinkedList<LoyaltyRecord> loyaltyRecords = new DoublyLinkedList<>();
 
         Guest guest1 = guests.getEntry(1);
         Guest guest2 = guests.getEntry(2);
@@ -71,98 +51,100 @@ public class LoyaltyDatabase {
         loyaltyRecords.add(new LoyaltyRecord(guest9, 400, 400, LocalDate.of(2026, 8, 15)));
         loyaltyRecords.add(new LoyaltyRecord(guest10, 1400, 4200, LocalDate.of(2026, 12, 15)));
 
-        LoyaltyDatabase loyaltyDatabase =
-                new LoyaltyDatabase();
-
+        LoyaltyDatabase loyaltyDatabase = new LoyaltyDatabase();
         loyaltyDatabase.saveToFile(loyaltyRecords);
 
-        System.out.println(
-                loyaltyRecords.getNumberOfEntries()
-                        + " Loyalty Records Saved!"
-        );
+        System.out.println(loyaltyRecords.getSize() + " Loyalty Records Created In Memory!");
     }
 
-    // ==================================================
-    // Save Loyalty Data
-    // ==================================================
-    public void saveToFile(
-            DoublyLinkedList.ArrayList<LoyaltyRecord> loyaltyRecords
-    ) {
+    //====================================================
+    // Save Loyalty Data In Memory
+    //====================================================
+    public void saveToFile(DoublyLinkedList<LoyaltyRecord> loyaltyRecords) {
 
-        File file = new File(fileName);
+        loyaltyData = new DoublyLinkedList<>();
 
-        System.out.println(
-                "Saving loyalty file to: "
-                        + file.getAbsolutePath()
-        );
-
-        try (ObjectOutputStream outputStream =
-                new ObjectOutputStream(
-                        new FileOutputStream(file)
-                )) {
-
-            outputStream.writeObject(loyaltyRecords);
-
-            System.out.println(
-                    "Loyalty Database Saved Successfully!"
-            );
-
-        } catch (FileNotFoundException ex) {
-
-            System.out.println("Loyalty database file not found.");
-
-        } catch (IOException ex) {
-
-            System.out.println(
-                    "Cannot save loyalty database."
-            );
-
-            ex.printStackTrace();
+        if (loyaltyRecords == null) {
+            return;
         }
+
+        for (int i = 1; i <= loyaltyRecords.getSize(); i++) {
+            LoyaltyRecord loyaltyRecord = loyaltyRecords.getEntry(i);
+
+            if (loyaltyRecord != null) {
+                loyaltyData.add(loyaltyRecord);
+            }
+        }
+
+        System.out.println("Loyalty Database Updated In Memory!");
     }
 
-    // ==================================================
-    // Retrieve Loyalty Data
-    // ==================================================
-    @SuppressWarnings("unchecked")
-    public DoublyLinkedList.ArrayList<LoyaltyRecord>
-            retrieveFromFile() {
+    //====================================================
+    // Retrieve Loyalty Data From Memory
+    //====================================================
+    public DoublyLinkedList<LoyaltyRecord> retrieveFromFile() {
 
-        File file = new File(fileName);
+        DoublyLinkedList<LoyaltyRecord> copiedLoyaltyRecords = new DoublyLinkedList<>();
 
-        DoublyLinkedList.ArrayList<LoyaltyRecord> loyaltyRecords =
-                new DoublyLinkedList.ArrayList<>();
+        for (int i = 1; i <= loyaltyData.getSize(); i++) {
+            LoyaltyRecord loyaltyRecord = loyaltyData.getEntry(i);
 
-        try (ObjectInputStream inputStream =
-                new ObjectInputStream(
-                        new FileInputStream(file)
-                )) {
-
-            loyaltyRecords =
-                    (DoublyLinkedList.ArrayList<LoyaltyRecord>)
-                    inputStream.readObject();
-
-        } catch (FileNotFoundException ex) {
-
-            System.out.println(
-                    "No Loyalty Database Found."
-            );
-
-        } catch (IOException ex) {
-
-            System.out.println(
-                    "Cannot read loyalty database."
-            );
-
-            ex.printStackTrace();
-
-        } catch (ClassNotFoundException ex) {
-
-            System.out.println(
-                    "LoyaltyRecord class not found."
-            );
+            if (loyaltyRecord != null) {
+                copiedLoyaltyRecords.add(loyaltyRecord);
+            }
         }
 
-        return loyaltyRecords;
+        return copiedLoyaltyRecords;
+    }
+
+    //====================================================
+    // Add Loyalty Record
+    //====================================================
+    public boolean addLoyaltyRecord(LoyaltyRecord loyaltyRecord) {
+
+        if (loyaltyRecord == null) {
+            return false;
+        }
+
+        loyaltyData.add(loyaltyRecord);
+        return true;
+    }
+
+    //====================================================
+    // Get Loyalty Record
+    //====================================================
+    public LoyaltyRecord getLoyaltyRecord(int position) {
+
+        if (position < 1 || position > loyaltyData.getSize()) {
+            return null;
+        }
+
+        return loyaltyData.getEntry(position);
+    }
+
+    //====================================================
+    // Remove Loyalty Record
+    //====================================================
+    public LoyaltyRecord removeLoyaltyRecord(int position) {
+
+        if (position < 1 || position > loyaltyData.getSize()) {
+            return null;
+        }
+
+        return loyaltyData.remove(position);
+    }
+
+    //====================================================
+    // Get Total Loyalty Records
+    //====================================================
+    public int getTotalLoyaltyRecords() {
+        return loyaltyData.getSize();
+    }
+
+    //====================================================
+    // Check Loyalty Data Is Empty
+    //====================================================
+    public boolean isLoyaltyDataEmpty() {
+        return loyaltyData.isEmpty();
     }
 }

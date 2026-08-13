@@ -1,0 +1,401 @@
+package control;
+
+import entity.Guest;
+import adt.DoublyLinkedList;
+import adt.ListInterface;
+import dao.GuestDatabase;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Iterator;
+
+public class VIPAllocationControl {
+
+    private DoublyLinkedList<Guest> vipQueue = new DoublyLinkedList<>();
+    private int nextGuestID;
+
+    private static final DateTimeFormatter ARRIVAL_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+    //==========================================================
+    // Constructor
+    //==========================================================
+    public VIPAllocationControl() {
+        nextGuestID = 1;
+        loadGuestDatabase();
+    }
+
+    //==========================================================
+    // Generate Guest ID
+    //==========================================================
+    public String generateGuestID() {
+        return String.format("R%04d", nextGuestID);
+    }
+
+    //==========================================================
+    // Add Guest To Allocation Queue
+    //==========================================================
+    public boolean addGuestToQueue(Guest guest) {
+
+        if (guest == null) {
+            return false;
+        }
+
+        if (searchGuestByID(guest.getGuestID()) != null) {
+            return false;
+        }
+
+        insertPriority(guest);
+        nextGuestID++;
+
+        return true;
+    }
+
+    //==========================================================
+    // Insert Guest Based On Priority And Arrival Time
+    //==========================================================
+    private void insertPriority(Guest guest) {
+
+        DoublyLinkedList<Guest> temporaryQueue = new DoublyLinkedList<>();
+        boolean inserted = false;
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+
+            Guest currentGuest = iterator.next();
+
+            if (!inserted && shouldInsertBefore(guest, currentGuest)) {
+                temporaryQueue.enqueue(guest);
+                inserted = true;
+            }
+
+            temporaryQueue.enqueue(currentGuest);
+        }
+
+        if (!inserted) {
+            temporaryQueue.enqueue(guest);
+        }
+
+        vipQueue = temporaryQueue;
+    }
+
+    //==========================================================
+    // Compare Priority And Arrival Time
+    //==========================================================
+    private boolean shouldInsertBefore(Guest newGuest, Guest currentGuest) {
+
+        if (newGuest.getPriority() > currentGuest.getPriority()) {
+            return true;
+        }
+
+        if (newGuest.getPriority() < currentGuest.getPriority()) {
+            return false;
+        }
+
+        LocalDateTime newArrival = parseArrivalDateTime(newGuest.getArrivalDateTime());
+        LocalDateTime currentArrival = parseArrivalDateTime(currentGuest.getArrivalDateTime());
+
+        if (newArrival == null || currentArrival == null) {
+            return false;
+        }
+
+        return newArrival.isBefore(currentArrival);
+    }
+
+    //==========================================================
+    // Parse Arrival Date And Time
+    //==========================================================
+    private LocalDateTime parseArrivalDateTime(String arrivalDateTime) {
+
+        if (arrivalDateTime == null || arrivalDateTime.trim().isEmpty()) {
+            return null;
+        }
+
+        try {
+            return LocalDateTime.parse(arrivalDateTime.trim(), ARRIVAL_FORMATTER);
+        } catch (DateTimeParseException exception) {
+            return null;
+        }
+    }
+
+    //==========================================================
+    // Allocate Room
+    //==========================================================
+    public Guest allocateRoom() {
+
+        if (vipQueue.isEmpty()) {
+            return null;
+        }
+
+        Guest guest = vipQueue.dequeue();
+        guest.setRoomStatus("Allocated");
+
+        return guest;
+    }
+
+    //==========================================================
+    // Get Next Priority Guest
+    //==========================================================
+    public Guest getNextPriorityGuest() {
+
+        if (vipQueue.isEmpty()) {
+            return null;
+        }
+
+        return vipQueue.getFront();
+    }
+
+    //==========================================================
+    // Get All Guest Allocations
+    //==========================================================
+    public ListInterface<Guest> getAllGuestAllocations() {
+
+        ListInterface<Guest> guestList = new DoublyLinkedList<>();
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+            guestList.add(iterator.next());
+        }
+
+        return guestList;
+    }
+
+    //==========================================================
+    // Search Guest Allocation
+    //==========================================================
+    public ListInterface<Guest> searchGuest(String keyword) {
+
+        ListInterface<Guest> matchingGuests = new DoublyLinkedList<>();
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return matchingGuests;
+        }
+
+        String searchKeyword = keyword.trim().toLowerCase();
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+
+            Guest guest = iterator.next();
+
+            String searchData = guest.getGuestID() + " "
+                    + guest.getGuestName() + " "
+                    + guest.getPhoneNumber() + " "
+                    + guest.getLoyaltyTier() + " "
+                    + guest.getPriority() + " "
+                    + guest.getRoomType() + " "
+                    + guest.getRoomStatus() + " "
+                    + guest.getCheckInDate() + " "
+                    + guest.getArrivalDateTime();
+
+            if (searchData.toLowerCase().contains(searchKeyword)) {
+                matchingGuests.add(guest);
+            }
+        }
+
+        return matchingGuests;
+    }
+
+    //==========================================================
+    // Search Guest By ID
+    //==========================================================
+    public Guest searchGuestByID(String guestID) {
+
+        if (guestID == null || guestID.trim().isEmpty()) {
+            return null;
+        }
+
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+
+            Guest guest = iterator.next();
+
+            if (guest.getGuestID().equalsIgnoreCase(guestID.trim())) {
+                return guest;
+            }
+        }
+
+        return null;
+    }
+
+    //==========================================================
+    // Get Available Rooms
+    //==========================================================
+    public String[][] getAvailableRooms() {
+
+        return new String[][]{
+            {"Small Room", "Available"},
+            {"Medium Room", "Available"},
+            {"Big Room", "Available"}
+        };
+    }
+
+    //==========================================================
+    // Load Guest Database
+    //==========================================================
+    public int loadGuestDatabase() {
+
+        GuestDatabase GuestDatabase = new GuestDatabase();
+        DoublyLinkedList<Guest> guests = GuestDatabase.retrieveFromFile();
+
+        vipQueue = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= guests.getSize(); i++) {
+            Guest guest = guests.getEntry(i);
+            insertPriority(guest);
+        }
+
+        updateNextGuestID(guests);
+
+        return guests.getSize();
+    }
+
+    //==========================================================
+    // Update Next Guest ID
+    //==========================================================
+    private void updateNextGuestID(DoublyLinkedList<Guest> guests) {
+
+        int highestID = 0;
+
+        for (int i = 1; i <= guests.getSize(); i++) {
+
+            Guest guest = guests.getEntry(i);
+            String guestID = guest.getGuestID();
+
+            if (guestID == null || !guestID.matches("R\\d{4}")) {
+                continue;
+            }
+
+            int numericID = Integer.parseInt(guestID.substring(1));
+
+            if (numericID > highestID) {
+                highestID = numericID;
+            }
+        }
+
+        nextGuestID = highestID + 1;
+    }
+
+    //==========================================================
+    // Check Whether Queue Is Empty
+    //==========================================================
+    public boolean isQueueEmpty() {
+        return vipQueue.isEmpty();
+    }
+
+    //==========================================================
+    // Get Total Guests
+    //==========================================================
+    public int getTotalGuests() {
+
+        int total = 0;
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+            iterator.next();
+            total++;
+        }
+
+        return total;
+    }
+
+    //==========================================================
+    // Get Loyalty Tier Counts
+    //==========================================================
+    public int[] getLoyaltyTierCounts() {
+
+        int[] counts = new int[4];
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+
+            Guest guest = iterator.next();
+            String loyaltyTier = guest.getLoyaltyTier();
+
+            if (loyaltyTier == null) {
+                continue;
+            }
+
+            switch (loyaltyTier.trim().toLowerCase()) {
+
+                case "elite":
+                    counts[0]++;
+                    break;
+
+                case "diamond":
+                    counts[1]++;
+                    break;
+
+                case "platinum":
+                    counts[2]++;
+                    break;
+
+                case "standard":
+                    counts[3]++;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        return counts;
+    }
+    
+    public Guest removeGuestByID(String guestID) {
+
+    if (guestID == null || guestID.trim().isEmpty()) {
+        return null;
+    }
+
+    for (int i = 1; i <= vipQueue.getSize(); i++) {
+        Guest guest = vipQueue.getEntry(i);
+
+        if (guest != null && guest.getGuestID() != null && guest.getGuestID().equalsIgnoreCase(guestID.trim())) {
+            return vipQueue.remove(i);
+        }
+    }
+
+    return null;
+}
+
+    //==========================================================
+    // Get Room Type Counts
+    //==========================================================
+    public int[] getRoomTypeCounts() {
+
+        int[] counts = new int[3];
+        Iterator<Guest> iterator = vipQueue.getIterator();
+
+        while (iterator.hasNext()) {
+
+            Guest guest = iterator.next();
+            String roomType = guest.getRoomType();
+
+            if (roomType == null) {
+                continue;
+            }
+
+            switch (roomType.trim().toLowerCase()) {
+
+                case "small room":
+                    counts[0]++;
+                    break;
+
+                case "medium room":
+                case "middle room":
+                    counts[1]++;
+                    break;
+
+                case "big room":
+                    counts[2]++;
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
+        return counts;
+    }
+}

@@ -1,16 +1,18 @@
 package dao;
 
-import System_Entity.Guest;
-import System_adt.*;
-import java.io.*;
+import entity.Guest;
+import adt.DoublyLinkedList;
 
 public class GuestDatabase {
 
-    private String fileName = "GuestDatabase.dat";
+    private static DoublyLinkedList<Guest> guests = new DoublyLinkedList<>();
 
+    //====================================================
+    // Create Initial Guest Data In Memory
+    //====================================================
     public static void createGuestData() {
 
-        DoublyLinkedList.ArrayList<Guest> guests = new DoublyLinkedList.ArrayList<>();
+        guests = new DoublyLinkedList<>();
 
         guests.add(new Guest("R0001", "John Tan", "0123456789", "Elite", "Big Room", "Waiting", "20/07/2026", "20/07/2026 10:30"));
         guests.add(new Guest("R0002", "Wong Lee", "0134567890", "Diamond", "Medium Room", "Waiting", "21/07/2026", "21/07/2026 08:45"));
@@ -23,69 +25,139 @@ public class GuestDatabase {
         guests.add(new Guest("R0009", "Kevin Lim", "0132233445", "Standard", "Small Room", "Waiting", "28/07/2026", "28/07/2026 09:30"));
         guests.add(new Guest("R0010", "Jessica Ng", "0143344556", "Diamond", "Medium Room", "Waiting", "29/07/2026", "29/07/2026 08:15"));
 
-        GuestDatabase dao = new GuestDatabase();
-        dao.saveToFile(guests);
-
-        System.out.println(guests.getNumberOfEntries() + " Guests Saved!");
+        System.out.println(guests.getSize() + " Guests Created In Memory!");
     }
 
     //====================================================
-    // Save Guest Data
+    // Store Guest Data In Memory
     //====================================================
-    public void saveToFile(DoublyLinkedList.ArrayList<Guest> guestList) {
+    public void saveToFile(DoublyLinkedList<Guest> guestList) {
 
-        File file = new File(fileName);
-
-        try {
-
-            ObjectOutputStream ooStream = new ObjectOutputStream(new FileOutputStream(file));
-
-            ooStream.writeObject(guestList);
-
-            ooStream.close();
-
-            System.out.println("\nGuest Database Saved Successfully!");
-
-        } catch (FileNotFoundException ex) {
-
-            System.out.println("\nFile not found.");
-
-        } catch (IOException ex) {
-
-            System.out.println("\nCannot save guest database.");
+        if (guestList == null) {
+            guests = new DoublyLinkedList<>();
+            return;
         }
+
+        guests = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= guestList.getSize(); i++) {
+
+            Guest guest = guestList.getEntry(i);
+
+            if (guest != null) {
+                guests.add(guest);
+            }
+        }
+
+        System.out.println("Guest Database Updated In Memory!");
     }
 
     //====================================================
-    // Load Guest Data
+    // Retrieve Guest Data From Memory
     //====================================================
-    public DoublyLinkedList.ArrayList<Guest> retrieveFromFile() {
+    public DoublyLinkedList<Guest> retrieveFromFile() {
 
-        File file = new File(fileName);
-
-        DoublyLinkedList.ArrayList<Guest> guestList = new DoublyLinkedList.ArrayList<>();
-
-        try {
-
-            ObjectInputStream oiStream = new ObjectInputStream(new FileInputStream(file));
-
-            guestList = (DoublyLinkedList.ArrayList<Guest>) oiStream.readObject();
-
-            oiStream.close();
-
-        } catch (FileNotFoundException ex) {
-
-            System.out.println("\nNo Guest Database Found.");
-
-        } catch (IOException ex) {
-
-            System.out.println("\nCannot read guest database.");
-
-        } catch (ClassNotFoundException ex) {
-
-            System.out.println("\nClass not found.");
+        if (guests == null || guests.isEmpty()) {
+            createGuestData();
         }
 
-        return guestList;
+        return guests;
+    }
+
+    //====================================================
+    // Add Guest
+    //====================================================
+    public boolean addGuest(Guest guest) {
+
+        if (guest == null) {
+            return false;
+        }
+
+        if (guest.getGuestID() == null || guest.getGuestID().trim().isEmpty()) {
+            return false;
+        }
+
+        if (searchGuestByID(guest.getGuestID()) != null) {
+            return false;
+        }
+
+        guests.add(guest);
+
+        return true;
+    }
+
+    //====================================================
+    // Search Guest By ID
+    //====================================================
+    public Guest searchGuestByID(String guestID) {
+
+        if (guestID == null || guestID.trim().isEmpty()) {
+            return null;
+        }
+
+        for (int i = 1; i <= guests.getSize(); i++) {
+
+            Guest guest = guests.getEntry(i);
+
+            if (guest != null && guest.getGuestID() != null && guest.getGuestID().equalsIgnoreCase(guestID.trim())) {
+                return guest;
+            }
+        }
+
+        return null;
+    }
+
+    //====================================================
+    // Remove Guest By ID
+    //====================================================
+    public Guest removeGuestByID(String guestID) {
+
+        if (guestID == null || guestID.trim().isEmpty()) {
+            return null;
+        }
+
+        for (int i = 1; i <= guests.getSize(); i++) {
+
+            Guest guest = guests.getEntry(i);
+
+            if (guest != null && guest.getGuestID() != null && guest.getGuestID().equalsIgnoreCase(guestID.trim())) {
+                return guests.remove(i);
+            }
+        }
+
+        return null;
+    }
+
+    //====================================================
+    // Get Guest By Position
+    //====================================================
+    public Guest getGuest(int position) {
+
+        if (position < 1 || position > guests.getSize()) {
+            return null;
+        }
+
+        return guests.getEntry(position);
+    }
+
+    //====================================================
+    // Get Total Guests
+    //====================================================
+    public int getTotalGuests() {
+        return guests.getSize();
+    }
+
+    //====================================================
+    // Check Guest Data Is Empty
+    //====================================================
+    public boolean isGuestDataEmpty() {
+        return guests == null || guests.isEmpty();
+    }
+
+    //====================================================
+    // Get All Guests
+    //====================================================
+    public DoublyLinkedList<Guest> getAllGuests() {
+        return guests;
     }
 }
