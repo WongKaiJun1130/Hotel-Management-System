@@ -67,7 +67,7 @@ public class InputUtility {
     public static String getDateInput() {
         while (true) {
             String date = getStringInput();
-            if (date.matches("\\d{2}-\\d{2}-\\d{4}")) {
+            if (date.matches("\\d{2}/\\d{2}/\\d{4}")) {
                 String[] parts = date.split("-");
                 int day   = Integer.parseInt(parts[0]);
                 int month = Integer.parseInt(parts[1]);
@@ -76,7 +76,7 @@ public class InputUtility {
                     return date;
                 }
             }
-            System.out.print("Invalid date. Use DD-MM-YYYY format (e.g. 25-12-2025): ");
+            System.out.print("Invalid date. Use DD-MM-YYYY format (e.g. 25/12/2025): ");
         }
     }
 
@@ -138,7 +138,7 @@ public class InputUtility {
             if (input.equalsIgnoreCase("Y") || input.equalsIgnoreCase("N")) {
                 return input;
             } else {
-                System.out.print("Invalid input. Please enter Y or N: ");
+                System.out.print("Invalid input. Please enter Y or N: ");   
             }
         }
     }

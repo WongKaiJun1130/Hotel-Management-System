@@ -213,4 +213,54 @@ public class BookingDatabase {
         }
         return copiedList;
     }
+    
+    //====================================================
+    // Generate Next Booking ID
+    //====================================================
+    public String generateBookingID() {
+        int maxID = 0;
+        // Check waiting bookings
+        for (int i = 1; i <= waitingBookingData.getSize(); i++) {
+            Booking booking = waitingBookingData.getEntry(i);
+
+            if (booking != null) {
+                String id = booking.getBookingID();
+
+                if (id != null && id.startsWith("B")) {
+                    try {
+                        int number = Integer.parseInt(id.substring(1));
+
+                        if (number > maxID) {
+                            maxID = number;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignore invalid Booking ID
+                    }
+                }
+            }
+        }
+
+        // Check completed bookings
+        for (int i = 1; i <= completedBookingData.getSize(); i++) {
+            Booking booking = completedBookingData.getEntry(i);
+
+            if (booking != null) {
+                String id = booking.getBookingID();
+
+                if (id != null && id.startsWith("B")) {
+                    try {
+                        int number = Integer.parseInt(id.substring(1));
+
+                        if (number > maxID) {
+                            maxID = number;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignore invalid Booking ID
+                    }
+                }
+            }
+        }
+
+        return String.format("B%04d", maxID + 1);
+    }
 }

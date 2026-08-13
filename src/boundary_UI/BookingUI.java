@@ -87,20 +87,8 @@ public class BookingUI {
     private void addBooking() {
         InputUtility.clearScreen();
         System.out.println("========== ADD STANDARD RESERVATION ==========");
-        String bookingID;
-        // Check duplicate booking ID
-        while(true) {
-            System.out.print("Booking ID      : ");
-            bookingID = InputUtility.getStringInput();
-            Booking existingBooking = bookingControl.getBookingByID(bookingID);
-            if(existingBooking != null) {
-                System.out.println("\nBooking ID already exists.");
-                System.out.println("Please enter another Booking ID.\n");
-            }
-            else {
-                break;
-            }
-        }
+        String bookingID = bookingControl.generateBookingID();
+        System.out.println("Booking ID      : " + bookingID);
         System.out.print("Guest Name      : ");
         String guestName = InputUtility.getValidName();
         System.out.print("Room Type       : ");
@@ -120,8 +108,8 @@ public class BookingUI {
         Booking booking = new Booking(
                 bookingID,
                 guestName,
-                roomID,
                 roomType,
+                roomID,
                 checkInDate,
                 checkOutDate,
                 "Waiting"
@@ -149,11 +137,12 @@ public class BookingUI {
             System.out.println("\nNo waiting reservation.");
         } 
         else {
-            System.out.println("Reservation Processed: ");
+            System.out.println("Reservation Processed: 2"
+                    + "");
             System.out.println();
             displayTableHeader();
             displayBookingRow(booking);
-            System.out.println("----------------------------------------------------------------------------------------");
+            System.out.println("------------------------------------------------------------------------------------------------");
             System.out.println("\nReservation processed successfully.");
         }
         InputUtility.pressEnterToContinue();
@@ -173,7 +162,7 @@ public class BookingUI {
         }else {
             displayTableHeader();
             displayBookingRow(booking);
-            System.out.println("----------------------------------------------------------------------------------------");
+            System.out.println("------------------------------------------------------------------------------------------------");
         }
         InputUtility.pressEnterToContinue();
     }
@@ -345,20 +334,21 @@ public class BookingUI {
         InputUtility.clearScreen();
         System.out.println("========== STANDARD RESERVATION QUEUE ==========\n");
 
-        ListInterface<Booking> list = bookingControl.getAllBooking();
+        ListInterface<Booking> bookingList = bookingControl.getAllBooking();
 
-        if (list.isEmpty()) {
+        if (bookingList.isEmpty()) {
             System.out.println("No booking records available.");
         } else {
-            System.out.println("----------------------------------------------------------------------------------------");
+            System.out.println("------------------------------------------------------------------------------------------------");
+            sortBookingByID(bookingList);
             displayTableHeader();
             
-            for (int i = 1; i <= list.getSize(); i++) {
-                Booking booking = list.getEntry(i);
+            for (int i = 1; i <= bookingList.getSize(); i++) {
+                Booking booking = bookingList.getEntry(i);
                 displayBookingRow(booking);
             }
-            System.out.println("----------------------------------------------------------------------------------------");
-            System.out.println("Total Reservations : " + list.getSize());
+            System.out.println("------------------------------------------------------------------------------------------------");
+            System.out.println("Total Reservations : " + bookingList.getSize());
         }
         InputUtility.pressEnterToContinue();
     }
@@ -371,6 +361,7 @@ public class BookingUI {
         System.out.println("Booking ID     : " + booking.getBookingID());
         System.out.println("Guest Name     : " + booking.getGuestName());
         System.out.println("Room Type      : " + booking.getRoomType());
+        System.out.println("Room ID        : " + booking.getRoomID());
         System.out.println("Check-In Date  : " + booking.getCheckInDate());
         System.out.println("Check-Out Date : " + booking.getCheckOutDate());
         System.out.println("Status         : " + booking.getRoomStatus());
@@ -383,18 +374,18 @@ public class BookingUI {
     private void displayWaitingBooking() {
         InputUtility.clearScreen();
         System.out.println("========== WAITING BOOKING ==========");
-        ListInterface<Booking> list = bookingControl.getWaitingBookings();
-        if(list.isEmpty()) {
+        ListInterface<Booking> bookingList = bookingControl.getWaitingBookings();
+        if(bookingList.isEmpty()) {
             System.out.println("\nNo waiting booking available.");
         }else {
             displayTableHeader();
             
-            for (int i = 1; i <= list.getSize(); i++) {
-                Booking booking = list.getEntry(i);
+            for (int i = 1; i <= bookingList.getSize(); i++) {
+                Booking booking = bookingList.getEntry(i);
                 displayBookingRow(booking);
             }
-            System.out.println("----------------------------------------------------------------------------------------");
-            System.out.println("Total Waiting Bookings : " + list.getSize());
+            System.out.println("------------------------------------------------------------------------------------------------");
+            System.out.println("Total Waiting Bookings : " + bookingList.getSize());
         }
     InputUtility.pressEnterToContinue();
     }
@@ -405,18 +396,18 @@ public class BookingUI {
     private void displayCompletedBooking() {
         InputUtility.clearScreen();
         System.out.println("========== COMPLETED BOOKING ==========");
-        ListInterface<Booking> list = bookingControl.getCompletedBookings();
-        if(list.isEmpty()) {
+        ListInterface<Booking> bookingList = bookingControl.getCompletedBookings();
+        if(bookingList.isEmpty()) {
             System.out.println("\nNo completed booking available.");
         }else {
             displayTableHeader();
             
-            for (int i = 1; i <= list.getSize(); i++) {
-                Booking booking = list.getEntry(i);
+            for (int i = 1; i <= bookingList.getSize(); i++) {
+                Booking booking = bookingList.getEntry(i);
                 displayBookingRow(booking);
             }
-            System.out.println("----------------------------------------------------------------------------------------");
-            System.out.println("Total Completed Bookings : " + list.getSize());
+            System.out.println("------------------------------------------------------------------------------------------------");
+            System.out.println("Total Completed Bookings : " + bookingList.getSize());
         }
         InputUtility.pressEnterToContinue();
     }
@@ -428,17 +419,17 @@ public class BookingUI {
     private void displayBookingSchedule() {
         InputUtility.clearScreen();
         System.out.println("========== BOOKING SCHEDULE ==========");
-        ListInterface<Booking> list = bookingControl.getBookingSchedule();
-            if (list.isEmpty()) {
+        ListInterface<Booking> bookingList = bookingControl.getBookingSchedule();
+            if (bookingList.isEmpty()) {
                 System.out.println("\nNo scheduled bookings available.");
             } else {
                 displayTableHeader();
                 
-                for (int i = 1; i <= list.getSize(); i++) {
-                    Booking booking = list.getEntry(i);
+                for (int i = 1; i <= bookingList.getSize(); i++) {
+                    Booking booking = bookingList.getEntry(i);
                     displayBookingRow(booking);
                 }
-                System.out.println( "----------------------------------------------------------------------------------------");
+                System.out.println( "------------------------------------------------------------------------------------------------");
             }
             InputUtility.pressEnterToContinue();
         }
@@ -449,19 +440,19 @@ public class BookingUI {
     private void displayOccupancy() {
         InputUtility.clearScreen();
         System.out.println("========== ROOM OCCUPANCY ==========");
-        ListInterface<Booking> list = bookingControl.getOccupiedRooms();
+        ListInterface<Booking> bookingList = bookingControl.getOccupiedRooms();
 
-        if (list.isEmpty()) {
+        if (bookingList.isEmpty()) {
             System.out.println("\nNo occupied rooms.");
         } else {
             displayTableHeader();
             
-            for (int i = 1; i <= list.getSize(); i++) {
-                Booking booking = list.getEntry(i);
+            for (int i = 1; i <= bookingList.getSize(); i++) {
+                Booking booking = bookingList.getEntry(i);
                 displayBookingRow(booking);
             }
-            System.out.println("----------------------------------------------------------------------------------------");
-            System.out.println("Total Occupied Rooms : " + list.getSize());
+            System.out.println("------------------------------------------------------------------------------------------------");
+            System.out.println("Total Occupied Rooms : " + bookingList.getSize());
         }
         InputUtility.pressEnterToContinue();
     }
@@ -473,18 +464,18 @@ public class BookingUI {
         InputUtility.clearScreen();
         System.out.println("========== BOOKING HISTORY ==========");
 
-        ListInterface<Booking> list = bookingControl.getBookingHistory();
+        ListInterface<Booking> bookingList = bookingControl.getBookingHistory();
 
-        if (list.isEmpty()) {
+        if (bookingList.isEmpty()) {
             System.out.println("\nNo booking history available.");
         } else {
             displayTableHeader();
             
-            for (int i = 1; i <= list.getSize(); i++) {
-                Booking booking = list.getEntry(i);
+            for (int i = 1; i <= bookingList.getSize(); i++) {
+                Booking booking = bookingList.getEntry(i);
                 displayBookingRow(booking);
             }
-            System.out.println("----------------------------------------------------------------------------------------");
+            System.out.println("------------------------------------------------------------------------------------------------");
             System.out.println("Total Completed Bookings : " + bookingControl.getCompletedBookingCount());
         }
         InputUtility.pressEnterToContinue();
@@ -495,7 +486,7 @@ public class BookingUI {
     //==========================================================
     private void displayTableHeader() {
         System.out.printf(
-            "%-10s %-20s %-12s %-10s %-12s %-12s %-12s%n",
+            "%-13s %-20s %-12s %-10s %-12s %-12s %-12s%n",
             "Booking ID",
             "Guest Name",
             "Room Type",
@@ -513,7 +504,7 @@ public class BookingUI {
     //==========================================================
     private void displayBookingRow(Booking booking) {
         System.out.printf(
-            "%-10s %-20s %-12s %-10s %-12s %-12s %-12s%n",
+            "%-13s %-20s %-12s %-10s %-12s %-12s %-12s%n",
             booking.getBookingID(),
             booking.getGuestName(),
             booking.getRoomType(),
@@ -522,5 +513,24 @@ public class BookingUI {
             booking.getCheckOutDate(),
             booking.getRoomStatus()
         );
+    }
+    
+    //==========================================================
+    // Sort Booking List By Booking ID
+    //==========================================================
+    private void sortBookingByID(ListInterface<Booking> bookingList) {
+
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            for (int j = i + 1; j <= bookingList.getSize(); j++) {
+                Booking booking1 = bookingList.getEntry(i);
+                Booking booking2 = bookingList.getEntry(j);
+                int id1 = Integer.parseInt(booking1.getBookingID().substring(1));
+                int id2 = Integer.parseInt(booking2.getBookingID().substring(1));
+                if (id1 > id2) {
+                    bookingList.replace(i, booking2);
+                    bookingList.replace(j, booking1);
+                }
+            }
+        }
     }
 }

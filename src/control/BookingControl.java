@@ -18,6 +18,10 @@ public class BookingControl {
         completedBookingList = bookingDatabase.getCompletedBooking();
     }
  
+    public String generateBookingID() {
+        return bookingDatabase.generateBookingID();
+    }
+    
     //==========================================================
     // Add Standard Reservation
     // Linear ADT Queue Enqueue
