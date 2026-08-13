@@ -27,7 +27,6 @@ public class Hotel_Management_System {
     }
 }
 
-
 //package main;
 //
 //import boundary.MainUI;
