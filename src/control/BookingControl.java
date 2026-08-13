@@ -1,6 +1,6 @@
 package control;
 
-import dao.BookingDao;
+import dao.BookingDatabase;
 import adt.ListInterface;
 import adt.DoublyLinkedList;
 import entity.Booking;
@@ -11,11 +11,11 @@ public class BookingControl {
 
     private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
     private ListInterface<Booking> completedBookingList = new DoublyLinkedList<>();
-    private BookingDao bookingDatabase = new BookingDao();
+    private BookingDatabase bookingDatabase = new BookingDatabase();
 
     public BookingControl() {
-        waitingBookingList = bookingDatabase.initializeWaitingBookingDAO();
-        completedBookingList = bookingDatabase.initializeCompletedBookingDAO();
+        waitingBookingList = bookingDatabase.getWaitingBooking();
+        completedBookingList = bookingDatabase.getCompletedBooking();
     }
  
     //==========================================================
@@ -163,6 +163,56 @@ public class BookingControl {
             }
         }
         return found;
+    }
+    
+    //==========================================================
+    // Generate Room ID
+    // 30 Hotel Rooms
+    // Single  : S01 - S10
+    // Medium  : M01 - M10
+    // Large   : L01 - L10
+    //==========================================================
+    public String assignRoomID(String roomType) {
+        String prefix;
+        if (roomType.equalsIgnoreCase("Single")) {
+            prefix = "S";
+        }
+        else if (roomType.equalsIgnoreCase("Medium")) {
+            prefix = "M";
+        }
+        else if (roomType.equalsIgnoreCase("Large")) {
+            prefix = "L";
+        }
+        else {
+            return null;
+        }
+
+        for (int i = 1; i <= 10; i++) {
+            String roomID = prefix + String.format("%02d", i);
+            boolean used = false;
+            // Check waiting bookings
+            for (int j = 1; j <= waitingBookingList.getSize(); j++) {
+                Booking booking = waitingBookingList.getEntry(j);
+                if (booking.getRoomID() != null && booking.getRoomID().equalsIgnoreCase(roomID)) {
+                    used = true;
+                    break;
+                }
+            }
+            // Check completed bookings
+            if (!used) {
+                for (int j = 1; j <= completedBookingList.getSize(); j++) {
+                    Booking booking = completedBookingList.getEntry(j);
+                    if (booking.getRoomID() != null && booking.getRoomID().equalsIgnoreCase(roomID)) {
+                        used = true;
+                        break;
+                    }
+                }
+            }
+            if (!used) {
+                return roomID;
+            }
+        }
+        return null;
     }
     
     

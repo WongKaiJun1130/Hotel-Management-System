@@ -17,9 +17,12 @@ import dao.RoomDao;
 public class Hotel_Management_System {
 
     public static void main(String[] args) {
+
+        BookingDatabase bookingDatabase = new BookingDatabase();
         GuestDatabase guestDatabase = new GuestDatabase();
         LoyaltyDatabase loyaltyDatabase = new LoyaltyDatabase();
        
+        BookingDatabase.createBookingData();
         guestDatabase.createGuestData();
         loyaltyDatabase.createLoyaltyData();
         

@@ -25,6 +25,9 @@ public class GuestDatabase {
         guests.add(new Guest("R0009", "Kevin Lim", "0132233445", "Standard", "Small Room", "Waiting", "28/07/2026", "28/07/2026 09:30"));
         guests.add(new Guest("R0010", "Jessica Ng", "0143344556", "Diamond", "Medium Room", "Waiting", "29/07/2026", "29/07/2026 08:15"));
 
+        GuestDatabase guestDatabase = new GuestDatabase();
+        guestDatabase.saveToFile(guests);
+        
         System.out.println(guests.getSize() + " Guests Created In Memory!");
     }
 
