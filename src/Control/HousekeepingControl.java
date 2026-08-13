@@ -53,7 +53,7 @@ public class HousekeepingControl {
     // How long a room can sit at its current status before it's
     // auto-advanced to the next stage. Set small (e.g. 15 * 1000 for
     // 15 seconds) while testing; 15 minutes for the real thing.
-    private static final long AUTO_ADVANCE_INTERVAL_MILLIS = 15 * 1000; // 15 minutes
+    private static final long AUTO_ADVANCE_INTERVAL_MILLIS = 15 * 1000; // TESTING: 15 seconds (set to 15 * 60 * 1000 for the real 15 min)
 
     // How often the scheduler checks all rooms. Independent of the
     // interval above - just needs to be frequent enough that a room
@@ -103,8 +103,18 @@ public class HousekeepingControl {
                 continue;
             }
 
-            advanceStatus(room, "Auto-advanced after " + (AUTO_ADVANCE_INTERVAL_MILLIS / 60000) + " min");
+            advanceStatus(room, "Auto-advanced after " + formatInterval(AUTO_ADVANCE_INTERVAL_MILLIS));
         }
+    }
+
+    // Formats the interval as seconds if it's under a minute, otherwise
+    // as minutes - so the note text stays accurate whether you're
+    // testing with a short interval or running the real 15-minute one.
+    private static String formatInterval(long millis) {
+        if (millis < 60000) {
+            return (millis / 1000) + " sec";
+        }
+        return (millis / 60000) + " min";
     }
 
     // Room register
