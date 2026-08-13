@@ -1,4 +1,8 @@
 package UI;
+/*
+ *
+ * @author Kah Shun
+ */
 
 import Entity.Room;
 import Entity.StatusEntry;
@@ -22,7 +26,7 @@ public class HouseKeepingUI {
     // ==========================
     public static void menu() {
         
-        //HousekeepingControl.loadRoomDatabase();
+        HousekeepingControl.loadDummyRooms();
 
         Navigation.stack.push(HouseKeepingMenu);
 

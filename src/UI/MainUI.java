@@ -24,17 +24,15 @@ public class MainUI {
         
         Utility.customMenu(
             new String[]{
-                "1.Register",
-                "2.Booking",
-                "3.HouseKeeping",
-                "4.Loyalty & Prize Service",
-                "5.VIP & Loyalty Tier Priority Room Allocation",
+                "1.Booking",
+                "2.HouseKeeping",
+                "3.Loyalty & Prize Service",
+                "4.VIP & Loyalty Tier Priority Room Allocation",
                 "0.Exit"
             },
                 "Main Menu",
                 "Select option: ",
                 new Runnable[]{
-                () -> RegisterUI.menu(),
                 () -> bookingUI.bookingMenu(),
                 () -> HouseKeepingUI.menu(),
                 () -> loyaltyUI.loyaltyMenu(),

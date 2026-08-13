@@ -9,7 +9,7 @@ import Adt.DoublyLinkedList;
 import java.io.Serializable;
 /**
  *
- * @author USER
+ * @author Kah Shun
  */
 public class Room implements Serializable{
     
