@@ -37,7 +37,10 @@ public class BookingUI {
             System.out.println("6. Edit Booking");
             System.out.println("7. Display Booking Queue");
             System.out.println("8. Display Waiting Booking");
-            System.out.println("9. Display Completed Booking");            
+            System.out.println("9. Display Completed Booking");
+            System.out.println("10. Booking Schedule");
+            System.out.println("11. Room Occupancy");
+            System.out.println("12. Booking History");
             System.out.println("0. Back");
             System.out.print("\nEnter Choice : ");
             choice = InputUtility.getIntInput();
@@ -60,6 +63,12 @@ public class BookingUI {
                 case 8 -> displayWaitingBooking();
 
                 case 9 -> displayCompletedBooking();
+                
+                case 10 -> displayBookingSchedule();
+
+                case 11 -> displayOccupancy();
+
+                case 12 -> displayBookingHistory();
                 
                 case 0 -> {}
 
@@ -406,4 +415,77 @@ public class BookingUI {
         InputUtility.pressEnterToContinue();
     }
     
+    
+    //==========================================================
+    // Booking Schedule
+    //==========================================================
+    private void displayBookingSchedule() {
+        InputUtility.clearScreen();
+        System.out.println("========== BOOKING SCHEDULE ==========");
+        ListInterface<Booking> list = bookingControl.getBookingSchedule();
+            if (list.isEmpty()) {
+                System.out.println("\nNo scheduled bookings available.");
+            } else {
+                for (int i = 1; i <= list.getSize(); i++) {
+                    Booking booking = list.getEntry(i);
+                    System.out.println("\n========== SCHEDULE " + i + " ==========");
+                    System.out.println("Booking ID     : " + booking.getBookingID());
+                    System.out.println("Guest Name     : " + booking.getGuestName());
+                    System.out.println("Room Type      : " + booking.getRoomType());
+                    System.out.println("Check-In Date  : " + booking.getCheckInDate());
+                    System.out.println("Check-Out Date : " + booking.getCheckOutDate());
+                    System.out.println("Status         : " + booking.getRoomStatus());
+                    System.out.println("--------------------------------");
+                }
+            }
+        InputUtility.pressEnterToContinue();
+    }
+
+    //==========================================================
+    // Room Occupancy
+    //==========================================================
+    private void displayOccupancy() {
+        InputUtility.clearScreen();
+        System.out.println("========== ROOM OCCUPANCY ==========");
+        ListInterface<Booking> list = bookingControl.getOccupiedRooms();
+
+        if (list.isEmpty()) {
+            System.out.println("\nNo occupied rooms.");
+        } else {
+            for (int i = 1; i <= list.getSize(); i++) {
+                Booking booking = list.getEntry(i);
+                System.out.println("\n========== OCCUPIED ROOM " + i + " ==========");
+                System.out.println("Booking ID     : " + booking.getBookingID());
+                System.out.println("Guest Name     : " + booking.getGuestName());
+                System.out.println("Room Type      : " + booking.getRoomType());
+                System.out.println("Check-In Date  : "+ booking.getCheckInDate());
+                System.out.println("Check-Out Date : " + booking.getCheckOutDate());
+                System.out.println("Status         : " + booking.getRoomStatus());
+                System.out.println("--------------------------------");
+            }
+        }
+        InputUtility.pressEnterToContinue();
+    }
+
+    //==========================================================
+    // Booking History
+    //==========================================================
+    private void displayBookingHistory() {
+        InputUtility.clearScreen();
+        System.out.println("========== BOOKING HISTORY ==========");
+
+        ListInterface<Booking> list = bookingControl.getBookingHistory();
+
+        if (list.isEmpty()) {
+            System.out.println("\nNo booking history available.");
+        } else {
+            for (int i = 1; i <= list.getSize(); i++) {
+                Booking booking = list.getEntry(i);
+                System.out.println("\n========== HISTORY " + i + " ==========");
+                displayBookingInformation(booking);
+            }
+        }
+        System.out.println("\nTotal Completed Bookings : " + bookingControl.getCompletedBookingCount());
+        InputUtility.pressEnterToContinue();
+    }
 }

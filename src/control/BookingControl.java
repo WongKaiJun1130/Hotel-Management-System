@@ -139,7 +139,7 @@ public class BookingControl {
     }
 
     //==========================================================
-    // Update Booking And Save
+    // Update Booking
     //==========================================================
     public boolean updateBooking(Booking booking){
         boolean found = false;
@@ -162,9 +162,107 @@ public class BookingControl {
                 }
             }
         }
-        if(found){
-            return true;
+        return found;
+    }
+    
+    
+    //==========================================================
+    //  Get Booking Schedule
+    //==========================================================
+    public ListInterface<Booking> getBookingSchedule() {
+
+        ListInterface<Booking> schedule = new DoublyLinkedList<>();
+
+        // Waiting bookings
+        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
+            Booking booking = waitingBookingList.getEntry(i);
+            schedule.add(booking);
         }
-        return false;
+
+        // Completed bookings
+        for (int i = 1; i <= completedBookingList.getSize(); i++) {
+            Booking booking = completedBookingList.getEntry(i);
+            schedule.add(booking);
+        }
+
+        return schedule;
+    }
+
+    //==========================================================
+    //  Get Occupied Rooms
+    //==========================================================
+    public ListInterface<Booking> getOccupiedRooms() {
+
+        ListInterface<Booking> occupied = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= completedBookingList.getSize(); i++) {
+
+            Booking booking = completedBookingList.getEntry(i);
+
+            if (booking.getRoomStatus() != null
+                    && booking.getRoomStatus().equalsIgnoreCase("Completed")) {
+
+                occupied.add(booking);
+            }
+        }
+
+        return occupied;
+    }
+
+    //==========================================================
+    //  Get Booking History
+    //==========================================================
+    public ListInterface<Booking> getBookingHistory() {
+
+        ListInterface<Booking> history = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= completedBookingList.getSize(); i++) {
+
+            history.add(completedBookingList.getEntry(i));
+        }
+
+        return history;
+    }
+
+    //==========================================================
+    //  Search Booking By Guest Name
+    //==========================================================
+    public ListInterface<Booking> getBookingsByGuestName(String guestName) {
+
+        ListInterface<Booking> result = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
+
+            Booking booking = waitingBookingList.getEntry(i);
+
+            if (booking.getGuestName().equalsIgnoreCase(guestName)) {
+                result.add(booking);
+            }
+        }
+
+        for (int i = 1; i <= completedBookingList.getSize(); i++) {
+
+            Booking booking = completedBookingList.getEntry(i);
+
+            if (booking.getGuestName().equalsIgnoreCase(guestName)) {
+                result.add(booking);
+            }
+        }
+
+        return result;
+    }
+
+    //==========================================================
+    //  Get Number Of Waiting Bookings
+    //==========================================================
+    public int getWaitingBookingCount() {
+        return waitingBookingList.getSize();
+    }
+
+    //==========================================================
+    //  Get Number Of Completed Bookings
+    //==========================================================
+    public int getCompletedBookingCount() {
+        return completedBookingList.getSize();
     }
 }
