@@ -8,9 +8,11 @@ import Adt.ListInterface;
 import Adt.DoublyLinkedList;
 import Entity.StatusEntry;
 import Utility.RoomStatusUtil;
+import Utility.RoomTypeUtil;
 import Entity.Room;
 import dao.RoomDao;
 import java.util.Iterator;
+import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -223,5 +225,108 @@ public class HousekeepingControl {
             }
         }
         return counts;
+    }
+
+
+    // ==============================
+    // Search
+    // ==============================
+
+    // Flexible keyword search across room number, room type name, and
+    // status name. Case-insensitive partial match - e.g. "vip" finds
+    // every VIP room, "dirty" finds every dirty room, "101" finds room
+    // 101. Mirrors VIPAllocationControl.searchGuest()'s pattern.
+    public static ListInterface<Room> searchRooms(String keyword) {
+        ListInterface<Room> result = new DoublyLinkedList<>();
+
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return result;
+        }
+
+        String searchKeyword = keyword.trim().toLowerCase();
+
+        for (int i = 1; i <= roomList.getSize(); i++) {
+            Room room = roomList.getEntry(i);
+            StatusEntry current = room.getStatusHistory().getCurrentData();
+
+            String searchData = room.getRoomNum() + " "
+                    + RoomTypeUtil.roomTypeName(room.getRoomType()) + " "
+                    + RoomStatusUtil.statusName(current.getStatusCode());
+
+            if (searchData.toLowerCase().contains(searchKeyword)) {
+                result.add(room);
+            }
+        }
+
+        return result;
+    }
+
+
+    // ==============================
+    // Sort
+    // ==============================
+    // Each of these returns a NEW list in sorted order - roomList itself
+    // (and its registration order) is left untouched. All three share one
+    // insertion sort implementation, just with a different comparator.
+
+    // Sorts by room number, alphanumeric ascending.
+    public static ListInterface<Room> getRoomsSortedByRoomNumber() {
+        Room[] rooms = toArray();
+        insertionSort(rooms, (a, b) -> a.getRoomNum().compareToIgnoreCase(b.getRoomNum()));
+        return fromArray(rooms);
+    }
+
+    // Sorts by status, following the natural cleaning-flow order:
+    // Dirty -> Cleaning In Progress -> Inspected -> Ready -> Late Check-Out Hold
+    public static ListInterface<Room> getRoomsSortedByStatus() {
+        Room[] rooms = toArray();
+        insertionSort(rooms, (a, b) -> {
+            int statusA = a.getStatusHistory().getCurrentData().getStatusCode();
+            int statusB = b.getStatusHistory().getCurrentData().getStatusCode();
+            return Integer.compare(statusA, statusB);
+        });
+        return fromArray(rooms);
+    }
+
+    // Sorts by room type: Normal -> Deluxe -> VIP
+    public static ListInterface<Room> getRoomsSortedByType() {
+        Room[] rooms = toArray();
+        insertionSort(rooms, (a, b) -> Integer.compare(a.getRoomType(), b.getRoomType()));
+        return fromArray(rooms);
+    }
+
+    private static Room[] toArray() {
+        Room[] rooms = new Room[roomList.getSize()];
+        for (int i = 1; i <= roomList.getSize(); i++) {
+            rooms[i - 1] = roomList.getEntry(i);
+        }
+        return rooms;
+    }
+
+    private static ListInterface<Room> fromArray(Room[] rooms) {
+        ListInterface<Room> sorted = new DoublyLinkedList<>();
+        for (Room room : rooms) {
+            sorted.add(room);
+        }
+        return sorted;
+    }
+
+    // Classic insertion sort: O(n^2) worst case, O(n) best case on
+    // already-sorted input, stable. Chosen over a library sort since
+    // Room is stored in our own custom ADT, not a java.util.List, and
+    // insertion sort is simple to trace/explain for a small list like
+    // a hotel's room registry.
+    private static void insertionSort(Room[] rooms, Comparator<Room> comparator) {
+        for (int i = 1; i < rooms.length; i++) {
+            Room key = rooms[i];
+            int j = i - 1;
+
+            while (j >= 0 && comparator.compare(rooms[j], key) > 0) {
+                rooms[j + 1] = rooms[j];
+                j--;
+            }
+
+            rooms[j + 1] = key;
+        }
     }
 }

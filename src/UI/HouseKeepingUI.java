@@ -11,6 +11,7 @@ import Utility.Utility;
 import Utility.RoomStatusUtil;
 import Utility.RoomTypeUtil;
 import Control.HousekeepingControl;
+import Adt.ListInterface;
 
 import java.util.Scanner;
 import java.util.Iterator;
@@ -55,6 +56,8 @@ public class HouseKeepingUI {
             "4. Rooms Needing Cleaning",
             "5. Report: Room Status History",
             "6. Report: Room Status Summary",
+            "7. Search Rooms",
+            "8. Sort Rooms",
             "0. Back to Main Menu"
         };
 
@@ -65,6 +68,8 @@ public class HouseKeepingUI {
             () -> showRoomNeedCleaning(),
             () -> reportStatusHistory(),
             () -> reportStatusSummary(),
+            () -> searchRoomsUI(),
+            () -> sortRoomsUI(),
             () -> Navigation.stack.pop()
         };
 
@@ -126,18 +131,84 @@ public class HouseKeepingUI {
             return;
         }
         
+        printRoomTable(HousekeepingControl.roomList);
+ 
+        printFooter();
+    }
+
+    // Shared table printer - Room / Type / Status columns, reused by
+    // Show Room Status, Search Rooms, and Sort Rooms so they all look
+    // and behave consistently.
+    private static void printRoomTable(ListInterface<Room> rooms) {
         System.out.printf("  %-8s %-14s %-20s%n", "Room", "Type", "Status");
         System.out.printf("  %-8s %-14s %-20s%n", "------", "------------", "------------------");
-        
-        for (int i = 1; i <= HousekeepingControl.getRoomCount(); i++) {
-            Room room = HousekeepingControl.getRoomAt(i);
+
+        Iterator<Room> iterator = rooms.getIterator();
+        while (iterator.hasNext()) {
+            Room room = iterator.next();
             StatusEntry current = room.getStatusHistory().getCurrentData();
             System.out.printf("  %-8s %-14s %-20s%n",
                     room.getRoomNum(),
                     RoomTypeUtil.roomTypeName(room.getRoomType()),
                     RoomStatusUtil.statusName(current.getStatusCode()));
         }
- 
+    }
+
+    // ==============================
+    // 7. Search Rooms
+    // ==============================
+    private static void searchRoomsUI() {
+        System.out.print("Enter search keyword (room number, type, or status): ");
+        String keyword = input.nextLine().trim();
+
+        ListInterface<Room> results = HousekeepingControl.searchRooms(keyword);
+
+        printHeader("SEARCH RESULTS: \"" + keyword + "\"");
+
+        if (results.isEmpty()) {
+            System.out.println("  No rooms matched.");
+        } else {
+            printRoomTable(results);
+        }
+
+        printFooter();
+    }
+
+    // ==============================
+    // 8. Sort Rooms
+    // ==============================
+    private static void sortRoomsUI() {
+        String[] options = {
+            "1. By Room Number",
+            "2. By Status",
+            "3. By Room Type",
+            "0. Back"
+        };
+
+        Runnable[] actions = {
+            () -> displaySortedRooms(HousekeepingControl.getRoomsSortedByRoomNumber(), "SORTED BY ROOM NUMBER"),
+            () -> displaySortedRooms(HousekeepingControl.getRoomsSortedByStatus(), "SORTED BY STATUS"),
+            () -> displaySortedRooms(HousekeepingControl.getRoomsSortedByType(), "SORTED BY ROOM TYPE"),
+            () -> {}
+        };
+
+        Utility.customMenu(
+                options,
+                "Sort Rooms",
+                "Enter your choice: ",
+                actions
+        );
+    }
+
+    private static void displaySortedRooms(ListInterface<Room> sortedRooms, String title) {
+        printHeader(title);
+
+        if (sortedRooms.isEmpty()) {
+            System.out.println("  No rooms registered yet.");
+        } else {
+            printRoomTable(sortedRooms);
+        }
+
         printFooter();
     }
     
@@ -281,14 +352,14 @@ public class HouseKeepingUI {
     
     // advance status foward 
     private static void advanceStatus(Room room){
-        System.out.print("Note (optional)");
+        System.out.print("Note (optional): ");
         String note = input.nextLine().trim();
         
         int nextStatus = HousekeepingControl.advanceStatus(room , note);
         if(nextStatus == -1){
-            System.out.println("Room" + room.getRoomNum() + "has no automatic next status from here");
+            System.out.println("Room " + room.getRoomNum() + " has no automatic next status from here.");
         } else {
-            System.out.println("Room" + room.getRoomNum() + "rolled back to: " + RoomStatusUtil.statusName(nextStatus));
+            System.out.println("Room " + room.getRoomNum() + " updated to: " + RoomStatusUtil.statusName(nextStatus));
         }
         showCurrentRoomState(room);
     }
@@ -393,4 +464,3 @@ public class HouseKeepingUI {
     }
     
 }
-    
