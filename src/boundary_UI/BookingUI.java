@@ -103,7 +103,7 @@ public class BookingUI {
         System.out.print("Check-In Date   : ");
         String checkInDate = InputUtility.getDateInput();
         System.out.print("Check-Out Date  : ");
-        String checkOutDate = InputUtility.getDateInput();
+        String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
 
         Booking booking = new Booking(
                 bookingID,
@@ -137,7 +137,7 @@ public class BookingUI {
             System.out.println("\nNo waiting reservation.");
         } 
         else {
-            System.out.println("Reservation Processed: 2"
+            System.out.println("Reservation Processed: "
                     + "");
             System.out.println();
             displayTableHeader();
@@ -250,10 +250,9 @@ public class BookingUI {
                 System.out.println("\n========== EDIT OPTION ==========");
                 System.out.println("1. Edit Guest Name");
                 System.out.println("2. Edit Room Type");
-                System.out.println("3. Edit Check-In Date");
-                System.out.println("4. Edit Check-Out Date");
-                System.out.println("5. Edit All Details");
-                System.out.println("6. Back");
+                System.out.println("3. Edit Check-In and Check-Out Date");
+                System.out.println("4. Edit All Details");
+                System.out.println("0. Back");
                 System.out.print("\nEnter Choice : ");
                 choice = InputUtility.getIntInput();
 
@@ -268,60 +267,152 @@ public class BookingUI {
                         }
                     }
 
-                    case 2 -> {
+                   case 2 -> {
                         System.out.print("\nNew Room Type : ");
-                        booking.setRoomType(InputUtility.getValidRoomType());
-                       if (bookingControl.updateBooking(booking)) {
-                            System.out.println("\nRoom type updated.");
-                        } else {
-                            System.out.println("\nFailed to update booking.");
+                        String newRoomType = InputUtility.getValidRoomType();
+                        String oldRoomType = booking.getRoomType();
+                        String oldRoomID = booking.getRoomID();
+                        // Same room type
+                        if (newRoomType.equalsIgnoreCase(oldRoomType)) {
+                            System.out.println("\nRoom type unchanged.");
+                            System.out.println("Room ID remains : " + oldRoomID);
+                        }
+                        // Different room type
+                        else {
+                            String newRoomID = bookingControl.assignRoomID(newRoomType);
+                            if (newRoomID == null) {
+                                System.out.println("\nNo available " + newRoomType + " room.");
+                                System.out.println("Room Type remains : " + oldRoomType);
+                                System.out.println("Room ID remains   : " + oldRoomID);
+                            } else {
+                                booking.setRoomType(newRoomType);
+                                booking.setRoomID(newRoomID);
+                                if (bookingControl.updateBooking(booking)) {
+                                    System.out.println("\nRoom type updated successfully.");
+                                    System.out.println("Old Room ID : " + oldRoomID);
+                                    System.out.println("New Room ID : " + newRoomID);
+                                } else {
+                                    // Restore original information
+                                    booking.setRoomType(oldRoomType);
+                                    booking.setRoomID(oldRoomID);
+                                    System.out.println("\nFailed to update booking.");
+                                }
+                            }
                         }
                     }
 
                     case 3 -> {
                         System.out.print("\nNew Check-In Date : ");
-                        booking.setCheckInDate(InputUtility.getDateInput());
+                        String checkInDate = InputUtility.getDateInput();
+                        String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
+                        booking.setCheckInDate(checkInDate);
+                        booking.setCheckOutDate(checkOutDate);
                        if (bookingControl.updateBooking(booking)) {
-                            System.out.println("\nCheck-In date updated.");
+                            System.out.println("\nCheck-In and Check-Out date updated.");
                         } else {
                             System.out.println("\nFailed to update booking.");
                         }
                     }
 
                     case 4 -> {
-                        System.out.print("\nNew Check-Out Date : ");
-                        booking.setCheckOutDate(InputUtility.getDateInput()); 
-                       if (bookingControl.updateBooking(booking)) {
-                            System.out.println("\nCheck-Out date updated.");
-                        } else {
-                            System.out.println("\nFailed to update booking.");
-                        }
-                    }
+                        //==================================================
+                        // Edit All Details
+                        //==================================================
+                        String oldGuestName = booking.getGuestName();
+                        String oldRoomType = booking.getRoomType();
+                        String oldRoomID = booking.getRoomID();
+                        String oldCheckInDate = booking.getCheckInDate();
+                        String oldCheckOutDate = booking.getCheckOutDate();
 
-                    case 5 -> {
+                        //==================================================
+                        // Enter New Information
+                        //==================================================
                         System.out.print("\nNew Guest Name : ");
-                        booking.setGuestName(InputUtility.getValidName());                   
-                        
-                        System.out.print("New Room Type : ");
-                        booking.setRoomType(InputUtility.getValidRoomType());             
+                        String newGuestName = InputUtility.getValidName();
+
+                        System.out.print("New Room Type  : ");
+                        String newRoomType = InputUtility.getValidRoomType();
 
                         System.out.print("New Check-In Date : ");
-                        booking.setCheckInDate(InputUtility.getDateInput());
+                        String newCheckInDate = InputUtility.getDateInput();
 
                         System.out.print("New Check-Out Date : ");
-                        booking.setCheckOutDate(InputUtility.getDateInput());
-                        if (bookingControl.updateBooking(booking)) {
-                            System.out.println("\nAll details updated.");
+                        String newCheckOutDate = InputUtility.getCheckOutDate(newCheckInDate);
+
+                        //==================================================
+                        // Display Old Information
+                        //==================================================
+
+                        System.out.println("\n==============================================");
+                        System.out.println("              BOOKING COMPARISON");
+                        System.out.println("==============================================");
+
+                        System.out.println("\nOLD INFORMATION");
+                        System.out.println("----------------------------------------------");
+                        System.out.println("Guest Name      : " + oldGuestName);
+                        System.out.println("Room Type       : " + oldRoomType);
+                        System.out.println("Room ID         : " + oldRoomID);
+                        System.out.println("Check-In Date   : " + oldCheckInDate);
+                        System.out.println("Check-Out Date  : " + oldCheckOutDate);
+                        //==================================================
+                        // Find New Room ID
+                        //==================================================
+                        String newRoomID = oldRoomID;
+                        if (!newRoomType.equalsIgnoreCase(oldRoomType)) {
+                            newRoomID = bookingControl.assignRoomID(newRoomType);
+                            if (newRoomID == null) {
+                                System.out.println("\nNo available " + newRoomType + " room.");
+                                System.out.println("Edit cancelled.");
+                                return;
+                            }
+                        }
+                        //==================================================
+                        // Display New Information
+                        //==================================================
+                        System.out.println("\nNEW INFORMATION");
+                        System.out.println("----------------------------------------------");
+                        System.out.println("Guest Name      : " + newGuestName);
+                        System.out.println("Room Type       : " + newRoomType);
+                        System.out.println("Room ID         : " + newRoomID);
+                        System.out.println("Check-In Date   : " + newCheckInDate);
+                        System.out.println("Check-Out Date  : " + newCheckOutDate);
+                        //==================================================
+                        // Show Changes
+                        //==================================================
+                        System.out.println("\n==============================================");
+                        System.out.println("                  CHANGES");
+                        System.out.println("==============================================");
+                        System.out.println("Guest Name     : " + oldGuestName + "  ->  " + newGuestName);
+                        System.out.println("Room Type      : " + oldRoomType + "  ->  " + newRoomType);
+                        System.out.println("Room ID        : " + oldRoomID + "  ->  " + newRoomID);
+                        System.out.println("Check-In Date  : " + oldCheckInDate + "  ->  " + newCheckInDate);
+                        System.out.println("Check-Out Date : " + oldCheckOutDate + "  ->  " + newCheckOutDate);
+                        //==================================================
+                        // Confirm Update
+                        //==================================================
+                        System.out.print("\nConfirm update? (Y/N): ");
+                        String confirmation = InputUtility.getYOrNInput();
+
+                        if (confirmation.equalsIgnoreCase("Y")) {
+                            booking.setGuestName(newGuestName);
+                            booking.setRoomType(newRoomType);
+                            booking.setRoomID(newRoomID);
+                            booking.setCheckInDate(newCheckInDate);
+                            booking.setCheckOutDate(newCheckOutDate);
+                            if (bookingControl.updateBooking(booking)) {
+                                System.out.println("\nBooking updated successfully.");
+                            } else {
+                                System.out.println("\nFailed to update booking.");
+                            }
                         } else {
-                            System.out.println("\nFailed to update booking.");
+                            System.out.println("\nUpdate cancelled.");
                         }
                     }
 
-                    case 6 -> {}
-
+                    case 0 -> {}
                     default -> System.out.println("\nInvalid choice.Please enter again.");
                 }
-            }while(choice != 6);
+            }while(choice != 0);
             InputUtility.pressEnterToContinue();
             break;
         }

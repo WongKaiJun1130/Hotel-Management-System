@@ -265,12 +265,12 @@ public class HouseKeepingUI {
         String choice = input.nextLine().trim();
  
         switch (choice) {
-            case "1": return RoomTypeUtil.Normal_Room;
-            case "2": return RoomTypeUtil.Deluxe_Room;
-            case "3": return RoomTypeUtil.VIP_Room;
+            case "1": return RoomTypeUtil.Single_Room;
+            case "2": return RoomTypeUtil.Medium_Room;
+            case "3": return RoomTypeUtil.Large_Room;
             default:
                 System.out.println("Invalid choice, defaulting to Normal Room.");
-                return RoomTypeUtil.Normal_Room;
+                return RoomTypeUtil.Medium_Room;
         }
     }
     
@@ -381,9 +381,9 @@ public class HouseKeepingUI {
  
         System.out.println();
         System.out.println("Rooms by Type:");
-        System.out.println("Normal Room            : " + typeCounts[RoomTypeUtil.Normal_Room]);
-        System.out.println("Deluxe Room            : " + typeCounts[RoomTypeUtil.Deluxe_Room]);
-        System.out.println("VIP Room               : " + typeCounts[RoomTypeUtil.VIP_Room]);
+        System.out.println("Normal Room            : " + typeCounts[RoomTypeUtil.Single_Room]);
+        System.out.println("Deluxe Room            : " + typeCounts[RoomTypeUtil.Medium_Room]);
+        System.out.println("VIP Room               : " + typeCounts[RoomTypeUtil.Large_Room]);
         
         printFooter();
     }

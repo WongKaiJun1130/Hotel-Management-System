@@ -19,54 +19,64 @@ public class RoomDao {
     //====================================================
     public static void createRoomData() {
 
-        DoublyLinkedList<Room> rooms = new DoublyLinkedList<>();
+     DoublyLinkedList<Room> rooms = new DoublyLinkedList<>();
 
-        //================================================
-        // Rooms 101-105: Normal Room, Dirty
-        //================================================
-        rooms.add(newRoom("101", RoomTypeUtil.Normal_Room));
-        rooms.add(newRoom("102", RoomTypeUtil.Normal_Room));
-        rooms.add(newRoom("103", RoomTypeUtil.Normal_Room));
-        rooms.add(newRoom("104", RoomTypeUtil.Normal_Room));
-        rooms.add(newRoom("105", RoomTypeUtil.Normal_Room));
+     //================================================
+     // Single Rooms S01-S05: Dirty
+     //================================================
+     rooms.add(newRoom("S01", RoomTypeUtil.Single_Room));
+     rooms.add(newRoom("S02", RoomTypeUtil.Single_Room));
+     rooms.add(newRoom("S03", RoomTypeUtil.Single_Room));
+     rooms.add(newRoom("S04", RoomTypeUtil.Single_Room));
+     rooms.add(newRoom("S05", RoomTypeUtil.Single_Room));
 
-        //================================================
-        // Rooms 106-110: Deluxe, Cleaning In Progress
-        //================================================
-        rooms.add(advanceTo("106", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Maria"));
-        rooms.add(advanceTo("107", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: John"));
-        rooms.add(advanceTo("108", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Amy"));
-        rooms.add(advanceTo("109", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Ben"));
-        rooms.add(advanceTo("110", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Cara"));
+     //================================================
+     // Medium Rooms M01-M05: Cleaning In Progress
+     //================================================
+     rooms.add(advanceTo("M01", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Maria"));
 
-        //================================================
-        // Rooms 111-114: VIP, Inspected
-        //================================================
-        rooms.add(advanceTo("111", RoomTypeUtil.VIP_Room, RoomStatusUtil.Inspected, "Passed inspection"));
-        rooms.add(advanceTo("112", RoomTypeUtil.VIP_Room, RoomStatusUtil.Inspected, "Passed inspection"));
-        rooms.add(advanceTo("113", RoomTypeUtil.VIP_Room, RoomStatusUtil.Inspected, "Passed inspection"));
-        rooms.add(advanceTo("114", RoomTypeUtil.VIP_Room, RoomStatusUtil.Inspected, "Passed inspection"));
+     rooms.add(advanceTo("M02", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: John"));
 
-        //================================================
-        // Rooms 115-118: Ready For Check-In
-        //================================================
-        rooms.add(advanceTo("115", RoomTypeUtil.Normal_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
-        rooms.add(advanceTo("116", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
-        rooms.add(advanceTo("117", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
-        rooms.add(advanceTo("118", RoomTypeUtil.VIP_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+     rooms.add(advanceTo("M03", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Amy"));
 
-        //================================================
-        // Rooms 119-120: Late Check-Out Hold
-        //================================================
-        rooms.add(lateCheckoutRoom("119", RoomTypeUtil.VIP_Room));
-        rooms.add(lateCheckoutRoom("120", RoomTypeUtil.VIP_Room));
+     rooms.add(advanceTo("M04", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Ben"));
 
-        RoomDao roomDao = new RoomDao();
+     rooms.add(advanceTo("M05", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Cara"));
 
-        roomDao.saveToFile(rooms);
+     //================================================
+     // Large Rooms L01-L04: Inspected
+     //================================================
+     rooms.add(advanceTo("L01", RoomTypeUtil.Large_Room, RoomStatusUtil.Inspected, "Passed inspection"));
 
-        System.out.println(rooms.getSize() + " Rooms Created In Memory!");
-    }
+     rooms.add(advanceTo("L02", RoomTypeUtil.Large_Room, RoomStatusUtil.Inspected, "Passed inspection"));
+
+     rooms.add(advanceTo("L03", RoomTypeUtil.Large_Room, RoomStatusUtil.Inspected, "Passed inspection"));
+
+     rooms.add(advanceTo("L04", RoomTypeUtil.Large_Room, RoomStatusUtil.Inspected, "Passed inspection"));
+
+     //================================================
+     // Single / Medium / Large: Ready For Check-In
+     //================================================
+     rooms.add(advanceTo("S06", RoomTypeUtil.Single_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+
+     rooms.add(advanceTo("M06", RoomTypeUtil.Medium_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+
+     rooms.add(advanceTo("M07", RoomTypeUtil.Medium_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+
+     rooms.add(advanceTo("L05", RoomTypeUtil.Large_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+
+     //================================================
+     // Large Rooms L06-L07: Late Check-Out Hold
+     //================================================
+     rooms.add(lateCheckoutRoom("L06", RoomTypeUtil.Large_Room));
+     rooms.add(lateCheckoutRoom("L07", RoomTypeUtil.Large_Room));
+
+     RoomDao roomDao = new RoomDao();
+
+     roomDao.saveToFile(rooms);
+
+     System.out.println(rooms.getSize() + " Rooms Created In Memory!");
+ }
 
     //====================================================
     // Create New Room

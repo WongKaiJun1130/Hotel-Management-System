@@ -24,21 +24,21 @@ public class BookingDatabase {
         //================================================
         // Current Booking
         //================================================
-        waitingBooking.add(new Booking("B0001", "John Tan", "Large",  "L01", "20/08/2026", "22/08/2026", "Waiting"));
-        waitingBooking.add(new Booking("B0002", "Wong Lee", "Medium", "M01", "21/08/2026", "24/08/2026", "Waiting"));
-        waitingBooking.add(new Booking("B0003", "Alice Lim", "Single", "S01", "25/08/2026", "27/08/2026", "Waiting"));
-        waitingBooking.add(new Booking("B0004", "David Wong", "Large",  "L02", "28/08/2026", "30/08/2026", "Waiting"));
-        waitingBooking.add(new Booking("B0005", "Jason Lee", "Medium", "M02", "01/09/2026", "03/09/2026", "Waiting"));
+        waitingBooking.add(new Booking("B0001", "John Tan", "Large",  "L01", "20-08-2026", "22-08-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0002", "Wong Lee", "Medium", "M01", "21-08-2026", "24-08-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0003", "Alice Lim", "Single", "S01", "25-08-2026", "27-08-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0004", "David Wong", "Large",  "L02", "28-08-2026", "30-08-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0005", "Jason Lee", "Medium", "M02", "01-09-2026", "03-09-2026", "Waiting"));
 
 
         //================================================
         // Completed Booking
         //================================================
-        completedBooking.add(new Booking("B0006", "Sarah Tan",    "Single", "S02", "10/07/2026", "12/07/2026", "Completed"));
-        completedBooking.add(new Booking("B0007", "Michael Chen", "Medium", "M03", "13/07/2026", "15/07/2026", "Completed"));
-        completedBooking.add(new Booking("B0008", "Emily Wong",   "Large",  "L03", "16/07/2026", "18/07/2026", "Completed"));
-        completedBooking.add(new Booking("B0009", "Kevin Lim",    "Single", "S03", "19/07/2026", "21/07/2026", "Completed"));
-        completedBooking.add(new Booking("B0010", "Jessica Ng",   "Medium", "M04", "22/07/2026", "24/07/2026", "Completed"));
+        completedBooking.add(new Booking("B0006", "Sarah Tan",    "Single", "S02", "10-07-2026", "12-07-2026", "Completed"));
+        completedBooking.add(new Booking("B0007", "Michael Chen", "Medium", "M03", "13-07-2026", "15-07-2026", "Completed"));
+        completedBooking.add(new Booking("B0008", "Emily Wong",   "Large",  "L03", "16-07-2026", "18-07-2026", "Completed"));
+        completedBooking.add(new Booking("B0009", "Kevin Lim",    "Single", "S03", "19-07-2026", "21-07-2026", "Completed"));
+        completedBooking.add(new Booking("B0010", "Jessica Ng",   "Medium", "M04", "22-07-2026", "24-07-2026", "Completed"));
 
         BookingDatabase bookingDatabase = new BookingDatabase();
 

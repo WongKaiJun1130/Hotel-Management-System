@@ -1,5 +1,6 @@
 package control;
 
+import dao.RoomDao;
 import dao.BookingDatabase;
 import adt.ListInterface;
 import adt.DoublyLinkedList;
@@ -12,6 +13,7 @@ public class BookingControl {
     private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
     private ListInterface<Booking> completedBookingList = new DoublyLinkedList<>();
     private BookingDatabase bookingDatabase = new BookingDatabase();
+    private RoomDao roomDao = new RoomDao();
 
     public BookingControl() {
         waitingBookingList = bookingDatabase.getWaitingBooking();

@@ -5,11 +5,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 
+
 import java.util.Scanner;
 
 public class InputUtility {
     private static Scanner scanner = new Scanner(System.in);
-
+    
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-uuuu").withResolverStyle(ResolverStyle.STRICT);
+    
     public static int getIntInput() {
         while (true) {
             try {
@@ -63,20 +66,35 @@ public class InputUtility {
             System.out.print("Invalid phone. Enter numbers only (7-15 digits): ");
         }
     }
-
+    
     public static String getDateInput() {
         while (true) {
             String date = getStringInput();
-            if (date.matches("\\d{2}/\\d{2}/\\d{4}")) {
-                String[] parts = date.split("-");
-                int day   = Integer.parseInt(parts[0]);
-                int month = Integer.parseInt(parts[1]);
-                int year  = Integer.parseInt(parts[2]);
-                if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 2000) {
-                    return date;
+            try {
+                LocalDate.parse(date, FORMATTER);
+                if (LocalDate.parse(date, FORMATTER).isBefore(LocalDate.now())) {
+                    System.out.print("Date cannot be before today. Enter again: ");
+                    continue;
                 }
+                return date;
+            } catch (DateTimeParseException e) {
+                System.out.print(
+                    "Invalid date. Use DD-MM-YYYY format (e.g. 25-12-2026): "
+                );
             }
-            System.out.print("Invalid date. Use DD-MM-YYYY format (e.g. 25/12/2025): ");
+        }
+    }
+    
+    public static String getCheckOutDate(String checkInDate) {
+        LocalDate checkIn = LocalDate.parse(checkInDate, FORMATTER);
+
+        while (true) {
+            String checkOutDate = getDateInput();
+            LocalDate checkOut = LocalDate.parse(checkOutDate, FORMATTER);
+            if (checkOut.isAfter(checkIn)) {
+                return checkOutDate;
+            }
+            System.out.println("Check-Out Date must be later than Check-In Date.");
         }
     }
 
