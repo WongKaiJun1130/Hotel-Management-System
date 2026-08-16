@@ -9,6 +9,7 @@ public class Booking implements Serializable {
     
     private String bookingID;
     private String guestName;
+    private String phoneNumber;
     private String roomType;
     private String roomID;
     private String checkInDate;
@@ -18,6 +19,7 @@ public class Booking implements Serializable {
      //Constructor
     public Booking(String bookingID,
                    String guestName,
+                   String phoneNumber,
                    String roomType,
                    String roomID,
                    String checkInDate,
@@ -26,6 +28,7 @@ public class Booking implements Serializable {
 
     this.bookingID = bookingID;
     this.guestName = guestName;
+    this.phoneNumber = phoneNumber;
     this.roomType = roomType;
     this.roomID = roomID;
     this.checkInDate = checkInDate;
@@ -40,6 +43,10 @@ public class Booking implements Serializable {
 
     public String getGuestName() {
         return guestName;
+    }
+    
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     public String getRoomType() {
@@ -79,6 +86,10 @@ public class Booking implements Serializable {
     public void setGuestName(String guestName) {
         this.guestName = guestName;
     }
+    
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
      public void setRoomType(String roomType) {
         this.roomType = roomType;
@@ -103,12 +114,13 @@ public class Booking implements Serializable {
     @Override
     public String toString() {
         return "Booking ID: " + bookingID
-                + "\nGuest Name: " + guestName
-                + "\nRoom Type: " + roomType
-                + "\nRoom ID: " + roomID
-                + "\nCheck-In Date: " + checkInDate
-                + "\nCheck-Out Date: " + checkOutDate
-                + "\nRoom Status: " + roomStatus;
+             + "\nGuest Name: " + guestName
+             + "\nPhone Number: " + phoneNumber
+             + "\nRoom Type: " + roomType
+             + "\nRoom ID: " + roomID
+             + "\nCheck-In Date: " + checkInDate
+             + "\nCheck-Out Date: " + checkOutDate
+             + "\nRoom Status: " + roomStatus;
     }
 }
     

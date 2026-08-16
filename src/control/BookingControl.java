@@ -1,6 +1,5 @@
 package control;
 
-import dao.RoomDao;
 import dao.BookingDatabase;
 import adt.ListInterface;
 import adt.DoublyLinkedList;
@@ -8,13 +7,17 @@ import entity.Booking;
 import entity.Guest;
 import java.util.Iterator;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+
 public class BookingControl {
 
     private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
     private ListInterface<Booking> completedBookingList = new DoublyLinkedList<>();
     private BookingDatabase bookingDatabase = new BookingDatabase();
-    private RoomDao roomDao = new RoomDao();
-
+  
     public BookingControl() {
         waitingBookingList = bookingDatabase.getWaitingBooking();
         completedBookingList = bookingDatabase.getCompletedBooking();
@@ -221,12 +224,10 @@ public class BookingControl {
         return null;
     }
     
-    
     //==========================================================
     //  Get Booking Schedule
     //==========================================================
     public ListInterface<Booking> getBookingSchedule() {
-
         ListInterface<Booking> schedule = new DoublyLinkedList<>();
 
         // Waiting bookings
@@ -234,13 +235,11 @@ public class BookingControl {
             Booking booking = waitingBookingList.getEntry(i);
             schedule.add(booking);
         }
-
         // Completed bookings
         for (int i = 1; i <= completedBookingList.getSize(); i++) {
             Booking booking = completedBookingList.getEntry(i);
             schedule.add(booking);
         }
-
         return schedule;
     }
 
@@ -248,20 +247,14 @@ public class BookingControl {
     //  Get Occupied Rooms
     //==========================================================
     public ListInterface<Booking> getOccupiedRooms() {
-
         ListInterface<Booking> occupied = new DoublyLinkedList<>();
 
         for (int i = 1; i <= completedBookingList.getSize(); i++) {
-
             Booking booking = completedBookingList.getEntry(i);
-
-            if (booking.getRoomStatus() != null
-                    && booking.getRoomStatus().equalsIgnoreCase("Completed")) {
-
+            if (booking.getRoomStatus() != null && booking.getRoomStatus().equalsIgnoreCase("Completed")) {
                 occupied.add(booking);
             }
         }
-
         return occupied;
     }
 
@@ -269,43 +262,134 @@ public class BookingControl {
     //  Get Booking History
     //==========================================================
     public ListInterface<Booking> getBookingHistory() {
-
         ListInterface<Booking> history = new DoublyLinkedList<>();
 
         for (int i = 1; i <= completedBookingList.getSize(); i++) {
-
             history.add(completedBookingList.getEntry(i));
         }
-
         return history;
+    }
+    
+    public ListInterface<Booking> searchBooking(String keyword) {
+        ListInterface<Booking> result = new DoublyLinkedList<>();
+        // Search waiting bookings
+        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
+            Booking booking = waitingBookingList.getEntry(i);
+            if (booking.getBookingID().equalsIgnoreCase(keyword)
+                    ||booking.getGuestName().toLowerCase().contains(keyword.toLowerCase())
+                    || booking.getPhoneNumber().equals(keyword)) {
+                result.add(booking);
+            }
+        }
+        // Search completed bookings
+        for (int i = 1; i <= completedBookingList.getSize(); i++) {
+            Booking booking = completedBookingList.getEntry(i);
+            if (booking.getBookingID().equalsIgnoreCase(keyword)
+                    || booking.getGuestName().toLowerCase().contains(keyword.toLowerCase())
+                    || booking.getPhoneNumber().equals(keyword)) {
+                result.add(booking);
+            }
+        }
+        return result;
     }
 
     //==========================================================
     //  Search Booking By Guest Name
     //==========================================================
     public ListInterface<Booking> getBookingsByGuestName(String guestName) {
-
         ListInterface<Booking> result = new DoublyLinkedList<>();
-
+        // Search waiting bookings
         for (int i = 1; i <= waitingBookingList.getSize(); i++) {
-
             Booking booking = waitingBookingList.getEntry(i);
-
             if (booking.getGuestName().equalsIgnoreCase(guestName)) {
                 result.add(booking);
             }
         }
-
+        // Search completed bookings
         for (int i = 1; i <= completedBookingList.getSize(); i++) {
-
             Booking booking = completedBookingList.getEntry(i);
-
             if (booking.getGuestName().equalsIgnoreCase(guestName)) {
                 result.add(booking);
             }
         }
-
         return result;
+    }
+    
+    public ListInterface<Booking> getBookingsByPhoneNumber(String phoneNumber) {
+        ListInterface<Booking> result = new DoublyLinkedList<>();
+        // Search waiting bookings
+        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
+            Booking booking = waitingBookingList.getEntry(i);
+            if (booking.getPhoneNumber().equals(phoneNumber)) {
+                result.add(booking);
+            }
+        }
+        // Search completed bookings
+        for (int i = 1; i <= completedBookingList.getSize(); i++) {
+            Booking booking = completedBookingList.getEntry(i);
+            if (booking.getPhoneNumber().equals(phoneNumber)) {
+                result.add(booking);
+            }
+        }
+        return result;
+    }
+    
+     //==========================================================
+    // Get Bookings By Date
+    //==========================================================
+    public ListInterface<Booking> getBookingsByDate(LocalDate date) {
+        ListInterface<Booking> result = new DoublyLinkedList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        ListInterface<Booking> bookingList = getAllBooking();
+        
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), formatter);
+            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), formatter);
+            if (!date.isBefore(checkIn) && !date.isAfter(checkOut)) {
+                result.add(booking);
+            }
+        }
+        return result;
+    }
+    
+    //==========================================================
+    // Get Bookings By Month
+    //==========================================================
+    public ListInterface<Booking> getBookingsByMonth(YearMonth yearMonth) {
+        ListInterface<Booking> result = new DoublyLinkedList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        LocalDate monthStart = yearMonth.atDay(1);
+        LocalDate monthEnd = yearMonth.atEndOfMonth();
+        ListInterface<Booking> bookingList = getAllBooking();
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), formatter);
+            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), formatter);
+            if (!checkOut.isBefore(monthStart) && !checkIn.isAfter(monthEnd)) {
+                result.add(booking);
+            }
+        }
+        return result;
+    }
+    
+    //==========================================================
+    // Calculate Booking Stay Days
+    //==========================================================
+    public long getBookingStayDays(Booking booking) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), formatter);
+        LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), formatter);
+        return ChronoUnit.DAYS.between(checkIn, checkOut);
+    }
+    
+    //==========================================================
+    // Check If Date Has Booking
+    //==========================================================
+    public boolean hasBookingOnDate(LocalDate date) {
+        return !getBookingsByDate(date).isEmpty();
     }
 
     //==========================================================
@@ -320,5 +404,66 @@ public class BookingControl {
     //==========================================================
     public int getCompletedBookingCount() {
         return completedBookingList.getSize();
+    }
+    
+    //==========================================================
+    // Get Monthly Room Occupancy Rate
+    //==========================================================
+    public double getRoomOccupancyRate(YearMonth yearMonth, String roomType) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        LocalDate monthStart = yearMonth.atDay(1);
+        // Day after last day
+        LocalDate monthEnd = yearMonth.atEndOfMonth().plusDays(1);
+        long bookedDays = 0;
+        ListInterface<Booking> bookingList = getAllBooking();
+
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if (!booking.getRoomType().equalsIgnoreCase(roomType)) {
+                continue;
+            }
+            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), formatter);
+            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), formatter);
+            
+            LocalDate start;
+            if (checkIn.isBefore(monthStart)) {
+                start = monthStart;
+            } else {
+                start = checkIn;
+            }
+
+            LocalDate end;
+            if (checkOut.isAfter(monthEnd)) {
+                end = monthEnd;
+            } else {
+                end = checkOut;
+            }
+
+            if (start.isBefore(end)) {
+                bookedDays += ChronoUnit.DAYS.between(start, end);
+            }
+        }
+        int totalAvailableDays = 10 * yearMonth.lengthOfMonth();
+        return ((double) bookedDays / totalAvailableDays) * 100;
+    }
+    
+    //==========================================================
+    // Sort Booking List By Booking ID
+    //==========================================================
+    public void sortBookingByID(ListInterface<Booking> bookingList) {
+
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            for (int j = i + 1; j <= bookingList.getSize(); j++) {
+                Booking booking1 = bookingList.getEntry(i);
+                Booking booking2 = bookingList.getEntry(j);
+                int id1 = Integer.parseInt(booking1.getBookingID().substring(1));
+                int id2 = Integer.parseInt(booking2.getBookingID().substring(1));
+                if (id1 > id2) {
+                    bookingList.replace(i, booking2);
+                    bookingList.replace(j, booking1);
+                }
+            }
+        }
     }
 }

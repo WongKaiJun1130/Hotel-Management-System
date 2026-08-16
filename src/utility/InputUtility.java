@@ -89,6 +89,7 @@ public class InputUtility {
         LocalDate checkIn = LocalDate.parse(checkInDate, FORMATTER);
 
         while (true) {
+            System.out.print("Check-Out Date  : ");
             String checkOutDate = getDateInput();
             LocalDate checkOut = LocalDate.parse(checkOutDate, FORMATTER);
             if (checkOut.isAfter(checkIn)) {
@@ -138,16 +139,21 @@ public class InputUtility {
     public static String getValidRoomType() {
         while (true) {
             String roomType = getStringInput().trim();
-
             if (roomType.equalsIgnoreCase("Single") ||
                 roomType.equalsIgnoreCase("Medium") ||
                 roomType.equalsIgnoreCase("Large")) {
-
                 return roomType;
             }
-
             System.out.print("Invalid room type. Please enter Single, Medium, or Large: ");
         }
+    }
+    
+    public static String capitalizeFirstLetter(String text) {
+        if (text == null || text.isEmpty()) {
+            return text;
+        }
+        text = text.toLowerCase();
+        return text.substring(0, 1).toUpperCase() + text.substring(1);
     }
     
     public static String getYOrNInput() {

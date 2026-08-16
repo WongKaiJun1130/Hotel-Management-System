@@ -22,7 +22,7 @@ public class Hotel_Management_System {
         GuestDatabase guestDatabase = new GuestDatabase();
         LoyaltyDatabase loyaltyDatabase = new LoyaltyDatabase();
        
-        BookingDatabase.createBookingData();
+        bookingDatabase.createBookingData();
         guestDatabase.createGuestData();
         loyaltyDatabase.createLoyaltyData();
         

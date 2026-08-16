@@ -22,24 +22,23 @@ public class BookingDatabase {
         ListInterface<Booking> completedBooking = new DoublyLinkedList<>();
 
         //================================================
-        // Current Booking
-        //================================================
-        waitingBooking.add(new Booking("B0001", "John Tan", "Large",  "L01", "20-08-2026", "22-08-2026", "Waiting"));
-        waitingBooking.add(new Booking("B0002", "Wong Lee", "Medium", "M01", "21-08-2026", "24-08-2026", "Waiting"));
-        waitingBooking.add(new Booking("B0003", "Alice Lim", "Single", "S01", "25-08-2026", "27-08-2026", "Waiting"));
-        waitingBooking.add(new Booking("B0004", "David Wong", "Large",  "L02", "28-08-2026", "30-08-2026", "Waiting"));
-        waitingBooking.add(new Booking("B0005", "Jason Lee", "Medium", "M02", "01-09-2026", "03-09-2026", "Waiting"));
-
-
-        //================================================
         // Completed Booking
         //================================================
-        completedBooking.add(new Booking("B0006", "Sarah Tan",    "Single", "S02", "10-07-2026", "12-07-2026", "Completed"));
-        completedBooking.add(new Booking("B0007", "Michael Chen", "Medium", "M03", "13-07-2026", "15-07-2026", "Completed"));
-        completedBooking.add(new Booking("B0008", "Emily Wong",   "Large",  "L03", "16-07-2026", "18-07-2026", "Completed"));
-        completedBooking.add(new Booking("B0009", "Kevin Lim",    "Single", "S03", "19-07-2026", "21-07-2026", "Completed"));
-        completedBooking.add(new Booking("B0010", "Jessica Ng",   "Medium", "M04", "22-07-2026", "24-07-2026", "Completed"));
+        waitingBooking.add(new Booking("B0001", "John Tan", "0123456789", "Large", "L01","20-08-2026", "22-08-2026", "Completed"));
+        waitingBooking.add(new Booking("B0002", "Wong Lee", "0134567890", "Medium", "M01","21-08-2026", "24-08-2026", "Completed"));
+        waitingBooking.add(new Booking("B0003", "Alice Lim", "0145678901", "Single", "S01","25-08-2026", "27-08-2026", "Completed"));
+        waitingBooking.add(new Booking("B0004", "David Wong", "0166789012", "Large", "L02", "28-08-2026", "30-08-2026", "Completed"));
+        waitingBooking.add(new Booking("B0005", "Jason Lee", "0177890123", "Medium", "M02", "01-09-2026", "03-09-2026", "Completed"));
 
+        //================================================
+        // Waiting Booking
+        //================================================
+        completedBooking.add(new Booking("B0006", "Sarah Tan", "0188901234", "Single", "S02", "10-07-2026", "12-07-2026", "Waiting"));
+        completedBooking.add(new Booking("B0007", "Michael Chen", "0199012345", "Medium", "M03", "13-07-2026", "15-07-2026", "Waiting"));
+        completedBooking.add(new Booking("B0008", "Emily Wong", "0121122334", "Large", "L03", "16-07-2026", "18-07-2026", "Waiting"));
+        completedBooking.add(new Booking("B0009", "Kevin Lim", "0132233445", "Single", "S03", "19-07-2026", "21-07-2026", "Waiting"));
+        completedBooking.add(new Booking("B0010", "Jessica Ng", "0143344556", "Medium", "M04", "22-07-2026", "24-07-2026", "Waiting"));
+        
         BookingDatabase bookingDatabase = new BookingDatabase();
 
         bookingDatabase.saveToFile(waitingBooking,completedBooking);
