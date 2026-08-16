@@ -15,12 +15,12 @@ import java.time.temporal.ChronoUnit;
 public class BookingControl {
 
     private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
-    private ListInterface<Booking> completedBookingList = new DoublyLinkedList<>();
+    private ListInterface<Booking> servedBookingList = new DoublyLinkedList<>();
     private BookingDatabase bookingDatabase = new BookingDatabase();
   
     public BookingControl() {
         waitingBookingList = bookingDatabase.getWaitingBooking();
-        completedBookingList = bookingDatabase.getCompletedBooking();
+        servedBookingList = bookingDatabase.getServedBooking();
     }
  
     public String generateBookingID() {
@@ -63,9 +63,9 @@ public class BookingControl {
                     return booking;
                 }
             }
-        Iterator<Booking> completed = completedBookingList.getIterator();
-            while(completed.hasNext()){
-            Booking booking = completed.next();
+        Iterator<Booking> served = servedBookingList.getIterator();
+            while(served.hasNext()){
+            Booking booking = served.next();
                 if(booking.getBookingID().equalsIgnoreCase(bookingID)){
                     return booking;
                 }
@@ -81,8 +81,8 @@ public class BookingControl {
         for(int i=1; i<=waitingBookingList.getSize(); i++){
             all.add(waitingBookingList.getEntry(i));
         }
-        for(int i=1; i<=completedBookingList.getSize(); i++){
-            all.add(completedBookingList.getEntry(i));
+        for(int i=1; i<=servedBookingList.getSize(); i++){
+            all.add(servedBookingList.getEntry(i));
         }
         return all;
     }
@@ -108,8 +108,8 @@ public class BookingControl {
         }
         Booking booking = waitingBookingList.getEntry(1);
         waitingBookingList.remove(1);
-        booking.setRoomStatus("Completed");
-        completedBookingList.add(booking);
+        booking.setRoomStatus("Served");
+        servedBookingList.add(booking);
         return booking;
     }
   
@@ -141,10 +141,10 @@ public class BookingControl {
     }
 
     //==========================================================
-    // Get All Completed Booking
+    // Get All Served Booking
     //==========================================================
-    public ListInterface<Booking> getCompletedBookings() {
-        return completedBookingList;
+    public ListInterface<Booking> getServedBookings() {
+        return servedBookingList;
     }
 
     //==========================================================
@@ -153,7 +153,7 @@ public class BookingControl {
     public boolean updateBooking(Booking booking){
         boolean found = false;
 
-        // Check waiting list
+        // Check waiting booking list
         for(int i = 1; i <= waitingBookingList.getSize(); i++){
             Booking temp = waitingBookingList.getEntry(i);
             if(temp.getBookingID().equalsIgnoreCase(booking.getBookingID())){
@@ -161,10 +161,10 @@ public class BookingControl {
                 break;
             }
         }
-        // Check completed list
+        // Check served booking list
         if(!found){
-            for(int i = 1; i <= completedBookingList.getSize(); i++){
-                Booking temp = completedBookingList.getEntry(i);
+            for(int i = 1; i <= servedBookingList.getSize(); i++){
+                Booking temp = servedBookingList.getEntry(i);
                 if(temp.getBookingID().equalsIgnoreCase(booking.getBookingID())){
                     found = true;
                     break;
@@ -207,10 +207,10 @@ public class BookingControl {
                     break;
                 }
             }
-            // Check completed bookings
+            // Check served bookings
             if (!used) {
-                for (int j = 1; j <= completedBookingList.getSize(); j++) {
-                    Booking booking = completedBookingList.getEntry(j);
+                for (int j = 1; j <= servedBookingList.getSize(); j++) {
+                    Booking booking = servedBookingList.getEntry(j);
                     if (booking.getRoomID() != null && booking.getRoomID().equalsIgnoreCase(roomID)) {
                         used = true;
                         break;
@@ -235,9 +235,9 @@ public class BookingControl {
             Booking booking = waitingBookingList.getEntry(i);
             schedule.add(booking);
         }
-        // Completed bookings
-        for (int i = 1; i <= completedBookingList.getSize(); i++) {
-            Booking booking = completedBookingList.getEntry(i);
+        // Served bookings
+        for (int i = 1; i <= servedBookingList.getSize(); i++) {
+            Booking booking = servedBookingList.getEntry(i);
             schedule.add(booking);
         }
         return schedule;
@@ -249,9 +249,9 @@ public class BookingControl {
     public ListInterface<Booking> getOccupiedRooms() {
         ListInterface<Booking> occupied = new DoublyLinkedList<>();
 
-        for (int i = 1; i <= completedBookingList.getSize(); i++) {
-            Booking booking = completedBookingList.getEntry(i);
-            if (booking.getRoomStatus() != null && booking.getRoomStatus().equalsIgnoreCase("Completed")) {
+        for (int i = 1; i <= servedBookingList.getSize(); i++) {
+            Booking booking = servedBookingList.getEntry(i);
+            if (booking.getRoomStatus() != null && booking.getRoomStatus().equalsIgnoreCase("Served")) {
                 occupied.add(booking);
             }
         }
@@ -264,8 +264,8 @@ public class BookingControl {
     public ListInterface<Booking> getBookingHistory() {
         ListInterface<Booking> history = new DoublyLinkedList<>();
 
-        for (int i = 1; i <= completedBookingList.getSize(); i++) {
-            history.add(completedBookingList.getEntry(i));
+        for (int i = 1; i <= servedBookingList.getSize(); i++) {
+            history.add(servedBookingList.getEntry(i));
         }
         return history;
     }
@@ -281,9 +281,9 @@ public class BookingControl {
                 result.add(booking);
             }
         }
-        // Search completed bookings
-        for (int i = 1; i <= completedBookingList.getSize(); i++) {
-            Booking booking = completedBookingList.getEntry(i);
+        // Search served bookings
+        for (int i = 1; i <= servedBookingList.getSize(); i++) {
+            Booking booking = servedBookingList.getEntry(i);
             if (booking.getBookingID().equalsIgnoreCase(keyword)
                     || booking.getGuestName().toLowerCase().contains(keyword.toLowerCase())
                     || booking.getPhoneNumber().equals(keyword)) {
@@ -305,9 +305,9 @@ public class BookingControl {
                 result.add(booking);
             }
         }
-        // Search completed bookings
-        for (int i = 1; i <= completedBookingList.getSize(); i++) {
-            Booking booking = completedBookingList.getEntry(i);
+        // Search served bookings
+        for (int i = 1; i <= servedBookingList.getSize(); i++) {
+            Booking booking = servedBookingList.getEntry(i);
             if (booking.getGuestName().equalsIgnoreCase(guestName)) {
                 result.add(booking);
             }
@@ -324,9 +324,9 @@ public class BookingControl {
                 result.add(booking);
             }
         }
-        // Search completed bookings
-        for (int i = 1; i <= completedBookingList.getSize(); i++) {
-            Booking booking = completedBookingList.getEntry(i);
+        // Search served bookings
+        for (int i = 1; i <= servedBookingList.getSize(); i++) {
+            Booking booking = servedBookingList.getEntry(i);
             if (booking.getPhoneNumber().equals(phoneNumber)) {
                 result.add(booking);
             }
@@ -400,10 +400,10 @@ public class BookingControl {
     }
 
     //==========================================================
-    //  Get Number Of Completed Bookings
+    //  Get Number Of Served Bookings
     //==========================================================
-    public int getCompletedBookingCount() {
-        return completedBookingList.getSize();
+    public int getServedBookingCount() {
+        return servedBookingList.getSize();
     }
     
     //==========================================================

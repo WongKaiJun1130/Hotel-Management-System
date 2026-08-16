@@ -10,7 +10,7 @@ public class BookingDatabase {
     // In-Memory Booking Data
     //====================================================
     private static ListInterface<Booking> waitingBookingData = new DoublyLinkedList<>();
-    private static ListInterface<Booking> completedBookingData = new DoublyLinkedList<>();
+    private static ListInterface<Booking> servedBookingData = new DoublyLinkedList<>();
 
     //====================================================
     // Create Initial Booking Data
@@ -19,42 +19,39 @@ public class BookingDatabase {
 
         ListInterface<Booking> waitingBooking = new DoublyLinkedList<>();
 
-        ListInterface<Booking> completedBooking = new DoublyLinkedList<>();
+        ListInterface<Booking> servedBookingData = new DoublyLinkedList<>();
 
         //================================================
-        // Completed Booking
+        // Served Booking
         //================================================
-        waitingBooking.add(new Booking("B0001", "John Tan", "0123456789", "Large", "L01","20-08-2026", "22-08-2026", "Completed"));
-        waitingBooking.add(new Booking("B0002", "Wong Lee", "0134567890", "Medium", "M01","21-08-2026", "24-08-2026", "Completed"));
-        waitingBooking.add(new Booking("B0003", "Alice Lim", "0145678901", "Single", "S01","25-08-2026", "27-08-2026", "Completed"));
-        waitingBooking.add(new Booking("B0004", "David Wong", "0166789012", "Large", "L02", "28-08-2026", "30-08-2026", "Completed"));
-        waitingBooking.add(new Booking("B0005", "Jason Lee", "0177890123", "Medium", "M02", "01-09-2026", "03-09-2026", "Completed"));
+        servedBookingData.add(new Booking("B0001", "John Tan", "0123456789", "Large", "L01","20-08-2026", "22-08-2026", "Served"));
+        servedBookingData.add(new Booking("B0002", "Wong Lee", "0134567890", "Medium", "M01","21-08-2026", "24-08-2026", "Served"));
+        servedBookingData.add(new Booking("B0003", "Alice Lim", "0145678901", "Single", "S01","25-08-2026", "27-08-2026", "Served"));
+        servedBookingData.add(new Booking("B0004", "David Wong", "0166789012", "Large", "L02", "28-08-2026", "30-08-2026", "Served"));
+        servedBookingData.add(new Booking("B0005", "Jason Lee", "0177890123", "Medium", "M02", "01-09-2026", "03-09-2026", "Served"));
 
         //================================================
         // Waiting Booking
         //================================================
-        completedBooking.add(new Booking("B0006", "Sarah Tan", "0188901234", "Single", "S02", "10-07-2026", "12-07-2026", "Waiting"));
-        completedBooking.add(new Booking("B0007", "Michael Chen", "0199012345", "Medium", "M03", "13-07-2026", "15-07-2026", "Waiting"));
-        completedBooking.add(new Booking("B0008", "Emily Wong", "0121122334", "Large", "L03", "16-07-2026", "18-07-2026", "Waiting"));
-        completedBooking.add(new Booking("B0009", "Kevin Lim", "0132233445", "Single", "S03", "19-07-2026", "21-07-2026", "Waiting"));
-        completedBooking.add(new Booking("B0010", "Jessica Ng", "0143344556", "Medium", "M04", "22-07-2026", "24-07-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0006", "Sarah Tan", "0188901234", "Single", "S02", "10-07-2026", "12-07-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0007", "Michael Chen", "0199012345", "Medium", "M03", "13-07-2026", "15-07-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0008", "Emily Wong", "0121122334", "Large", "L03", "16-07-2026", "18-07-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0009", "Kevin Lim", "0132233445", "Single", "S03", "19-07-2026", "21-07-2026", "Waiting"));
+        waitingBooking.add(new Booking("B0010", "Jessica Ng", "0143344556", "Medium", "M04", "22-07-2026", "24-07-2026", "Waiting"));
         
         BookingDatabase bookingDatabase = new BookingDatabase();
 
-        bookingDatabase.saveToFile(waitingBooking,completedBooking);
+        bookingDatabase.saveToFile(waitingBooking,servedBookingData);
 
-        System.out.println(waitingBookingData.getSize() + completedBookingData.getSize() + " Booking Created In Memory!");
+        System.out.println(waitingBookingData.getSize() + servedBookingData.getSize() + " Booking Created In Memory!");
     }
 
     //====================================================
     // Save Booking Data In Memory
     //====================================================
-    public void saveToFile(ListInterface<Booking> waitingBookingList, ListInterface<Booking> completedBookingList) {
-
+    public void saveToFile(ListInterface<Booking> waitingBookingList, ListInterface<Booking> servedBookingList) {
         waitingBookingData = copyBookingList(waitingBookingList);
-
-        completedBookingData = copyBookingList(completedBookingList);
-
+        servedBookingData = copyBookingList(servedBookingList);
         System.out.println("Booking Database Updated In Memory!");
     }
         
@@ -68,10 +65,10 @@ public class BookingDatabase {
     }
 
     //====================================================
-    // Get Completed Booking
+    // Get Served Booking
     //====================================================
-    public ListInterface<Booking> getCompletedBooking() {
-        return copyBookingList(completedBookingData);
+    public ListInterface<Booking> getServedBooking() {
+        return copyBookingList(servedBookingData);
     }
 
     //====================================================
@@ -86,20 +83,20 @@ public class BookingDatabase {
     }
 
     //====================================================
-    // Add Completed Booking
+    // Add Served Booking
     //====================================================
-    public boolean addCompletedBooking(Booking booking) {
+    public boolean addServedBooking(Booking booking) {
         if (booking == null) {
             return false;
         }
-        completedBookingData.add(booking);
+        servedBookingData.add(booking);
         return true;
     }
 
     //====================================================
-    // Move Booking To Completed List
+    // Move Booking To Served List
     //====================================================
-    public boolean completeBooking(String bookingID) {
+    public boolean servedBooking(String bookingID) {
         if (bookingID == null || bookingID.trim().isEmpty()) {
             return false;
         }
@@ -108,7 +105,7 @@ public class BookingDatabase {
 
             if (booking != null && booking.getBookingID().equalsIgnoreCase(bookingID.trim())) {
                 waitingBookingData.remove(i);
-                completedBookingData.add(booking);
+                servedBookingData.add(booking);
                 return true;
             }
         }
@@ -133,14 +130,14 @@ public class BookingDatabase {
     }
 
     //====================================================
-    // Search Completed Booking By ID
+    // Search Served Booking By ID
     //====================================================
-    public Booking searchCompletedBookingByID(String bookingID) {
+    public Booking searchServedBookingByID(String bookingID) {
         if (bookingID == null || bookingID.trim().isEmpty()) {
             return null;
         }
-        for (int i = 1; i <= completedBookingData.getSize(); i++) {
-            Booking booking = completedBookingData.getEntry(i);
+        for (int i = 1; i <= servedBookingData.getSize(); i++) {
+            Booking booking = servedBookingData.getEntry(i);
             if (booking != null && booking.getBookingID().equalsIgnoreCase(bookingID.trim())) {
                 return booking;
             }
@@ -159,13 +156,13 @@ public class BookingDatabase {
     }
 
     //====================================================
-    // Remove Completed Booking
+    // Remove Served Booking
     //====================================================
-    public Booking removeCompletedBooking(int position) {
-        if (position < 1 || position > completedBookingData.getSize()) {
+    public Booking removeServedBooking(int position) {
+        if (position < 1 || position > servedBookingData.getSize()) {
             return null;
         }
-        return completedBookingData.remove(position);
+        return servedBookingData.remove(position);
     }
 
     //====================================================
@@ -176,10 +173,10 @@ public class BookingDatabase {
     }
 
     //====================================================
-    // Get Total Completed Booking
+    // Get Total Served Booking
     //====================================================
-    public int getTotalCompletedBooking() {
-        return completedBookingData.getSize();
+    public int getTotalServedBooking() {
+        return servedBookingData.getSize();
     }
 
     //====================================================
@@ -190,10 +187,10 @@ public class BookingDatabase {
     }
 
     //====================================================
-    // Check Completed Booking Is Empty
+    // Check Served Booking Is Empty
     //====================================================
-    public boolean isCompletedBookingEmpty() {
-        return completedBookingData.isEmpty();
+    public boolean isServedBookingEmpty() {
+        return servedBookingData.isEmpty();
     }
 
     //====================================================
@@ -239,9 +236,9 @@ public class BookingDatabase {
             }
         }
 
-        // Check completed bookings
-        for (int i = 1; i <= completedBookingData.getSize(); i++) {
-            Booking booking = completedBookingData.getEntry(i);
+        // Check served bookings
+        for (int i = 1; i <= servedBookingData.getSize(); i++) {
+            Booking booking = servedBookingData.getEntry(i);
 
             if (booking != null) {
                 String id = booking.getBookingID();
@@ -259,7 +256,6 @@ public class BookingDatabase {
                 }
             }
         }
-
         return String.format("B%04d", maxID + 1);
     }
 }

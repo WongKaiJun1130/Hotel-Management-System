@@ -135,8 +135,7 @@ public class BookingUI {
             System.out.println("\nNo waiting reservation.");
         } 
         else {
-            System.out.println("Reservation Processed: "
-                    + "");
+            System.out.println("Reservation Processed: " + "");
             System.out.println();
             displayTableHeader();
             displayBookingRow(booking);
@@ -646,7 +645,7 @@ public class BookingUI {
         ListInterface<Booking> bookingList = bookingControl.getBookingsByMonth(yearMonth);
 
         int waiting = 0;
-        int completed = 0;
+        int served = 0;
         long totalStayDays = 0;
         int single = 0;
         int medium = 0;
@@ -657,8 +656,8 @@ public class BookingUI {
             if (booking.getRoomStatus().equalsIgnoreCase("Waiting")) {
                 waiting++;
             }
-            if (booking.getRoomStatus().equalsIgnoreCase("Completed")) {
-                completed++;
+            if (booking.getRoomStatus().equalsIgnoreCase("Served")) {
+                served++;
             }
             if (booking.getRoomType().equalsIgnoreCase("Single")) {
                 single++;
@@ -675,7 +674,7 @@ public class BookingUI {
         System.out.println("Month               : " + yearMonth.getMonth() + " " + yearMonth.getYear());
         System.out.println("Total Bookings      : " + bookingList.getSize());
         System.out.println("Waiting Bookings    : " + waiting);
-        System.out.println("Completed Bookings  : " + completed);
+        System.out.println("Served Bookings     : " + served);
         System.out.println("Total Stay Days     : " + totalStayDays);
         System.out.println("---------------------------------------------------------");
         System.out.println("Single Bookings     : " + single);
