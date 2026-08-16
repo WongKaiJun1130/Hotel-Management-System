@@ -515,4 +515,18 @@ public class BookingControl {
             }
         }
     }
+    
+    //==========================================================
+    // Check Out Guest By Room ID
+    //==========================================================
+    public Booking checkOutBookingByRoomID(String roomID) {
+        for (int i = 1; i <= servedBookingList.getSize(); i++) {
+            Booking booking = servedBookingList.getEntry(i);
+            if (booking.getRoomID().equalsIgnoreCase(roomID) && booking.getRoomStatus().equalsIgnoreCase("Served")) {
+                booking.setRoomStatus("Checked Out");
+                return booking;
+            }
+        }
+        return null;
+    }
 }

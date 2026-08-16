@@ -7,6 +7,8 @@ import utility.Utility;
 import utility.RoomStatusUtil;
 import utility.RoomTypeUtil;
 import control.HousekeepingControl;
+import control.BookingControl;
+import entity.Booking;
 
 import java.util.Scanner;
 import java.util.Iterator;
@@ -16,6 +18,7 @@ public class HouseKeepingUI {
     
     private static Scanner input = new Scanner(System.in);
     private static final int BOX_WIDTH = 52;
+    private static BookingControl bookingControl = new BookingControl();
     
     // ==========================
     // Main Housekeeping Menu
@@ -139,23 +142,43 @@ public class HouseKeepingUI {
     
     
     // 3. Check-Out
+    //==========================================================
+    // Guest Check-Out
+    // Booking + Housekeeping Integration
+    //==========================================================
     private static void guestCheckOut() {
-        System.out.print("Enter Room Number :");
+        System.out.print("Enter Room Number : ");
         String roomNum = input.nextLine().trim();
-    
         Room room = HousekeepingControl.findRoom(roomNum);
-    
-        if(room == null){
-            System.out.println("Room" + roomNum +" not found");
+        if (room == null) {
+            System.out.println("Room " + roomNum + " not found.");
             return;
         }
-    
-        boolean success = HousekeepingControl.guestCheckOut(room);
-        if(success){
-            System.out.println("Room " + room.getRoomNum() + " Checked out.");
+
+        //======================================================
+        // Check Booking Module
+        //======================================================
+        Booking booking = bookingControl.checkOutBookingByRoomID(roomNum);
+        if (booking == null) {
+            System.out.println("No active guest booking found for Room " + roomNum + ".");
+            return;
         }
-        else{
-            System.out.println("Room " + room.getRoomNum() + " already marked Dirty");
+
+        //======================================================
+        // Update Housekeeping Status
+        //======================================================
+        boolean success = HousekeepingControl.guestCheckOut(room);
+        if (success) {
+            System.out.println();
+            System.out.println("Guest checked out successfully.");
+            System.out.println("Booking ID : " + booking.getBookingID());
+            System.out.println("Guest Name : " + booking.getGuestName());
+            System.out.println("Room       : " + booking.getRoomID());
+            System.out.println("Booking Status : " + booking.getRoomStatus());
+            System.out.println("Room Status    : Dirty");
+            System.out.println("Room requires cleaning.");
+        } else {
+            System.out.println("Unable to update Room " + roomNum + ".");
         }
     }
     

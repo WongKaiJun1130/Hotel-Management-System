@@ -135,7 +135,7 @@ public class HousekeepingControl {
         int[] counts = new int[3];
         for (int i = 1; i <= rooms.getSize(); i++) {
         int type = rooms.getEntry(i).getRoomType();
-        if (type >= 0 && type <= counts.length){
+        if (type >= 0 && type < counts.length){
             counts[type]++;
                 }
         }
