@@ -6,7 +6,7 @@
 package Hotel_Management_System;
 
 
-import boundary_UI.MainUI;
+import boundary.MainUI;
 import dao.BookingDatabase;
 import dao.GuestDatabase;
 import dao.LoyaltyDatabase;
