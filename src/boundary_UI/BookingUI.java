@@ -559,13 +559,14 @@ public class BookingUI {
         System.out.println("========= MONTHLY BOOKING CALENDAR ========");
         System.out.print("Enter Year  : ");
         int year = InputUtility.getIntInput();
-
-        System.out.print("Enter Month : ");
-        int month = InputUtility.getIntInput();
-        if (month < 1 || month > 12) {
-            System.out.println("\nInvalid month.");
-            InputUtility.pressEnterToContinue();
-            return;
+        int month;
+        while (true) {
+            System.out.print("Enter Month : ");
+            month = InputUtility.getIntInput();
+            if (month >= 1 && month <= 12) {
+                break;
+            }
+            System.out.println("Invalid month. Please enter 1 to 12.");
         }
         YearMonth yearMonth = YearMonth.of(year, month);
         System.out.println("\n=============== " + yearMonth.getMonth() + " " + year + " ==============");
@@ -691,14 +692,15 @@ public class BookingUI {
 
         System.out.print("Enter Year  : ");
         int year = InputUtility.getIntInput();
-
-        System.out.print("Enter Month : ");
-        int month = InputUtility.getIntInput();
-
-        if (month < 1 || month > 12) {
-            System.out.println("\nInvalid month.");
-            InputUtility.pressEnterToContinue();
-            return;
+        int month;
+        
+        while (true) {
+            System.out.print("Enter Month : ");
+            month = InputUtility.getIntInput();
+            if (month >= 1 && month <= 12) {
+                break;
+            }
+            System.out.println("Invalid month. Please enter 1 to 12.");
         }
 
         YearMonth yearMonth = YearMonth.of(year, month);
@@ -753,11 +755,6 @@ public class BookingUI {
         );
 
         printSingleGraph(occupancyGraph);
-        System.out.println();
-        System.out.println("+--------------------------------------------------------------+");
-        System.out.println("|                        END OF REPORT                         |");
-        System.out.println("+--------------------------------------------------------------+");
-
         InputUtility.pressEnterToContinue();
     }
     
