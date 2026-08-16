@@ -8,6 +8,7 @@ public class Booking implements Serializable {
     private static final long serialVersionUID = 1L;
     
     private String bookingID;
+    private String guestID;
     private String guestName;
     private String phoneNumber;
     private String roomType;
@@ -18,6 +19,7 @@ public class Booking implements Serializable {
 
      //Constructor
     public Booking(String bookingID,
+                   String guestID,
                    String guestName,
                    String phoneNumber,
                    String roomType,
@@ -27,6 +29,7 @@ public class Booking implements Serializable {
                    String roomStatus) {
 
     this.bookingID = bookingID;
+    this.guestID = guestID;
     this.guestName = guestName;
     this.phoneNumber = phoneNumber;
     this.roomType = roomType;
@@ -40,11 +43,15 @@ public class Booking implements Serializable {
      public String getBookingID() {
         return bookingID;
     }
-
+     
+    public String getGuestID() {
+        return guestID;
+    }
+    
     public String getGuestName() {
         return guestName;
     }
-    
+   
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -83,6 +90,10 @@ public class Booking implements Serializable {
         this.bookingID = bookingID;
     }
     
+    public void setGuestID(String guestID) {
+        this.guestID = guestID;
+    }
+    
     public void setGuestName(String guestName) {
         this.guestName = guestName;
     }
@@ -116,6 +127,7 @@ public class Booking implements Serializable {
         return "Booking ID: " + bookingID
              + "\nGuest Name: " + guestName
              + "\nPhone Number: " + phoneNumber
+             + "\nGuest ID: " + guestID
              + "\nRoom Type: " + roomType
              + "\nRoom ID: " + roomID
              + "\nCheck-In Date: " + checkInDate

@@ -4,6 +4,8 @@ import control.BookingControl;
 import entity.Booking;
 import adt.ListInterface;
 import utility.InputUtility;
+import dao.GuestDatabase;
+import entity.Guest;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -11,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 
 public class BookingUI {
     private BookingControl bookingControl;
+    private GuestDatabase guestDatabase;
     private static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
     private static final String ANSI_RESET = "\u001B[0m";
 
@@ -19,10 +22,12 @@ public class BookingUI {
     //==========================================================
     public BookingUI() {
         bookingControl = new BookingControl();
+        guestDatabase = new GuestDatabase();
     }
 
     public BookingUI(BookingControl bookingControl) {
         this.bookingControl = bookingControl;
+        guestDatabase = new GuestDatabase();
     }
 
     //==========================================================
@@ -90,6 +95,18 @@ public class BookingUI {
         String guestName = InputUtility.getValidName();
         System.out.print("Phone Number    : ");
         String phoneNumber = InputUtility.getPhoneInput();
+       
+        Guest existingGuest = guestDatabase.searchGuestByNameAndPhone(guestName, phoneNumber);
+        String guestID;
+        if (existingGuest != null) {
+            guestID = existingGuest.getGuestID();
+            System.out.println("Guest ID        : " + guestID);
+            System.out.println("Existing guest found.");
+        } else {
+            guestID = guestDatabase.generateGuestID();
+            System.out.println("Guest ID        : " + guestID);
+            System.out.println("New guest.");
+        }
         System.out.print("Room Type       : ");
         String roomType = InputUtility.getValidRoomType();
         roomType = InputUtility.capitalizeFirstLetter(roomType);
@@ -103,19 +120,44 @@ public class BookingUI {
         System.out.print("Check-In Date   : ");
         String checkInDate = InputUtility.getDateInput();
         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
+        
+        //====================================================
+        // CREATE NEW GUEST ONLY IF GUEST DOES NOT EXIST
+        //====================================================
+        if (existingGuest == null) {
+            String guestRoomType;
+            if (roomType.equalsIgnoreCase("Single")) {
+                guestRoomType = "Small Room";
+            } else if (roomType.equalsIgnoreCase("Medium")) {
+                guestRoomType = "Medium Room";
+            } else {
+                guestRoomType = "Big Room";
+            }
+            String guestCheckInDate = checkInDate.replace("-", "/");
 
+            Guest newGuest = new Guest(
+                    guestID,
+                    guestName,
+                    phoneNumber,
+                    "Standard",
+                    guestRoomType,
+                    "Waiting",
+                    guestCheckInDate,
+                    guestCheckInDate + " 12:00"
+            );
+            guestDatabase.addGuest(newGuest);
+        }
         Booking booking = new Booking(
                 bookingID,
                 guestName,
                 phoneNumber,
+                guestID,
                 roomType,
                 roomID,
                 checkInDate,
                 checkOutDate,
                 "Waiting"
         );
-
-
         if(bookingControl.addBooking(booking)) {
             System.out.println("\nReservation added successfully.");
         }

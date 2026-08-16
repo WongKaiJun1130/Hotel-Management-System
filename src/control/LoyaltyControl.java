@@ -154,21 +154,23 @@ public class LoyaltyControl {
         return true;
     }
 
-    private int calculatePointsByRoomType(String roomType) {
-
+   private int calculatePointsByRoomType(String roomType) {
         if (roomType == null) {
             return 0;
         }
-
         switch (roomType.trim().toLowerCase()) {
-
+            case "single":
+            case "single room":
             case "small room":
                 return 100;
 
-            case "middle room":
+            case "medium":
             case "medium room":
+            case "middle room":
                 return 200;
 
+            case "large":
+            case "large room":
             case "big room":
                 return 300;
 

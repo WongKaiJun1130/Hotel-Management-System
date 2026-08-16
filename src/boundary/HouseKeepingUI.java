@@ -8,6 +8,7 @@ import utility.RoomStatusUtil;
 import utility.RoomTypeUtil;
 import control.HousekeepingControl;
 import control.BookingControl;
+import control.LoyaltyControl;
 import entity.Booking;
 
 import java.util.Scanner;
@@ -19,12 +20,12 @@ public class HouseKeepingUI {
     private static Scanner input = new Scanner(System.in);
     private static final int BOX_WIDTH = 52;
     private static BookingControl bookingControl = new BookingControl();
+    private static LoyaltyControl loyaltyControl = new LoyaltyControl();
     
     // ==========================
     // Main Housekeeping Menu
     // ==========================
     public static void menu() {
-        
         //HousekeepingControl.loadRoomDatabase();
 
         Navigation.stack.push(HouseKeepingMenu);
@@ -167,19 +168,39 @@ public class HouseKeepingUI {
         //======================================================
         // Update Housekeeping Status
         //======================================================
-        boolean success = HousekeepingControl.guestCheckOut(room);
+        boolean success =
+            HousekeepingControl.guestCheckOut(room);
+
         if (success) {
+
+            boolean pointsAdded =
+                    loyaltyControl.addPoints(
+                            booking.getGuestID(),
+                            booking.getRoomType()
+                    );
+
             System.out.println();
             System.out.println("Guest checked out successfully.");
-            System.out.println("Booking ID : " + booking.getBookingID());
-            System.out.println("Guest Name : " + booking.getGuestName());
-            System.out.println("Room       : " + booking.getRoomID());
-            System.out.println("Booking Status : " + booking.getRoomStatus());
+            System.out.println("Booking ID     : " + booking.getBookingID());
+            System.out.println("Guest Name     : " + booking.getGuestName());
+            System.out.println("Room ID        : " + booking.getRoomID());
+            System.out.println("Booking Status : Checked Out");
             System.out.println("Room Status    : Dirty");
-            System.out.println("Room requires cleaning.");
+
+            if (pointsAdded) {
+                System.out.println();
+                System.out.println("Loyalty points added successfully.");
+                System.out.println(loyaltyControl.getLastMessage());
+            }
+
         } else {
-            System.out.println("Unable to update Room " + roomNum + ".");
+
+            System.out.println(
+                    "Room " + room.getRoomNum()
+                    + " already marked Dirty."
+            );
         }
+
     }
     
     // 4. need cleaning

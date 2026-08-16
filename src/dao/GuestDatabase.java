@@ -163,4 +163,104 @@ public class GuestDatabase {
     public DoublyLinkedList<Guest> getAllGuests() {
         return guests;
     }
+    
+    //====================================================
+    // Generate Next Guest ID
+    //====================================================
+    public String generateGuestID() {
+        int maxID = 0;
+        for (int i = 1; i <= guests.getSize(); i++) {
+            Guest guest = guests.getEntry(i);
+            if (guest != null) {
+                String id = guest.getGuestID();
+                if (id != null && id.startsWith("R")) {
+                    try {
+                        int number = Integer.parseInt(id.substring(1));
+                        if (number > maxID) {
+                            maxID = number;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Ignore invalid Guest ID
+                    }
+                }
+            }
+        }
+        int nextID = maxID + 1;
+        return String.format("R%04d", nextID);
+    }
+    
+    //====================================================
+    // Find Existing Guest By Name And Phone Number
+    //====================================================
+    public Guest searchGuestByNameAndPhone(
+            String guestName,
+            String phoneNumber) {
+        if (guestName == null || phoneNumber == null) {
+            return null;
+        }
+        for (int i = 1; i <= guests.getSize(); i++) {
+            Guest guest = guests.getEntry(i);
+            if (guest != null
+                    && guest.getGuestName() != null
+                    && guest.getPhoneNumber() != null
+                    && guest.getGuestName().equalsIgnoreCase(guestName.trim())
+                    && guest.getPhoneNumber().equals(phoneNumber.trim())) {
+                return guest;
+            }
+        }
+        return null;
+    }
+
+    //====================================================
+    // Get Existing Guest Or Create New Guest
+    //====================================================
+    public Guest getOrCreateGuest(
+            String guestName,
+            String phoneNumber,
+            String roomType,
+            String checkInDate) {
+
+        // Check whether guest already exists
+        Guest existingGuest = searchGuestByNameAndPhone(guestName, phoneNumber);
+        // Existing guest found
+        if (existingGuest != null) {
+            return existingGuest;
+        }
+        // Generate new Guest ID
+        String guestID = generateGuestID();
+        // Booking module default new guest as Standard
+        String loyaltyTier = "Standard";
+        // Convert Booking room type to Guest room type
+        String guestRoomType;
+
+        if (roomType.equalsIgnoreCase("Single")) {
+            guestRoomType = "Small Room";
+        }
+        else if (roomType.equalsIgnoreCase("Medium")) {
+            guestRoomType = "Medium Room";
+        }
+        else {
+            guestRoomType = "Big Room";
+        }
+
+        // GuestDatabase uses dd/MM/yyyy
+        String guestCheckInDate = checkInDate.replace("-", "/");
+
+        String arrivalDateTime = guestCheckInDate + " 12:00";
+
+        Guest newGuest = new Guest(
+                guestID,
+                guestName,
+                phoneNumber,
+                loyaltyTier,
+                guestRoomType,
+                "Waiting",
+                guestCheckInDate,
+                arrivalDateTime
+        );
+
+        guests.add(newGuest);
+
+        return newGuest;
+    }
 }

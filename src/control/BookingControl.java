@@ -517,7 +517,7 @@ public class BookingControl {
     }
     
     //==========================================================
-    // Check Out Guest By Room ID
+    // Check Out Booking By Room ID
     //==========================================================
     public Booking checkOutBookingByRoomID(String roomID) {
         for (int i = 1; i <= servedBookingList.getSize(); i++) {
