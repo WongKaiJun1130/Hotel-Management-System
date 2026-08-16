@@ -17,6 +17,12 @@ public class BookingControl {
     private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
     private ListInterface<Booking> servedBookingList = new DoublyLinkedList<>();
     private BookingDatabase bookingDatabase = new BookingDatabase();
+    private static final int ROOMS_PER_TYPE = 10;
+    private static final int ROOM_TYPE_COUNT = 3;
+    private static final int TOTAL_ROOMS = ROOMS_PER_TYPE * ROOM_TYPE_COUNT;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+    private static final String STATUS_WAITING = "Waiting";
+    private static final String STATUS_SERVED = "Served";
   
     public BookingControl() {
         waitingBookingList = bookingDatabase.getWaitingBooking();
@@ -35,7 +41,7 @@ public class BookingControl {
         if(getBookingByID(booking.getBookingID()) != null){
             return false;
         }
-        booking.setRoomStatus("Waiting");
+        booking.setRoomStatus(STATUS_WAITING);
         return waitingBookingList.add(booking);
     }
 
@@ -108,7 +114,7 @@ public class BookingControl {
         }
         Booking booking = waitingBookingList.getEntry(1);
         waitingBookingList.remove(1);
-        booking.setRoomStatus("Served");
+        booking.setRoomStatus(STATUS_SERVED);
         servedBookingList.add(booking);
         return booking;
     }
@@ -196,7 +202,7 @@ public class BookingControl {
             return null;
         }
 
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= ROOMS_PER_TYPE; i++) {
             String roomID = prefix + String.format("%02d", i);
             boolean used = false;
             // Check waiting bookings
@@ -339,14 +345,12 @@ public class BookingControl {
     //==========================================================
     public ListInterface<Booking> getBookingsByDate(LocalDate date) {
         ListInterface<Booking> result = new DoublyLinkedList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         ListInterface<Booking> bookingList = getAllBooking();
-        
         for (int i = 1; i <= bookingList.getSize(); i++) {
             Booking booking = bookingList.getEntry(i);
-            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), formatter);
-            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), formatter);
-            if (!date.isBefore(checkIn) && !date.isAfter(checkOut)) {
+            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), DATE_FORMATTER);
+            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), DATE_FORMATTER);
+            if (!date.isBefore(checkIn) && date.isBefore(checkOut)) {
                 result.add(booking);
             }
         }
@@ -358,31 +362,62 @@ public class BookingControl {
     //==========================================================
     public ListInterface<Booking> getBookingsByMonth(YearMonth yearMonth) {
         ListInterface<Booking> result = new DoublyLinkedList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
         LocalDate monthStart = yearMonth.atDay(1);
         LocalDate monthEnd = yearMonth.atEndOfMonth();
         ListInterface<Booking> bookingList = getAllBooking();
         for (int i = 1; i <= bookingList.getSize(); i++) {
             Booking booking = bookingList.getEntry(i);
-            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), formatter);
-            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), formatter);
-            if (!checkOut.isBefore(monthStart) && !checkIn.isAfter(monthEnd)) {
+            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), DATE_FORMATTER);
+            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), DATE_FORMATTER);
+            if (checkOut.isAfter(monthStart) && !checkIn.isAfter(monthEnd)) {
                 result.add(booking);
             }
         }
         return result;
     }
-    
+  
     //==========================================================
     // Calculate Booking Stay Days
     //==========================================================
     public long getBookingStayDays(Booking booking) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
-        LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), formatter);
-        LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), formatter);
+        LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), DATE_FORMATTER);
+        LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), DATE_FORMATTER);
         return ChronoUnit.DAYS.between(checkIn, checkOut);
+    }
+    
+    //==========================================================
+    // Calculate Booking Stay Days Within Selected Month
+    //==========================================================
+    public long getBookingStayDaysInMonth(
+            Booking booking,
+            YearMonth yearMonth) {
+
+        LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), DATE_FORMATTER);
+
+        LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), DATE_FORMATTER);
+
+        LocalDate monthStart = yearMonth.atDay(1);
+
+        LocalDate monthEnd = yearMonth.atEndOfMonth().plusDays(1);
+
+        LocalDate start;
+        if (checkIn.isBefore(monthStart)) {
+            start = monthStart;
+        } else {
+            start = checkIn;
+        }
+
+        LocalDate end;
+        if (checkOut.isAfter(monthEnd)) {
+            end = monthEnd;
+        } else {
+            end = checkOut;
+        }
+        
+        if (start.isBefore(end)) {
+            return ChronoUnit.DAYS.between(start, end);
+        }
+        return 0;
     }
     
     //==========================================================
@@ -406,25 +441,33 @@ public class BookingControl {
         return servedBookingList.getSize();
     }
     
+    
+    //Total Available Days = 10 × 31 = 310 room-days
     //==========================================================
-    // Get Monthly Room Occupancy Rate
+    // Calculate Monthly Room Occupancy Rate
     //==========================================================
     public double getRoomOccupancyRate(YearMonth yearMonth, String roomType) {
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        long bookedDays = getBookedRoomDays(yearMonth, roomType);
+        int totalAvailableDays = ROOMS_PER_TYPE * yearMonth.lengthOfMonth();
+        return ((double) bookedDays / totalAvailableDays) * 100;
+    }
+    
+    //==========================================================
+    // Get Total Booked Room Days By Month And Room Type
+    //==========================================================
+    public long getBookedRoomDays(YearMonth yearMonth, String roomType) {
         LocalDate monthStart = yearMonth.atDay(1);
-        // Day after last day
         LocalDate monthEnd = yearMonth.atEndOfMonth().plusDays(1);
+
         long bookedDays = 0;
         ListInterface<Booking> bookingList = getAllBooking();
-
         for (int i = 1; i <= bookingList.getSize(); i++) {
             Booking booking = bookingList.getEntry(i);
             if (!booking.getRoomType().equalsIgnoreCase(roomType)) {
                 continue;
             }
-            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), formatter);
-            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), formatter);
+            LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), DATE_FORMATTER);
+            LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), DATE_FORMATTER);
             
             LocalDate start;
             if (checkIn.isBefore(monthStart)) {
@@ -439,13 +482,19 @@ public class BookingControl {
             } else {
                 end = checkOut;
             }
-
             if (start.isBefore(end)) {
                 bookedDays += ChronoUnit.DAYS.between(start, end);
             }
         }
-        int totalAvailableDays = 10 * yearMonth.lengthOfMonth();
-        return ((double) bookedDays / totalAvailableDays) * 100;
+        return bookedDays;
+    }
+    
+    public int getTotalRoomCount() {
+        return TOTAL_ROOMS;
+    }
+    
+    public int getRoomTypeCount() {
+        return ROOM_TYPE_COUNT;
     }
     
     //==========================================================

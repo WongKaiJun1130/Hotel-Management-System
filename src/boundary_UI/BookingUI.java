@@ -11,6 +11,8 @@ import java.time.format.DateTimeFormatter;
 
 public class BookingUI {
     private BookingControl bookingControl;
+    private static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
+    private static final String ANSI_RESET = "\u001B[0m";
 
     //==========================================================
     // Constructor
@@ -440,7 +442,7 @@ public class BookingUI {
                 displayBookingRow(booking);
             }
             System.out.println("--------------------------------------------------------------------------------------------------------------");
-            System.out.println("Total Reservations : " + bookingList.getSize() + "/30");
+            System.out.println("Total Reservations : " + bookingList.getSize() + "/" + bookingControl.getTotalRoomCount());
         }
         InputUtility.pressEnterToContinue();
     }
@@ -668,7 +670,7 @@ public class BookingUI {
             if (booking.getRoomType().equalsIgnoreCase("Large")) {
                 large++;
             }
-            totalStayDays +=bookingControl.getBookingStayDays(booking);
+            totalStayDays += bookingControl.getBookingStayDaysInMonth(booking, yearMonth);
         }
         System.out.println("\n================ MONTHLY BOOKING SUMMARY ================");
         System.out.println("Month               : " + yearMonth.getMonth() + " " + yearMonth.getYear());
@@ -703,18 +705,177 @@ public class BookingUI {
         double singleRate = bookingControl.getRoomOccupancyRate(yearMonth, "Single");
         double mediumRate = bookingControl.getRoomOccupancyRate(yearMonth, "Medium");
         double largeRate = bookingControl.getRoomOccupancyRate(yearMonth, "Large");
-        System.out.println("\n============== ROOM OCCUPANCY REPORT ==============");
-        System.out.println("Month : " + yearMonth.getMonth() + " " + yearMonth.getYear());
-        System.out.println("----------------------------------------------------");
-        System.out.printf("%-15s %-15s%n", "Room Type", "Occupancy Rate");
-        System.out.println("----------------------------------------------------");
-        System.out.printf("%-15s %10.2f%%%n", "Single", singleRate);
-        System.out.printf("%-15s %10.2f%%%n", "Medium", mediumRate);
-        System.out.printf("%-15s %10.2f%%%n", "Large", largeRate);
-        System.out.println("----------------------------------------------------"); 
+       String generatedAt = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        System.out.println();
+        System.out.println("+-------------------------------------------------------------------+");
+        System.out.println("|                       ROOM OCCUPANCY REPORT                       |");
+        System.out.println("+-------------------------------------------------------------------+");
+        System.out.printf("| %-18s : %-42s   |%n", "Generated At", generatedAt);
+        System.out.printf("| %-18s : %-42s   |%n", "Report Month", yearMonth.getMonth() + " " + yearMonth.getYear());
+        System.out.printf("| %-18s : %-42d   |%n", "Total Room Types", bookingControl.getRoomTypeCount());
+        System.out.println("+------+----------------------+------------------+------------------+");
+
+        System.out.printf("| %-4s | %-20s | %-16s | %-16s |%n", "No.", "Room Type", "Occupancy Rate", "Status");
+        System.out.println("+------+----------------------+------------------+------------------+");
+        System.out.printf("| %-4d | %-20s | %-15.2f%% | %-16s |%n", 1, "Single", singleRate, getOccupancyStatus(singleRate));
+        System.out.printf("| %-4d | %-20s | %-15.2f%% | %-16s |%n", 2, "Medium", mediumRate, getOccupancyStatus(mediumRate));
+        System.out.printf("| %-4d | %-20s | %-15.2f%% | %-16s |%n", 3, "Large", largeRate, getOccupancyStatus(largeRate));
+
+        System.out.println("+------+----------------------+------------------+------------------+");
+
+        double averageRate = (singleRate + mediumRate + largeRate) / 3.0;
+        System.out.printf("| %-27s | %-15.2f%% | %-16s |%n", "Average Occupancy Rate", averageRate, "-");
+        System.out.println("+-------------------------------------------------------------------+");
+
+        //==========================================================
+        // Simple Text Bar Chart
+        //==========================================================
+        System.out.println();
+
+        int[] occupancyValues = {
+            (int) Math.round(singleRate * 10),
+            (int) Math.round(mediumRate * 10),
+            (int) Math.round(largeRate * 10)
+        };
+
+        String[] roomLabels = {
+            "Single",
+            "Medium",
+            "Large"
+        };
+
+        String[] occupancyGraph = buildVerticalBarChart(
+                "Room Occupancy Rate",
+                roomLabels,
+                occupancyValues,
+                "Room Types"
+        );
+
+        printSingleGraph(occupancyGraph);
+        System.out.println();
+        System.out.println("+--------------------------------------------------------------+");
+        System.out.println("|                        END OF REPORT                         |");
+        System.out.println("+--------------------------------------------------------------+");
+
         InputUtility.pressEnterToContinue();
     }
+    
+    private String getOccupancyStatus(double rate) {
+        if (rate >= 75) {
+            return "High";
+        } else if (rate >= 40) {
+            return "Moderate";
+        } else {
+            return "Low";
+        }
+    }
+    
+    //==========================================================
+    // Build Vertical Bar Chart
+    //==========================================================
+    private String[] buildVerticalBarChart(
+            String title,
+            String[] labels,
+            int[] values,
+            String xAxisTitle) {
 
+        int maximumValue = getMaximumValue(values);
+        int lineCount = maximumValue + 4;
+
+        String[] graphLines = new String[lineCount];
+
+        graphLines[0] = title;
+        graphLines[1] = "     ^";
+
+        int lineIndex = 2;
+        for (int level = maximumValue; level >= 1; level--) {
+            String graphLine = String.format("%3d  |", level);
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] >= level) {
+                    graphLine += centerText(ANSI_GREEN_BACKGROUND + "     " + ANSI_RESET, 11);
+                } else {
+                    graphLine += centerText("", 11);
+                }
+            }
+            graphLines[lineIndex] = graphLine;
+            lineIndex++;
+        }
+
+        graphLines[lineIndex] =
+                "   0  +"
+                + repeatCharacter('-', labels.length * 11)
+                + "> "
+                + xAxisTitle;
+
+        lineIndex++;
+        String labelLine = "      ";
+        for (String label : labels) {
+            labelLine += centerText(label, 11);
+        }
+        graphLines[lineIndex] = labelLine;
+        return graphLines;
+    }
+
+    //==========================================================
+    // Print Single Graph
+    //==========================================================
+    private void printSingleGraph(String[] graph) {
+        if (graph == null) {
+            return;
+        }
+        for (String line : graph) {
+            if (line != null) {
+                System.out.println(line);
+            }
+        }
+    }
+    
+    //==========================================================
+    // Get Maximum Graph Value
+    //==========================================================
+    private int getMaximumValue(int[] values) {
+        int maximumValue = 1;
+        if (values == null) {
+            return maximumValue;
+        }
+        for (int value : values) {
+            if (value > maximumValue) {
+                maximumValue = value;
+            }
+        }
+        return maximumValue;
+    }
+    
+    private String centerText(String text, int width) {
+        if (text == null) {
+            text = "";
+        }
+        int visibleLength = removeAnsiCodes(text).length();
+        if (visibleLength >= width) {
+            return text;
+        }
+        int totalPadding = width - visibleLength;
+        int leftPadding = totalPadding / 2;
+        int rightPadding = totalPadding - leftPadding;
+        return repeatCharacter(' ', leftPadding) + text + repeatCharacter(' ', rightPadding);
+    }
+    
+    private String repeatCharacter(char character, int total) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < total; i++) {
+            result.append(character);
+        }   
+        return result.toString();
+    }
+    
+    private String removeAnsiCodes(String text) {
+        if (text == null) {
+            return "";
+        }
+        return text.replaceAll( "\u001B\\[[;\\d]*m", "");
+    }
+    
     //==========================================================
     // Display Booking Table Header
     //==========================================================
