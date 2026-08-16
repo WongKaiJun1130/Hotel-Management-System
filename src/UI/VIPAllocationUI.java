@@ -218,9 +218,9 @@ public class VIPAllocationUI {
             System.out.println("+--------------------------------------+");
             System.out.println("|              ROOM TYPE               |");
             System.out.println("+--------------------------------------+");
-            System.out.println("| 1. Small Room                        |");
-            System.out.println("| 2. Medium Room                       |");
-            System.out.println("| 3. Big Room                          |");
+            System.out.println("| 1. Normal Room                       |");
+            System.out.println("| 2. Deluxe Room                       |");
+            System.out.println("| 3. VIP Room                          |");
             System.out.println("+--------------------------------------+");
             System.out.print("Choose Room Type: ");
 
@@ -229,13 +229,13 @@ public class VIPAllocationUI {
             switch (choice) {
 
                 case 1:
-                    return "Small Room";
+                    return "Normal Room";
 
                 case 2:
-                    return "Medium Room";
+                    return "Deluxe Room";
 
                 case 3:
-                    return "Big Room";
+                    return "VIP Room";
 
                 default:
                     System.out.println("\nInvalid choice.");
@@ -581,9 +581,9 @@ public class VIPAllocationUI {
         System.out.println();
         System.out.println("Room Type Summary");
         System.out.println("+----------------------------------------------------------+");
-        System.out.println("| Small Room  : " + roomTypeCounts[0]);
-        System.out.println("| Medium Room : " + roomTypeCounts[1]);
-        System.out.println("| Big Room    : " + roomTypeCounts[2]);
+        System.out.println("| Normal Room  : " + roomTypeCounts[0]);
+        System.out.println("| Deluxe Room : " + roomTypeCounts[1]);
+        System.out.println("| VIP Room    : " + roomTypeCounts[2]);
         System.out.println("+----------------------------------------------------------+");
 
         System.out.println();

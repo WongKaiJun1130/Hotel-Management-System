@@ -225,9 +225,9 @@ public class VIPAllocationControl {
     public String[][] getAvailableRooms() {
 
         return new String[][]{
-            {"Small Room", "Available"},
-            {"Medium Room", "Available"},
-            {"Big Room", "Available"}
+            {"Normal Room", "Available"},
+            {"Deluxe Room", "Available"},
+            {"VIP Room", "Available"}
         };
     }
 

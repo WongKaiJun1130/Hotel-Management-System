@@ -10,6 +10,7 @@ import Entity.StatusEntry;
 import Utility.RoomStatusUtil;
 import Utility.RoomTypeUtil;
 import Entity.Room;
+import Entity.Booking;
 import dao.RoomDao;
 import java.util.Iterator;
 import java.util.Comparator;
@@ -327,6 +328,88 @@ public class HousekeepingControl {
             }
 
             rooms[j + 1] = key;
+        }
+    }
+
+
+    // ==============================
+    // Cross-module report: Housekeeping + Booking
+    // ==============================
+
+    // Matches rooms currently Ready for Check-In with bookings still
+    // waiting for a room of the same type. This is a genuine
+    // cross-module report - it correlates Room (this module) with
+    // Booking (a different module, via BookingControl), not just
+    // Housekeeping's own data.
+    public static ListInterface<RoomBookingMatch> getReadyRoomsForWaitingGuests(BookingControl bookingControl) {
+        ListInterface<RoomBookingMatch> matches = new DoublyLinkedList<>();
+
+        ListInterface<Booking> waitingBookings = bookingControl.getWaitingBookings();
+
+        for (int i = 1; i <= roomList.getSize(); i++) {
+            Room room = roomList.getEntry(i);
+            int status = room.getStatusHistory().getCurrentData().getStatusCode();
+
+            if (status != RoomStatusUtil.Ready_For_CheckIN) {
+                continue;
+            }
+
+            for (int j = 1; j <= waitingBookings.getSize(); j++) {
+                Booking booking = waitingBookings.getEntry(j);
+                if (matchesRoomType(room.getRoomType(), booking.getRoomType())) {
+                    matches.add(new RoomBookingMatch(room, booking));
+                }
+            }
+        }
+
+        return matches;
+    }
+
+    // Same correlation as above, but scoped to a single room - used
+    // by the Room Status History report so it can show which waiting
+    // bookings (if any) this specific room could be assigned to.
+    public static ListInterface<Booking> getWaitingBookingsForRoom(Room room, BookingControl bookingControl) {
+        ListInterface<Booking> matches = new DoublyLinkedList<>();
+
+        ListInterface<Booking> waitingBookings = bookingControl.getWaitingBookings();
+
+        for (int j = 1; j <= waitingBookings.getSize(); j++) {
+            Booking booking = waitingBookings.getEntry(j);
+            if (matchesRoomType(room.getRoomType(), booking.getRoomType())) {
+                matches.add(booking);
+            }
+        }
+
+        return matches;
+    }
+
+    // Housekeeping and Booking now share the same room-type vocabulary
+    // (Normal/Deluxe/VIP), so this is just a direct, case-insensitive
+    // comparison against the room-type name.
+    private static boolean matchesRoomType(int housekeepingRoomType, String bookingRoomType) {
+        if (bookingRoomType == null) {
+            return false;
+        }
+        return RoomTypeUtil.roomTypeName(housekeepingRoomType).equalsIgnoreCase(bookingRoomType.trim());
+    }
+
+    // Pairs a Room with a Booking for display - not a persisted
+    // entity, purely a result holder for the cross-module report.
+    public static class RoomBookingMatch {
+        private final Room room;
+        private final Booking booking;
+
+        public RoomBookingMatch(Room room, Booking booking) {
+            this.room = room;
+            this.booking = booking;
+        }
+
+        public Room getRoom() {
+            return room;
+        }
+
+        public Booking getBooking() {
+            return booking;
         }
     }
 }

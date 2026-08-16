@@ -6,11 +6,14 @@ package UI;
 
 import Entity.Room;
 import Entity.StatusEntry;
+import Entity.Booking;
 import Utility.Navigation;
 import Utility.Utility;
 import Utility.RoomStatusUtil;
 import Utility.RoomTypeUtil;
 import Control.HousekeepingControl;
+import Control.HousekeepingControl.RoomBookingMatch;
+import Control.BookingControl;
 import Adt.ListInterface;
 
 import java.util.Scanner;
@@ -119,6 +122,42 @@ public class HouseKeepingUI {
     private static void printFooter() {
         System.out.println(border());
     }
+
+    // Prints a simple proportional ASCII bar chart - a console app
+    // can't render an actual image, but a bar chart made of repeated
+    // characters, scaled against the largest value, gives the same
+    // at-a-glance comparison a real bar chart would.
+    private static void printBarChart(String title, String[] labels, int[] values) {
+        System.out.println();
+        System.out.println("  " + title + ":");
+
+        int max = 0;
+        for (int value : values) {
+            max = Math.max(max, value);
+        }
+        if (max == 0) {
+            max = 1; // avoid divide-by-zero when every count is 0
+        }
+
+        int labelWidth = 0;
+        for (String label : labels) {
+            labelWidth = Math.max(labelWidth, label.length());
+        }
+
+        final int maxBarWidth = 30;
+
+        for (int i = 0; i < labels.length; i++) {
+            int barLength = (int) Math.round((values[i] / (double) max) * maxBarWidth);
+
+            StringBuilder bar = new StringBuilder();
+            for (int b = 0; b < barLength; b++) {
+                bar.append('#');
+            }
+
+            System.out.printf("  %-" + labelWidth + "s | %-" + maxBarWidth + "s %d%n",
+                    labels[i], bar.toString(), values[i]);
+        }
+    }
     
     // 1. show room status //
     private static void showRoomStatus(){
@@ -215,22 +254,22 @@ public class HouseKeepingUI {
     
     // 3. Check-Out
     private static void guestCheckOut() {
-        System.out.print("Enter Room Number :");
+        System.out.print("Enter Room Number: ");
         String roomNum = input.nextLine().trim();
     
         Room room = HousekeepingControl.findRoom(roomNum);
     
         if(room == null){
-            System.out.println("Room" + roomNum +" not found");
+            System.out.println("Room " + roomNum + " not found.");
             return;
         }
     
         boolean success = HousekeepingControl.guestCheckOut(room);
         if(success){
-            System.out.println("Room " + room.getRoomNum() + " Checked out.");
+            System.out.println("Room " + room.getRoomNum() + " checked out. Status updated to: Dirty (needs cleaning).");
         }
         else{
-            System.out.println("Room " + room.getRoomNum() + " already marked Dirty");
+            System.out.println("Room " + room.getRoomNum() + " is already marked Dirty (needs cleaning).");
         }
     }
     
@@ -241,7 +280,7 @@ public class HouseKeepingUI {
          printHeader("ROOMS NEEDING CLEANING");
         
         if(HousekeepingControl.roomIsEmpty()){
-            System.out.println("No room registered yet");
+            System.out.println("  No rooms registered yet.");
             printFooter();
             return;
         }
@@ -254,13 +293,13 @@ public class HouseKeepingUI {
             Room room = HousekeepingControl.getRoomAt(i);
             int status = room.getStatusHistory().getCurrentData().getStatusCode();
             if(status == RoomStatusUtil.Dirty){
-                System.out.println("Room " + room.getRoomNum() + "[" + RoomTypeUtil.roomTypeName(room.getRoomType()) + "]");
+                System.out.println("Room " + room.getRoomNum() + " [" + RoomTypeUtil.roomTypeName(room.getRoomType()) + "]");
                 found = true;
             }
         }
         
         if (!found){
-            System.out.println("No Room Need Cleaning");
+            System.out.println("  No rooms currently need cleaning.");
         }
         
         printFooter();
@@ -309,7 +348,7 @@ public class HouseKeepingUI {
     }
     
     private static Room selectOrRegisterRoom(){
-        System.out.print("Enter Room Number");
+        System.out.print("Enter Room Number: ");
         String roomNum = input.nextLine().trim();
         
         Room room = HousekeepingControl.findRoom(roomNum);
@@ -425,9 +464,28 @@ public class HouseKeepingUI {
             StatusEntry entry = iterator.next();
             String marker = (entry == current) ? "  <-- CURRENT" : "";
             String note = entry.getNote().isEmpty() ? "" : " (" + entry.getNote() + ")";
-            System.out.println(RoomStatusUtil.statusName(entry.getStatusCode()) + note + marker);
+            System.out.printf("  %d. %-20s%s%s%n", step, RoomStatusUtil.statusName(entry.getStatusCode()), note, marker);
             step++;
         }
+
+        // Cross-module: show waiting bookings (Booking module) that
+        // could be assigned to this room, based on matching room type.
+        BookingControl bookingControl = new BookingControl();
+        ListInterface<Booking> waitingMatches = HousekeepingControl.getWaitingBookingsForRoom(room, bookingControl);
+
+        System.out.println();
+        if (waitingMatches.isEmpty()) {
+            System.out.println("  No waiting bookings currently match this room's type.");
+        } else {
+            System.out.println("  Waiting bookings for this room type:");
+            Iterator<Booking> bookingIterator = waitingMatches.getIterator();
+            while (bookingIterator.hasNext()) {
+                Booking booking = bookingIterator.next();
+                System.out.println("    " + booking.getBookingID() + " - " + booking.getGuestName()
+                        + " (wants " + booking.getRoomType() + ")");
+            }
+        }
+
         printFooter();
     }
     
@@ -459,8 +517,38 @@ public class HouseKeepingUI {
         System.out.println("Normal Room            : " + typeCounts[RoomTypeUtil.Normal_Room]);
         System.out.println("Deluxe Room            : " + typeCounts[RoomTypeUtil.Deluxe_Room]);
         System.out.println("VIP Room               : " + typeCounts[RoomTypeUtil.VIP_Room]);
+
+        printBarChart("Status Chart",
+                new String[]{"Dirty", "Cleaning", "Inspected", "Ready", "Hold"},
+                new int[]{
+                    statusCounts[RoomStatusUtil.Dirty],
+                    statusCounts[RoomStatusUtil.Clean_In_Progress],
+                    statusCounts[RoomStatusUtil.Inspected],
+                    statusCounts[RoomStatusUtil.Ready_For_CheckIN],
+                    statusCounts[RoomStatusUtil.Late_CheckOut_Hold]
+                });
+
+        printBarChart("Type Chart",
+                new String[]{"Normal", "Deluxe", "VIP"},
+                new int[]{
+                    typeCounts[RoomTypeUtil.Normal_Room],
+                    typeCounts[RoomTypeUtil.Deluxe_Room],
+                    typeCounts[RoomTypeUtil.VIP_Room]
+                });
+
+        // Cross-module: pull waiting-booking stats from the Booking
+        // module and show how many ready rooms actually have a match.
+        BookingControl bookingControl = new BookingControl();
+        ListInterface<Booking> waitingBookings = bookingControl.getWaitingBookings();
+        ListInterface<HousekeepingControl.RoomBookingMatch> readyMatches =
+                HousekeepingControl.getReadyRoomsForWaitingGuests(bookingControl);
+
+        System.out.println();
+        System.out.println("Cross-Module (Booking):");
+        System.out.println("Total Waiting Bookings : " + waitingBookings.getSize());
+        System.out.println("Ready Rooms w/ a Match : " + readyMatches.getSize());
         
         printFooter();
     }
-    
+
 }
