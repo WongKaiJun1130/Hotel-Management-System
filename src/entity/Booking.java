@@ -8,9 +8,9 @@ public class Booking implements Serializable {
     private static final long serialVersionUID = 1L;
     
     private String bookingID;
-    private String guestID;
     private String guestName;
     private String phoneNumber;
+    private String guestID;
     private String roomType;
     private String roomID;
     private String checkInDate;
@@ -19,9 +19,9 @@ public class Booking implements Serializable {
 
      //Constructor
     public Booking(String bookingID,
-                   String guestID,
                    String guestName,
                    String phoneNumber,
+                   String guestID,
                    String roomType,
                    String roomID,
                    String checkInDate,
@@ -29,9 +29,9 @@ public class Booking implements Serializable {
                    String roomStatus) {
 
     this.bookingID = bookingID;
-    this.guestID = guestID;
     this.guestName = guestName;
     this.phoneNumber = phoneNumber;
+    this.guestID = guestID;
     this.roomType = roomType;
     this.roomID = roomID;
     this.checkInDate = checkInDate;
@@ -43,10 +43,6 @@ public class Booking implements Serializable {
      public String getBookingID() {
         return bookingID;
     }
-     
-    public String getGuestID() {
-        return guestID;
-    }
     
     public String getGuestName() {
         return guestName;
@@ -54,6 +50,10 @@ public class Booking implements Serializable {
    
     public String getPhoneNumber() {
         return phoneNumber;
+    }
+    
+    public String getGuestID() {
+        return guestID;
     }
 
     public String getRoomType() {
@@ -90,16 +90,16 @@ public class Booking implements Serializable {
         this.bookingID = bookingID;
     }
     
-    public void setGuestID(String guestID) {
-        this.guestID = guestID;
-    }
-    
     public void setGuestName(String guestName) {
         this.guestName = guestName;
     }
     
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+    
+    public void setGuestID(String guestID) {
+        this.guestID = guestID;
     }
 
      public void setRoomType(String roomType) {
