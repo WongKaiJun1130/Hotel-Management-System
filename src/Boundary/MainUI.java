@@ -3,13 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
-package UI;
+package Boundary;
 
 import Utility.Utility;
 
 /**
  *
- * @author USER
+ * @author kaijun,weikin,kahshun
  */
 public class MainUI { 
     

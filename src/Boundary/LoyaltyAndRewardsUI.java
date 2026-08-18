@@ -2,7 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package UI;
+package Boundary;
+
+/**
+ *
+ * @author USER
+ */
 
 import Control.LoyaltyControl;
 import Entity.LoyaltyRecord;

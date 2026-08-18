@@ -1,5 +1,9 @@
 package Entity;
 
+/**
+ *
+ * @author USER
+ */
 import java.io.Serializable;
 
 // want to save booking objects into a file
@@ -9,7 +13,10 @@ public class Booking implements Serializable {
     
     private String bookingID;
     private String guestName;
+    private String phoneNumber;
+    private String guestID;
     private String roomType;
+    private String roomID;
     private String checkInDate;
     private String checkOutDate;
     private String roomStatus;
@@ -17,31 +24,48 @@ public class Booking implements Serializable {
      //Constructor
     public Booking(String bookingID,
                    String guestName,
+                   String phoneNumber,
+                   String guestID,
                    String roomType,
+                   String roomID,
                    String checkInDate,
                    String checkOutDate,
                    String roomStatus) {
 
     this.bookingID = bookingID;
     this.guestName = guestName;
+    this.phoneNumber = phoneNumber;
+    this.guestID = guestID;
     this.roomType = roomType;
+    this.roomID = roomID;
     this.checkInDate = checkInDate;
     this.checkOutDate = checkOutDate;
     this.roomStatus = roomStatus;
 }
-
     
     //getter
      public String getBookingID() {
         return bookingID;
     }
-
+    
     public String getGuestName() {
         return guestName;
+    }
+   
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+    
+    public String getGuestID() {
+        return guestID;
     }
 
     public String getRoomType() {
         return roomType;
+    }
+    
+     public String getRoomID() {
+        return roomID;
     }
 
     public String getCheckInDate() {
@@ -69,16 +93,27 @@ public class Booking implements Serializable {
     public void setBookingID(String bookingID) {
         this.bookingID = bookingID;
     }
-
+    
     public void setGuestName(String guestName) {
         this.guestName = guestName;
     }
     
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+    
+    public void setGuestID(String guestID) {
+        this.guestID = guestID;
+    }
+
      public void setRoomType(String roomType) {
         this.roomType = roomType;
     }
     
-
+     public void setRoomID(String roomID) {
+        this.roomID = roomID;
+    }
+     
     public void setCheckInDate(String checkInDate) {
         this.checkInDate = checkInDate;
     }
@@ -94,11 +129,14 @@ public class Booking implements Serializable {
     @Override
     public String toString() {
         return "Booking ID: " + bookingID
-                + "\nGuest Name: " + guestName
-                + "\nRoom Type: " + roomType
-                + "\nCheck-In Date: " + checkInDate
-                + "\nCheck-Out Date: " + checkOutDate
-                + "\nRoom Status: " + roomStatus;
+             + "\nGuest Name: " + guestName
+             + "\nPhone Number: " + phoneNumber
+             + "\nGuest ID: " + guestID
+             + "\nRoom Type: " + roomType
+             + "\nRoom ID: " + roomID
+             + "\nCheck-In Date: " + checkInDate
+             + "\nCheck-Out Date: " + checkOutDate
+             + "\nRoom Status: " + roomStatus;
     }
 }
     

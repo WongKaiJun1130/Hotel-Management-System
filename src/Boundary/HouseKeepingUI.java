@@ -1,4 +1,4 @@
-package UI;
+package Boundary;
 /*
  *
  * @author Kah Shun

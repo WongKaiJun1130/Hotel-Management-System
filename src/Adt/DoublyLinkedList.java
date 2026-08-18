@@ -1,9 +1,15 @@
 package Adt;
 
+/**
+ *
+ * @author USER
+ */
+
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
 
 public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>, Serializable{    
     private Node<T> head;
@@ -97,6 +103,19 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
         for(int i=1;i<position;i++){
             temp=temp.next;
         }return temp.data;
+    }
+    
+    @Override
+    public boolean replace(int position, T data) {
+        if (position < 1 || position > size) {
+            return false;
+        }
+        Node<T> temp = head;
+        for (int i = 1; i < position; i++) {
+            temp = temp.next;
+        }
+        temp.data = data;
+        return true;
     }
 
     @Override

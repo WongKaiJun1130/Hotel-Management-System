@@ -3,6 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package Entity;
+/**
+ *
+ * @author USER
+ */
 
 import java.io.Serializable;
 import java.time.LocalDate;

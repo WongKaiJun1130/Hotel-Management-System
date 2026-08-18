@@ -1,5 +1,10 @@
 package Adt;
 
+/**
+ *
+ * @author USER
+ */
+
 import java.util.Iterator;
 import java.util.Comparator;
 
@@ -19,7 +24,7 @@ public interface ListInterface<T> {
     T getEntry(int position);
     T remove(int position);
     boolean remove(T data);
-
+    boolean replace(int position, T data);
     boolean isEmpty();
     Iterator<T> getIterator();
 }

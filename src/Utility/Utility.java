@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 /**
  *
- * @author USER
+ * @author Kah Shun
  */
 public class Utility {
     

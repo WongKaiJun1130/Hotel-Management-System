@@ -1,5 +1,10 @@
 package Control;
 
+/**
+ *
+ * @author USER
+ */
+
 import Entity.Guest;
 import Adt.DoublyLinkedList;
 import Adt.ListInterface;

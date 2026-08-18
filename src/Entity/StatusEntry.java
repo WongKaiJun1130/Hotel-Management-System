@@ -8,7 +8,7 @@ package Entity;
 import java.io.Serializable;
 /**
  *
- * @author Kah Shun
+ * @author kah sbun
  */
 public class StatusEntry implements Serializable{
     

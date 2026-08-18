@@ -3,25 +3,29 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
  */
 package Hotel_Management_System;
- 
-import UI.MainUI;
+
+/**
+ *
+ * @author kaijun,kahshun,weikin
+ */
+
+import Boundary.MainUI;
+import dao.BookingDao;
 import dao.GuestDao;
 import dao.LoyaltyDao;
-import Control.HousekeepingControl;
- 
- 
+import dao.RoomDao;
+
 public class Hotel_Management_System {
- 
+
     public static void main(String[] args) {
-        GuestDao guestDatabase = new GuestDao();
-        LoyaltyDao loyaltyDatabase = new LoyaltyDao();
- 
-        guestDatabase.createGuestData();
-        loyaltyDatabase.createLoyaltyData();
- 
-        HousekeepingControl.loadDummyRooms();
-        HousekeepingControl.startAutoAdvanceScheduler();
- 
+
+        // Create all initial data in memory
+        GuestDao.createGuestData();
+        BookingDao.createBookingData();
+        LoyaltyDao.createLoyaltyData();
+        RoomDao.createRoomData();
+
+        // Start the main menu
         MainUI.MainUI();
     }
 }

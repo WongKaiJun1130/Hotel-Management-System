@@ -4,6 +4,11 @@
  */
 package Control;
 
+/**
+ *
+ * @author USER
+ */
+
 import Adt.ListInterface;
 import Adt.DoublyLinkedList;
 import Entity.StatusEntry;

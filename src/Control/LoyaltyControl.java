@@ -4,6 +4,11 @@
  */
 package Control;
 
+/**
+ *
+ * @author USER
+ */
+
 import Entity.LoyaltyRecord;
 import Entity.RedemptionRecord;
 import Adt.DoublyLinkedList;

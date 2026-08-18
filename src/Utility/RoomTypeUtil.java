@@ -6,7 +6,7 @@ package Utility;
 
 /**
  *
- * @author USER
+ * @author Kah Shun
  */
 public class RoomTypeUtil {
     

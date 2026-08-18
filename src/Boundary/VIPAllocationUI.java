@@ -1,4 +1,9 @@
-package UI;
+package Boundary;
+
+/**
+ *
+ * @author USER
+ */
 
 import Control.VIPAllocationControl;
 import Entity.Guest;
