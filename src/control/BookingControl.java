@@ -1,6 +1,6 @@
 package control;
 
-import dao.BookingDatabase;
+import dao.BookingDao;
 import adt.ListInterface;
 import adt.DoublyLinkedList;
 import entity.Booking;
@@ -16,7 +16,7 @@ public class BookingControl {
 
     private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
     private ListInterface<Booking> servedBookingList = new DoublyLinkedList<>();
-    private BookingDatabase bookingDatabase = new BookingDatabase();
+    private BookingDao bookingDatabase = new BookingDao();
     private static final int ROOMS_PER_TYPE = 10;
     private static final int ROOM_TYPE_COUNT = 3;
     private static final int TOTAL_ROOMS = ROOMS_PER_TYPE * ROOM_TYPE_COUNT;

@@ -4,7 +4,7 @@ import entity.LoyaltyRecord;
 import entity.RedemptionRecord;
 import entity.Guest;
 import adt.DoublyLinkedList;
-import dao.LoyaltyDatabase;
+import dao.LoyaltyDao;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
@@ -12,7 +12,7 @@ public class LoyaltyControl {
 
     private DoublyLinkedList<LoyaltyRecord> loyaltyList;
     private DoublyLinkedList<RedemptionRecord> redemptionList;
-    private LoyaltyDatabase loyaltyDatabase;
+    private LoyaltyDao loyaltyDatabase;
     private String lastMessage;
 
     public static final String WELCOME_DRINK = "Free Welcome Drink";
@@ -30,7 +30,7 @@ public class LoyaltyControl {
     //==================================================
     public LoyaltyControl() {
 
-        loyaltyDatabase = new LoyaltyDatabase();
+        loyaltyDatabase = new LoyaltyDao();
 
         loyaltyList = loyaltyDatabase.retrieveFromFile();
 
@@ -45,7 +45,7 @@ public class LoyaltyControl {
 
     public LoyaltyControl(DoublyLinkedList<LoyaltyRecord> loyaltyList) {
 
-        loyaltyDatabase = new LoyaltyDatabase();
+        loyaltyDatabase = new LoyaltyDao();
 
         if (loyaltyList == null) {
             this.loyaltyList = new DoublyLinkedList<>();
@@ -66,12 +66,12 @@ public class LoyaltyControl {
     // different LoyaltyControl objects.
     //
     // This method reloads the latest shared
-    // LoyaltyDatabase data.
+    // LoyaltyDao data.
     //==================================================
     private void refreshLoyaltyData() {
 
         if (loyaltyDatabase == null) {
-            loyaltyDatabase = new LoyaltyDatabase();
+            loyaltyDatabase = new LoyaltyDao();
         }
 
         DoublyLinkedList<LoyaltyRecord> latestList
@@ -130,7 +130,7 @@ public class LoyaltyControl {
         //==================================================
         // IMPORTANT
         //
-        // Reload latest LoyaltyDatabase before searching.
+        // Reload latest LoyaltyDao before searching.
         //
         // Example:
         // VIP Module creates R0021
@@ -187,7 +187,7 @@ public class LoyaltyControl {
         }
 
         //==================================================
-        // Search latest LoyaltyDatabase
+        // Search latest LoyaltyDao
         //==================================================
         LoyaltyRecord existingRecord
                 = searchGuest(guest.getGuestID());
@@ -241,7 +241,7 @@ public class LoyaltyControl {
         // Add into latest Loyalty List
         loyaltyList.add(newRecord);
 
-        // Save shared LoyaltyDatabase
+        // Save shared LoyaltyDao
         saveLoyaltyData();
 
         lastMessage
@@ -259,7 +259,7 @@ public class LoyaltyControl {
     ) {
 
         // searchGuest() automatically refreshes
-        // latest LoyaltyDatabase
+        // latest LoyaltyDao
         LoyaltyRecord record
                 = searchGuest(guestID);
 

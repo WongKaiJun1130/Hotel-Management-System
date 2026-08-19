@@ -2,7 +2,7 @@ package control;
 
 import adt.DoublyLinkedList;
 import adt.ListInterface;
-import dao.GuestDatabase;
+import dao.GuestDao;
 import dao.RoomDao;
 import entity.Guest;
 import entity.LoyaltyRecord;
@@ -23,7 +23,7 @@ public class VIPAllocationControl {
 
     private int nextGuestID;
 
-    private GuestDatabase guestDatabase;
+    private GuestDao guestDatabase;
     private LoyaltyControl loyaltyControl;
     private RoomDao roomDao;
 
@@ -37,7 +37,7 @@ public class VIPAllocationControl {
 
         vipQueue = new DoublyLinkedList<>();
 
-        guestDatabase = new GuestDatabase();
+        guestDatabase = new GuestDao();
 
         loyaltyControl = new LoyaltyControl();
 

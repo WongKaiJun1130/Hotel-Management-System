@@ -6,7 +6,7 @@ import entity.Booking;
 import adt.ListInterface;
 import utility.InputUtility;
 import utility.Utility;
-import dao.GuestDatabase;
+import dao.GuestDao;
 import entity.Guest;
 
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter;
 
 public class BookingUI {
     private BookingControl bookingControl;
-    private GuestDatabase guestDatabase;
+    private GuestDao guestDatabase;
     private LoyaltyControl loyaltyControl;
     private static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
     private static final String ANSI_RESET = "\u001B[0m";
@@ -25,13 +25,13 @@ public class BookingUI {
     //==========================================================
     public BookingUI() {
         bookingControl = new BookingControl();
-        guestDatabase = new GuestDatabase();
+        guestDatabase = new GuestDao();
         loyaltyControl = new LoyaltyControl();
     }
 
     public BookingUI(BookingControl bookingControl) {
         this.bookingControl = bookingControl;
-        guestDatabase = new GuestDatabase();
+        guestDatabase = new GuestDao();
         loyaltyControl = new LoyaltyControl();
     }
 
@@ -172,7 +172,7 @@ public class BookingUI {
             System.out.println();
             displayTableHeader();
             displayBookingRow(booking);
-            System.out.println("------------------------------------------------------------------------------------------------");
+            System.out.println("--------------------------------------------------------------------------------------------------------------");
             System.out.println("\nReservation processed successfully.");
         }
         InputUtility.pressEnterToContinue();
