@@ -283,17 +283,17 @@ public class HouseKeepingUI {
     // Returns null for "any type" (no filter on this field).
     private static Integer promptRoomTypeFilter() {
         System.out.println("Filter by Room Type:");
-        System.out.println("  1. Normal Room");
-        System.out.println("  2. Deluxe Room");
-        System.out.println("  3. VIP Room");
+        System.out.println("  1. Single Room");
+        System.out.println("  2. Medium Room");
+        System.out.println("  3. Large Room");
         System.out.println("  0. Any (no filter)");
         System.out.print("Enter choice: ");
         String choice = InputUtility.getStringInput().trim();
 
         switch (choice) {
-            case "1": return RoomTypeUtil.Normal_Room;
-            case "2": return RoomTypeUtil.Deluxe_Room;
-            case "3": return RoomTypeUtil.VIP_Room;
+            case "1": return RoomTypeUtil.Single;
+            case "2": return RoomTypeUtil.Medium;
+            case "3": return RoomTypeUtil.Large;
             default: return null;
         }
     }
@@ -428,9 +428,9 @@ public class HouseKeepingUI {
                 + "  Inspected: " + statusBreakdown[RoomStatusUtil.Inspected]
                 + "  Ready: " + statusBreakdown[RoomStatusUtil.Ready_For_CheckIN]
                 + "  Hold: " + statusBreakdown[RoomStatusUtil.Late_CheckOut_Hold]);
-        System.out.println("    Type   -> Normal: " + typeBreakdown[RoomTypeUtil.Normal_Room]
-                + "  Deluxe: " + typeBreakdown[RoomTypeUtil.Deluxe_Room]
-                + "  VIP: " + typeBreakdown[RoomTypeUtil.VIP_Room]);
+        System.out.println("    Type   -> Single: " + typeBreakdown[RoomTypeUtil.Single]
+                + "  Medium: " + typeBreakdown[RoomTypeUtil.Medium]
+                + "  Large: " + typeBreakdown[RoomTypeUtil.Large]);
 
         // Cross-module (Room <-> Booking): within this filtered/sorted
         // set, how many Ready rooms already have a matching waiting booking.
@@ -602,19 +602,19 @@ public class HouseKeepingUI {
     
     private static int selectRoomType() {
         System.out.println("Select Room Type:");
-        System.out.println("1. Normal Room");
-        System.out.println("2. Deluxe Room");
-        System.out.println("3. VIP Room");
+        System.out.println("1. Single Room");
+        System.out.println("2. Medium Room");
+        System.out.println("3. Large Room");
         System.out.print("Enter choice: ");
         String choice = InputUtility.getStringInput().trim();
  
         switch (choice) {
-            case "1": return RoomTypeUtil.Normal_Room;
-            case "2": return RoomTypeUtil.Deluxe_Room;
-            case "3": return RoomTypeUtil.VIP_Room;
+            case "1": return RoomTypeUtil.Single;
+            case "2": return RoomTypeUtil.Medium;
+            case "3": return RoomTypeUtil.Large;
             default:
                 System.out.println("Invalid choice, defaulting to Normal Room.");
-                return RoomTypeUtil.Normal_Room;
+                return RoomTypeUtil.Single;
         }
     }
     
@@ -802,9 +802,9 @@ public class HouseKeepingUI {
  
         System.out.println();
         System.out.println("Rooms by Type:");
-        System.out.println("Normal Room            : " + typeCounts[RoomTypeUtil.Normal_Room]);
-        System.out.println("Deluxe Room            : " + typeCounts[RoomTypeUtil.Deluxe_Room]);
-        System.out.println("VIP Room               : " + typeCounts[RoomTypeUtil.VIP_Room]);
+        System.out.println("Single Room            : " + typeCounts[RoomTypeUtil.Single]);
+        System.out.println("Medium Room            : " + typeCounts[RoomTypeUtil.Medium]);
+        System.out.println("Large Room               : " + typeCounts[RoomTypeUtil.Large]);
 
         printBarChart("Status Chart",
                 new String[]{"Dirty", "Cleaning", "Inspected", "Ready", "Hold"},
@@ -817,11 +817,11 @@ public class HouseKeepingUI {
                 });
 
         printBarChart("Type Chart",
-                new String[]{"Normal", "Deluxe", "VIP"},
+                new String[]{"Single", "Medium", "Large"},
                 new int[]{
-                    typeCounts[RoomTypeUtil.Normal_Room],
-                    typeCounts[RoomTypeUtil.Deluxe_Room],
-                    typeCounts[RoomTypeUtil.VIP_Room]
+                    typeCounts[RoomTypeUtil.Single],
+                    typeCounts[RoomTypeUtil.Medium],
+                    typeCounts[RoomTypeUtil.Large]
                 });
 
         // Cross-module: pull waiting-booking stats from the Booking

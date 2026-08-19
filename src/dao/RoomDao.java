@@ -24,36 +24,36 @@ public class RoomDao {
         ListInterface<Room> rooms = new DoublyLinkedList<>();
 
         // --- Rooms 101-105: Normal, just registered (Dirty) ---
-        rooms.add(newRoom("101", RoomTypeUtil.Normal_Room));
-        rooms.add(newRoom("102", RoomTypeUtil.Normal_Room));
-        rooms.add(newRoom("103", RoomTypeUtil.Normal_Room));
-        rooms.add(newRoom("104", RoomTypeUtil.Normal_Room));
-        rooms.add(newRoom("105", RoomTypeUtil.Normal_Room));
+        rooms.add(newRoom("101", RoomTypeUtil.Single));
+        rooms.add(newRoom("102", RoomTypeUtil.Single));
+        rooms.add(newRoom("103", RoomTypeUtil.Single));
+        rooms.add(newRoom("104", RoomTypeUtil.Single));
+        rooms.add(newRoom("105", RoomTypeUtil.Single));
 
         // --- Rooms 106-110: Deluxe, cleaning in progress ---
-        rooms.add(advanceTo("106", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Maria"));
-        rooms.add(advanceTo("107", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: John"));
-        rooms.add(advanceTo("108", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Amy"));
-        rooms.add(advanceTo("109", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Ben"));
-        rooms.add(advanceTo("110", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Cara"));
+        rooms.add(advanceTo("106", RoomTypeUtil.Medium, RoomStatusUtil.Clean_In_Progress, "Staff: Maria"));
+        rooms.add(advanceTo("107", RoomTypeUtil.Medium, RoomStatusUtil.Clean_In_Progress, "Staff: John"));
+        rooms.add(advanceTo("108", RoomTypeUtil.Medium, RoomStatusUtil.Clean_In_Progress, "Staff: Amy"));
+        rooms.add(advanceTo("109", RoomTypeUtil.Medium, RoomStatusUtil.Clean_In_Progress, "Staff: Ben"));
+        rooms.add(advanceTo("110", RoomTypeUtil.Medium, RoomStatusUtil.Clean_In_Progress, "Staff: Cara"));
 
         // --- Rooms 111-114: VIP, inspected ---
-        rooms.add(advanceTo("111", RoomTypeUtil.VIP_Room, RoomStatusUtil.Inspected, "Passed inspection"));
-        rooms.add(advanceTo("112", RoomTypeUtil.VIP_Room, RoomStatusUtil.Inspected, "Passed inspection"));
-        rooms.add(advanceTo("113", RoomTypeUtil.VIP_Room, RoomStatusUtil.Inspected, "Passed inspection"));
-        rooms.add(advanceTo("114", RoomTypeUtil.VIP_Room, RoomStatusUtil.Inspected, "Passed inspection"));
+        rooms.add(advanceTo("111", RoomTypeUtil.Large, RoomStatusUtil.Inspected, "Passed inspection"));
+        rooms.add(advanceTo("112", RoomTypeUtil.Large, RoomStatusUtil.Inspected, "Passed inspection"));
+        rooms.add(advanceTo("113", RoomTypeUtil.Large, RoomStatusUtil.Inspected, "Passed inspection"));
+        rooms.add(advanceTo("114", RoomTypeUtil.Large, RoomStatusUtil.Inspected, "Passed inspection"));
 
         // --- Rooms 115-118: Ready for Check-In ---
-        rooms.add(advanceTo("115", RoomTypeUtil.Normal_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
-        rooms.add(advanceTo("116", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
-        rooms.add(advanceTo("117", RoomTypeUtil.Deluxe_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
-        rooms.add(advanceTo("118", RoomTypeUtil.VIP_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+        rooms.add(advanceTo("115", RoomTypeUtil.Single, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+        rooms.add(advanceTo("116", RoomTypeUtil.Medium, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+        rooms.add(advanceTo("117", RoomTypeUtil.Medium, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+        rooms.add(advanceTo("118", RoomTypeUtil.Large, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
 
         // --- Rooms 119-120: VIP, mid-clean guest requested late check-out ---
         // shows the rollback + interrupt (splice) behaviour: room was inspected,
         // supervisor rolled it back to cleaning, then guest asked to hold the room.
-        rooms.add(lateCheckoutRoom("119", RoomTypeUtil.VIP_Room));
-        rooms.add(lateCheckoutRoom("120", RoomTypeUtil.VIP_Room));
+        rooms.add(lateCheckoutRoom("119", RoomTypeUtil.Large));
+        rooms.add(lateCheckoutRoom("120", RoomTypeUtil.Large));
 
         return rooms;
     }

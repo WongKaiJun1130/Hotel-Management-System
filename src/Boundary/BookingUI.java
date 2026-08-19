@@ -11,7 +11,7 @@ import Adt.ListInterface;
 import Utility.InputUtility;
 import dao.GuestDao;
 import Entity.Guest;
-
+import Utility.RoomTypeUtil;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -113,8 +113,8 @@ public class BookingUI {
             System.out.println("New guest.");
         }
         System.out.print("Room Type       : ");
-        String roomType = InputUtility.getValidRoomType();
-        roomType = InputUtility.capitalizeFirstLetter(roomType);
+        int roomTypeInt = InputUtility.getValidRoomType();
+        String roomType = RoomTypeUtil.roomTypeName(roomTypeInt );    
         String roomID = bookingControl.assignRoomID(roomType);
         if (roomID == null) {
             System.out.println("\nNo available " + roomType + " room.");
@@ -122,7 +122,7 @@ public class BookingUI {
             return;
         }
         System.out.println("Room ID         : " + roomID);
-        System.out.print("Check-In Date   : ");
+        System.out.print("Check-In Date (e.g. 25-12-2026)  : ");
         String checkInDate = InputUtility.getDateInput();
         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
         
@@ -309,8 +309,8 @@ public class BookingUI {
 
                     case 3 -> {
                         System.out.print("\nNew Room Type : ");
-                        String newRoomType = InputUtility.getValidRoomType();
-                        newRoomType = InputUtility.capitalizeFirstLetter(newRoomType);
+                        int roomTypeInt = InputUtility.getValidRoomType();
+                        String newRoomType = RoomTypeUtil.roomTypeName(roomTypeInt);
                         String oldRoomType = booking.getRoomType();
                         String oldRoomID = booking.getRoomID();
                         // Same room type
@@ -377,8 +377,8 @@ public class BookingUI {
                         String newPhoneNumber = InputUtility.getPhoneInput();
 
                         System.out.print("New Room Type  : ");
-                        String newRoomType = InputUtility.getValidRoomType();
-                        newRoomType = InputUtility.capitalizeFirstLetter(newRoomType);
+                        int roomTypeInt = InputUtility.getValidRoomType();
+                        String newRoomType = RoomTypeUtil.roomTypeName(roomTypeInt);
 
                         System.out.print("New Check-In Date : ");
                         String newCheckInDate = InputUtility.getDateInput();
