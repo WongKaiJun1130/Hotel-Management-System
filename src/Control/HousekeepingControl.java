@@ -61,7 +61,7 @@ public class HousekeepingControl {
     // How long a room can sit at its current status before it's
     // auto-advanced to the next stage. Set small (e.g. 15 * 1000 for
     // 15 seconds) while testing; 15 minutes for the real thing.
-    private static final long AUTO_ADVANCE_INTERVAL_MILLIS = 15 * 1000; // TESTING: 15 seconds (set to 15 * 60 * 1000 for the real 15 min)
+    private static final long AUTO_ADVANCE_INTERVAL_MILLIS = 30 * 1000; // TESTING: 15 seconds (set to 15 * 60 * 1000 for the real 15 min)
 
     // How often the scheduler checks all rooms. Independent of the
     // interval above - just needs to be frequent enough that a room
@@ -98,6 +98,13 @@ public class HousekeepingControl {
             StatusEntry current = room.getStatusHistory().getCurrentData();
 
             if (current == null) {
+                continue;
+            }
+
+            // Rooms on hold for a guest's late check-out must stay put
+            // until a supervisor manually resumes them - never auto-advance
+            // out of this status, regardless of how long it's been sitting.
+            if (current.getStatusCode() == RoomStatusUtil.Late_CheckOut_Hold) {
                 continue;
             }
 
@@ -269,42 +276,87 @@ public class HousekeepingControl {
 
 
     // ==============================
+    // Filter (multi-criteria)
+    // ==============================
+
+    // Filters by any combination of room type and status at once. Pass
+    // null for either parameter to mean "any" for that field - e.g.
+    // filterRooms(RoomTypeUtil.VIP_Room, null) returns every VIP room
+    // regardless of status; filterRooms(null, RoomStatusUtil.Dirty)
+    // returns every Dirty room regardless of type; supplying both
+    // narrows to rooms matching BOTH criteria simultaneously. This is
+    // distinct from searchRooms(): search is a single free-text keyword
+    // match, filter is structured, multi-field, and exact.
+    public static ListInterface<Room> filterRooms(Integer roomType, Integer status) {
+        ListInterface<Room> result = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= roomList.getSize(); i++) {
+            Room room = roomList.getEntry(i);
+            int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
+
+            boolean typeMatches = (roomType == null) || (room.getRoomType() == roomType);
+            boolean statusMatches = (status == null) || (currentStatus == status);
+
+            if (typeMatches && statusMatches) {
+                result.add(room);
+            }
+        }
+
+        return result;
+    }
+
+
+    // ==============================
     // Sort
     // ==============================
-    // Each of these returns a NEW list in sorted order - roomList itself
-    // (and its registration order) is left untouched. All three share one
-    // insertion sort implementation, just with a different comparator.
+    // sortRooms() works on ANY list you hand it (not just roomList), so
+    // the same sorting logic can be reused on a filtered subset - that's
+    // what makes the business-cycle report below possible without
+    // duplicating the insertion sort. Returns a NEW list in sorted order;
+    // the list passed in is left untouched. sortOption: 1 = room number,
+    // 2 = status, 3 = room type.
+    public static ListInterface<Room> sortRooms(ListInterface<Room> roomsToSort, int sortOption) {
+        Room[] rooms = toArray(roomsToSort);
+
+        switch (sortOption) {
+            case 2:
+                insertionSort(rooms, (a, b) -> {
+                    int statusA = a.getStatusHistory().getCurrentData().getStatusCode();
+                    int statusB = b.getStatusHistory().getCurrentData().getStatusCode();
+                    return Integer.compare(statusA, statusB);
+                });
+                break;
+            case 3:
+                insertionSort(rooms, (a, b) -> Integer.compare(a.getRoomType(), b.getRoomType()));
+                break;
+            default:
+                insertionSort(rooms, (a, b) -> a.getRoomNum().compareToIgnoreCase(b.getRoomNum()));
+                break;
+        }
+
+        return fromArray(rooms);
+    }
 
     // Sorts by room number, alphanumeric ascending.
     public static ListInterface<Room> getRoomsSortedByRoomNumber() {
-        Room[] rooms = toArray();
-        insertionSort(rooms, (a, b) -> a.getRoomNum().compareToIgnoreCase(b.getRoomNum()));
-        return fromArray(rooms);
+        return sortRooms(roomList, 1);
     }
 
     // Sorts by status, following the natural cleaning-flow order:
     // Dirty -> Cleaning In Progress -> Inspected -> Ready -> Late Check-Out Hold
     public static ListInterface<Room> getRoomsSortedByStatus() {
-        Room[] rooms = toArray();
-        insertionSort(rooms, (a, b) -> {
-            int statusA = a.getStatusHistory().getCurrentData().getStatusCode();
-            int statusB = b.getStatusHistory().getCurrentData().getStatusCode();
-            return Integer.compare(statusA, statusB);
-        });
-        return fromArray(rooms);
+        return sortRooms(roomList, 2);
     }
 
     // Sorts by room type: Normal -> Deluxe -> VIP
     public static ListInterface<Room> getRoomsSortedByType() {
-        Room[] rooms = toArray();
-        insertionSort(rooms, (a, b) -> Integer.compare(a.getRoomType(), b.getRoomType()));
-        return fromArray(rooms);
+        return sortRooms(roomList, 3);
     }
 
-    private static Room[] toArray() {
-        Room[] rooms = new Room[roomList.getSize()];
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            rooms[i - 1] = roomList.getEntry(i);
+    private static Room[] toArray(ListInterface<Room> list) {
+        Room[] rooms = new Room[list.getSize()];
+        for (int i = 1; i <= list.getSize(); i++) {
+            rooms[i - 1] = list.getEntry(i);
         }
         return rooms;
     }
@@ -334,6 +386,22 @@ public class HousekeepingControl {
 
             rooms[j + 1] = key;
         }
+    }
+
+
+    // ==============================
+    // Business-Cycle Report: filter + sort combined
+    // ==============================
+    // End-of-cycle operational report: rooms are first FILTERED by any
+    // combination of type/status (null = no filter on that field), then
+    // the filtered subset is SORTED by the chosen field, in a single
+    // pipeline - exactly the "filter on multiple criteria + sort ->
+    // structured report" algorithm management asks for at the close of
+    // each business cycle. Both filterRooms() and sortRooms() are reused
+    // as-is; this method's job is purely to chain them.
+    public static ListInterface<Room> generateBusinessCycleReport(Integer roomTypeFilter, Integer statusFilter, int sortOption) {
+        ListInterface<Room> filtered = filterRooms(roomTypeFilter, statusFilter);
+        return sortRooms(filtered, sortOption);
     }
 
 
@@ -388,14 +456,11 @@ public class HousekeepingControl {
         return matches;
     }
 
-    // Housekeeping and Booking now share the same room-type vocabulary
-    // (Normal/Deluxe/VIP), so this is just a direct, case-insensitive
-    // comparison against the room-type name.
+    // Booking and Housekeeping use different room-type vocabularies
+    // (see RoomTypeUtil.matchesLabel for details), so the comparison is
+    // delegated there instead of a direct string match.
     private static boolean matchesRoomType(int housekeepingRoomType, String bookingRoomType) {
-        if (bookingRoomType == null) {
-            return false;
-        }
-        return RoomTypeUtil.roomTypeName(housekeepingRoomType).equalsIgnoreCase(bookingRoomType.trim());
+        return RoomTypeUtil.matchesLabel(housekeepingRoomType, bookingRoomType);
     }
 
     // Pairs a Room with a Booking for display - not a persisted

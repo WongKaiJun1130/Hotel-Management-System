@@ -4,8 +4,6 @@
  */
 package Utility; 
 
-import java.util.Scanner;
-
 /**
  *
  * @author Kah Shun
@@ -13,7 +11,6 @@ import java.util.Scanner;
 public class Utility {
     
     public static void customMenu(String[] title, String menuTitle, String customMessage, Runnable[] action) {
-        Scanner scanner = new Scanner(System.in);
         Boolean resume;
 
         do {    
@@ -31,7 +28,7 @@ public class Utility {
             System.out.println("+----------------------------------------------+");
 
             System.out.print(customMessage);
-            String input = scanner.nextLine().trim();
+            String input = InputUtility.getStringInput().trim();
 
             int choice;
             try {
