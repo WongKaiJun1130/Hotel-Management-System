@@ -32,6 +32,14 @@ public class HousekeepingControl {
     
     private static boolean dummyRoomsLoaded = false;
 
+    // Single DAO instance backing this control. Every mutation made
+    // through HousekeepingControl gets pushed back into RoomDao via
+    // syncToDao(), so RoomDao's copy never goes stale - any other
+    // module reading through RoomDao.retrieveFromFile() (e.g.
+    // VIPAllocationControl) sees the live housekeeping state instead
+    // of the original dummy-data snapshot.
+    private static RoomDao roomDao = new RoomDao();
+
     // Loads the 20 dummy rooms (built by RoomDao, directly in memory - no
     // file storage) into the room registry. Guarded so it only loads once -
     // calling it again after rooms have already been registered/modified
@@ -40,7 +48,6 @@ public class HousekeepingControl {
           if (dummyRoomsLoaded) {
               return;
           }
-          RoomDao roomDao = new RoomDao();
           ListInterface<Room> dummyRooms = roomDao.retrieveFromFile();
           Iterator<Room> iterator = dummyRooms.getIterator();
           while (iterator.hasNext()) {
@@ -48,6 +55,14 @@ public class HousekeepingControl {
           }
           dummyRoomsLoaded = true;
       }
+
+    // Pushes the current in-memory roomList back into RoomDao. Called
+    // after every mutation (register, status change, checkout, etc.)
+    // so RoomDao stays the up-to-date single source of truth for other
+    // modules that go through it instead of HousekeepingControl.
+    private static void syncToDao() {
+        roomDao.saveToFile(roomList);
+    }
 
     // ==============================
     // Auto-advance: rooms move to the next status on their own after
@@ -136,6 +151,7 @@ public class HousekeepingControl {
         Room room = new Room(roomNum, roomType);
         room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room Registered"));
         roomList.add(room);
+        syncToDao();
         return room;
     }
 
@@ -172,6 +188,7 @@ public class HousekeepingControl {
         }
 
         room.getStatusHistory().insertAndAdvance(new StatusEntry(nextStatus, note));
+        syncToDao();
         return nextStatus;
     }
 
@@ -180,6 +197,7 @@ public class HousekeepingControl {
 
     public static int rollbackStatus(Room room) {
         StatusEntry restored = room.getStatusHistory().rollback();
+        syncToDao();
         return (restored == null) ? -1 : restored.getStatusCode();
     }
 
@@ -187,12 +205,14 @@ public class HousekeepingControl {
     // without discarding whatever cleaning step was queued next
     public static void interruptForLateCheckout(Room room, String note) {
         room.getStatusHistory().spliceAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, note));
+        syncToDao();
     }
 
     // Continue the cleaning flow after the interruption is resolved
     // Returns the resumed status code, or -1 if nothing was queued
     public static int resumeStatus(Room room) {
         StatusEntry resumed = room.getStatusHistory().redo();
+        syncToDao();
         return (resumed == null) ? -1 : resumed.getStatusCode();
     }
 
@@ -205,6 +225,7 @@ public class HousekeepingControl {
         }
 
         room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Guest checked out - needs cleaning"));
+        syncToDao();
         return true;
     }
 

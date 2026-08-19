@@ -17,7 +17,7 @@ import adt.DoublyLinkedList;
  */
 public class RoomDao {
     
-    DoublyLinkedList<Room> roomData = new DoublyLinkedList<>();
+    private static DoublyLinkedList<Room> roomData = new DoublyLinkedList<>();
 
     // Builds and returns the 20 dummy rooms directly in memory - no file
     // storage involved.
@@ -60,12 +60,12 @@ public class RoomDao {
         //================================================
         // Save Into Shared Memory
         //================================================
-        //roomData = rooms;
+        roomData = rooms;
 
-       // System.out.println(
-        //        roomData.getSize()
-       //         + " Rooms Created In Memory!"
-        //);
+        System.out.println(
+                roomData.getSize()
+                + " Rooms Created In Memory!"
+        );
 
         return rooms;
     }
@@ -131,5 +131,27 @@ public class RoomDao {
         }
 
         return copiedRoomList;
+    }
+
+    //====================================================
+    // Save Room Data In Memory
+    //====================================================
+    // Overwrites the in-memory store with whatever list is handed in.
+    // Used by HousekeepingControl to push its live roomList back here
+    // after every mutation, so this DAO's copy never goes stale.
+    public void saveToFile(ListInterface<Room> roomList) {
+
+        DoublyLinkedList<Room> updated = new DoublyLinkedList<>();
+
+        if (roomList != null) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                if (room != null) {
+                    updated.add(room);
+                }
+            }
+        }
+
+        roomData = updated;
     }
 }

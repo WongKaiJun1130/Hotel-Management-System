@@ -13,15 +13,17 @@ import utility.InputUtility;
 import utility.RoomStatusUtil;
 import utility.RoomTypeUtil;
 import control.HousekeepingControl;
+import control.HousekeepingControl.RoomBookingMatch;
 import control.BookingControl;
-import control.LoyaltyControl;
 import adt.ListInterface;
 
 import java.util.Iterator;
 
 
 public class HouseKeepingUI {
-        
+    
+    private static final int BOX_WIDTH = 52;
+    
     // ==========================
     // Main Housekeeping Menu
     // ==========================
@@ -53,8 +55,8 @@ public class HouseKeepingUI {
     String[] options = {
             "1. Show Room Status",
             "2. Manage Room Status",
-            "3. Guest Check-Out",
-            "4. Rooms Needing Cleaning",
+            "3. Guest Check-Out ",
+            "4. Rooms Clean In Progress",
             "5. Report: Room Status History",
             "6. Report: Room Status Summary",
             "7. Filter Rooms (Multi-Criteria)",
@@ -82,6 +84,44 @@ public class HouseKeepingUI {
     );
 
 };
+    // design 
+    private static String border() {
+        StringBuilder sb = new StringBuilder("+");
+        for (int i = 0; i < BOX_WIDTH - 2; i++) {
+            sb.append("-");
+        }
+        sb.append("+");
+        return sb.toString();
+    }
+    
+    private static String centered(String text) {
+        int innerWidth = BOX_WIDTH - 2;
+        int totalPadding = innerWidth - text.length();
+        int left = Math.max(totalPadding / 2, 0);
+        int right = Math.max(totalPadding - left, 0);
+ 
+        StringBuilder sb = new StringBuilder("|");
+        for (int i = 0; i < left; i++) {
+            sb.append(" ");
+        }
+        sb.append(text);
+        for (int i = 0; i < right; i++) {
+            sb.append(" ");
+        }
+        sb.append("|");
+        return sb.toString();
+    }
+ 
+    private static void printHeader(String title) {
+        System.out.println();
+        System.out.println(border());
+        System.out.println(centered(title));
+        System.out.println(border());
+    }
+ 
+    private static void printFooter() {
+        System.out.println(border());
+    }
 
     // Prints a simple proportional ASCII bar chart - a console app
     // can't render an actual image, but a bar chart made of repeated
@@ -145,17 +185,19 @@ public class HouseKeepingUI {
 
     private static void showRoomStatus(){
         
-        Utility.printHeader("ROOM STATUS OVERVIEW");
+        printHeader("ROOM STATUS OVERVIEW");
  
         if (HousekeepingControl.roomIsEmpty()) {
             System.out.println("  No rooms registered yet.");
-            Utility.printFooter();
+            printFooter();
+            InputUtility.pressEnterToContinue();
             return;
         }
         
         printRoomTable(HousekeepingControl.roomList);
  
-        Utility.printFooter();
+        printFooter();
+        InputUtility.pressEnterToContinue();
     }
 
     // Shared table printer - Room / Type / Status columns, reused by
@@ -185,7 +227,7 @@ public class HouseKeepingUI {
 
         ListInterface<Room> results = HousekeepingControl.searchRooms(keyword);
 
-        Utility.printHeader("SEARCH RESULTS: \"" + keyword + "\"");
+        printHeader("SEARCH RESULTS: \"" + keyword + "\"");
 
         if (results.isEmpty()) {
             System.out.println("  No rooms matched.");
@@ -193,7 +235,8 @@ public class HouseKeepingUI {
             printRoomTable(results);
         }
 
-        Utility.printFooter();
+        printFooter();
+        InputUtility.pressEnterToContinue();
     }
 
     // ==============================
@@ -223,7 +266,7 @@ public class HouseKeepingUI {
     }
 
     private static void displaySortedRooms(ListInterface<Room> sortedRooms, String title) {
-        Utility.printHeader(title);
+        printHeader(title);
 
         if (sortedRooms.isEmpty()) {
             System.out.println("  No rooms registered yet.");
@@ -231,7 +274,8 @@ public class HouseKeepingUI {
             printRoomTable(sortedRooms);
         }
 
-        Utility.printFooter();
+        printFooter();
+        InputUtility.pressEnterToContinue();
     }
 
 
@@ -251,17 +295,10 @@ public class HouseKeepingUI {
         String choice = InputUtility.getStringInput().trim();
 
         switch (choice) {
-            case "1":
-                return RoomTypeUtil.Single_Room;
-
-            case "2":
-                return RoomTypeUtil.Medium_Room;
-
-            case "3":
-                return RoomTypeUtil.Large_Room;
-
-            default:
-                return null;
+            case "1": return RoomTypeUtil.Single_Room;
+            case "2": return RoomTypeUtil.Medium_Room;
+            case "3": return RoomTypeUtil.Large_Room;
+            default: return null;
         }
     }
 
@@ -320,7 +357,7 @@ public class HouseKeepingUI {
     // "all Dirty VIP rooms" - a single keyword search can't express an
     // exact combined condition like that.
     private static void filterRoomsUI() {
-        Utility.printHeader("FILTER ROOMS");
+        printHeader("FILTER ROOMS");
 
         Integer typeFilter = promptRoomTypeFilter();
         Integer statusFilter = promptStatusFilter();
@@ -340,7 +377,8 @@ public class HouseKeepingUI {
             System.out.println("  " + results.getSize() + " room(s) matched.");
         }
 
-        Utility.printFooter();
+        printFooter();
+        InputUtility.pressEnterToContinue();
     }
 
 
@@ -354,7 +392,7 @@ public class HouseKeepingUI {
     // and reporting all chained into one pipeline via
     // HousekeepingControl.generateBusinessCycleReport().
     private static void businessCycleReportUI() {
-        Utility.printHeader("BUSINESS CYCLE REPORT - SETUP");
+        printHeader("BUSINESS CYCLE REPORT - SETUP");
 
         Integer typeFilter = promptRoomTypeFilter();
         Integer statusFilter = promptStatusFilter();
@@ -362,7 +400,7 @@ public class HouseKeepingUI {
 
         ListInterface<Room> report = HousekeepingControl.generateBusinessCycleReport(typeFilter, statusFilter, sortOption);
 
-        Utility.printHeader("BUSINESS CYCLE REPORT");
+        printHeader("BUSINESS CYCLE REPORT");
         System.out.println("  Type Filter   : " + (typeFilter == null ? "Any" : RoomTypeUtil.roomTypeName(typeFilter)));
         System.out.println("  Status Filter : " + (statusFilter == null ? "Any" : RoomStatusUtil.statusName(statusFilter)));
         System.out.println("  Sorted By     : " + sortLabel(sortOption));
@@ -370,7 +408,8 @@ public class HouseKeepingUI {
 
         if (report.isEmpty()) {
             System.out.println("  No rooms matched the selected filters.");
-            Utility.printFooter();
+            printFooter();
+            InputUtility.pressEnterToContinue();
             return;
         }
 
@@ -419,7 +458,8 @@ public class HouseKeepingUI {
         System.out.println();
         System.out.println("  Ready rooms in this set with a waiting-booking match: " + readyWithMatch);
 
-        Utility.printFooter();
+        printFooter();
+        InputUtility.pressEnterToContinue();
     }
     
     
@@ -427,83 +467,35 @@ public class HouseKeepingUI {
     private static void guestCheckOut() {
         System.out.print("Enter Room Number: ");
         String roomNum = InputUtility.getStringInput().trim();
-
-        //================================================
-        // Find Housekeeping Room
-        //================================================
+    
         Room room = HousekeepingControl.findRoom(roomNum);
-        if (room == null) {
+    
+        if(room == null){
             System.out.println("Room " + roomNum + " not found.");
+            InputUtility.pressEnterToContinue();
             return;
         }
-
-        //================================================
-        // Find Active Booking
-        //================================================
-        BookingControl bookingControl = new BookingControl();
-        Booking booking =bookingControl.getActiveServedBookingByRoomID(roomNum);
-
-
-        if (booking == null) {
-            System.out.println("No active guest booking found for Room "+ roomNum + ".");
-            System.out.println("Check-out cannot be performed.");
-            return;
+    
+        boolean success = HousekeepingControl.guestCheckOut(room);
+        if(success){
+            System.out.println("Room " + room.getRoomNum() + " checked out. Status updated to: Dirty (needs cleaning).");
         }
-
-        //================================================
-        // Housekeeping Checkout
-        //================================================
-        boolean roomSuccess = HousekeepingControl.guestCheckOut(room);
-        if (!roomSuccess) {
-            System.out.println("Room " + room.getRoomNum() + " is already Dirty.");
-            return;
+        else{
+            System.out.println("Room " + room.getRoomNum() + " is already marked Dirty (needs cleaning).");
         }
-
-        //================================================
-        // Booking Checkout
-        //================================================
-        Booking checkedOutBooking = bookingControl.checkOutBookingByRoomID(roomNum);
-        if (checkedOutBooking == null) {
-            System.out.println("Unable to update booking status.");
-            return;
-        }
-
-        //================================================
-        // Add Loyalty Points
-        //================================================
-        LoyaltyControl loyaltyControl = new LoyaltyControl();
-        boolean pointsAdded =loyaltyControl.addPoints(checkedOutBooking.getGuestID(), checkedOutBooking.getRoomType());
-
-        //================================================
-        // Display Result
-        //================================================
-
-        System.out.println();
-        System.out.println("Guest checked out successfully.");
-        System.out.println("Booking ID : " + checkedOutBooking.getBookingID());
-        System.out.println("Guest ID   : " + checkedOutBooking.getGuestID());
-        System.out.println("Room       : " + checkedOutBooking.getRoomID());
-        System.out.println("Booking    : Checked Out");
-        System.out.println("Room       : Dirty (Needs Cleaning)");
-
-        if (pointsAdded) {
-            System.out.println();
-            System.out.println(loyaltyControl.getLastMessage());
-
-        } else {
-            System.out.println();
-            System.out.println("Loyalty points were not added: " + loyaltyControl.getLastMessage());
-        }
+        InputUtility.pressEnterToContinue();
     }
     
     // 4. need cleaning
+    
     private static void showRoomNeedCleaning(){
         
-        Utility.printHeader("ROOMS NEEDING CLEANING");
+         printHeader("ROOMS NEEDING CLEANING");
         
         if(HousekeepingControl.roomIsEmpty()){
             System.out.println("  No rooms registered yet.");
-            Utility.printFooter();
+            printFooter();
+            InputUtility.pressEnterToContinue();
             return;
         }
         
@@ -524,7 +516,8 @@ public class HouseKeepingUI {
             System.out.println("  No rooms currently need cleaning.");
         }
         
-        Utility.printFooter();
+        printFooter();
+        InputUtility.pressEnterToContinue();
     }
     
     
@@ -536,6 +529,7 @@ public class HouseKeepingUI {
             return;
         }
         showCurrentRoomState(room);
+        InputUtility.pressEnterToContinue();
 
         // Only offered while the room is actually Ready For Check-In -
         // there's nothing to assign otherwise.
@@ -649,6 +643,7 @@ public class HouseKeepingUI {
             System.out.println("Room " + room.getRoomNum() + " updated to: " + RoomStatusUtil.statusName(nextStatus));
         }
         showCurrentRoomState(room);
+        InputUtility.pressEnterToContinue();
     }
     
     
@@ -662,6 +657,7 @@ public class HouseKeepingUI {
             System.out.println("Room " + room.getRoomNum() + " rolled back to: " + RoomStatusUtil.statusName(restoredStatus));
         }
         showCurrentRoomState(room);
+        InputUtility.pressEnterToContinue();
     }
     
     // ------------------------------
@@ -674,6 +670,7 @@ public class HouseKeepingUI {
         HousekeepingControl.interruptForLateCheckout(room, note);
         System.out.println("Room " + room.getRoomNum() + " placed on hold: " + note);
         showCurrentRoomState(room);
+        InputUtility.pressEnterToContinue();
     }
     
     // ------------------------------
@@ -687,6 +684,7 @@ public class HouseKeepingUI {
             System.out.println("Room " + room.getRoomNum() + " resumed to: " + RoomStatusUtil.statusName(resumedStatus));
         }
         showCurrentRoomState(room);
+        InputUtility.pressEnterToContinue();
     }
 
     // ------------------------------
@@ -701,6 +699,7 @@ public class HouseKeepingUI {
         if (currentStatus != RoomStatusUtil.Ready_For_CheckIN) {
             System.out.println("Room " + room.getRoomNum() + " must be Ready For Check-In to assign it to a booking. "
                     + "Current status: " + RoomStatusUtil.statusName(currentStatus));
+            InputUtility.pressEnterToContinue();
             return;
         }
 
@@ -710,6 +709,7 @@ public class HouseKeepingUI {
         if (matches.isEmpty()) {
             System.out.println("No waiting bookings currently match Room " + room.getRoomNum()
                     + "'s type (" + RoomTypeUtil.roomTypeName(room.getRoomType()) + ").");
+            InputUtility.pressEnterToContinue();
             return;
         }
 
@@ -730,6 +730,7 @@ public class HouseKeepingUI {
 
         if (choice <= 0 || choice > matches.getSize()) {
             System.out.println("Cancelled - no booking assigned.");
+            InputUtility.pressEnterToContinue();
             return;
         }
 
@@ -745,6 +746,7 @@ public class HouseKeepingUI {
         }
 
         showCurrentRoomState(room);
+        InputUtility.pressEnterToContinue();
     }
  
     // ==============================
@@ -757,10 +759,11 @@ public class HouseKeepingUI {
         Room room = HousekeepingControl.findRoom(roomNum);
         if (room == null) {
             System.out.println("Room " + roomNum + " not found.");
+            InputUtility.pressEnterToContinue();
             return;
         }
  
-        Utility.printHeader("HISTORY - ROOM " + room.getRoomNum() + " (" + RoomTypeUtil.roomTypeName(room.getRoomType()) + ")");
+        printHeader("HISTORY - ROOM " + room.getRoomNum() + " (" + RoomTypeUtil.roomTypeName(room.getRoomType()) + ")");
         
         StatusEntry current = room.getStatusHistory().getCurrentData();
         Iterator<StatusEntry> iterator = room.getStatusHistory().getIterator();
@@ -792,7 +795,8 @@ public class HouseKeepingUI {
             }
         }
 
-        Utility.printFooter();
+        printFooter();
+        InputUtility.pressEnterToContinue();
     }
     
     // ==============================
@@ -800,11 +804,12 @@ public class HouseKeepingUI {
     // ==============================
     private static void reportStatusSummary() {
         
-        Utility.printHeader("ROOM STATUS SUMMARY REPORT");
+        printHeader("ROOM STATUS SUMMARY REPORT");
  
         if (HousekeepingControl.roomIsEmpty()) {
             System.out.println("No rooms registered yet.");
-            Utility.printFooter();
+            printFooter();
+            InputUtility.pressEnterToContinue();
             return;
         }
  
@@ -854,7 +859,8 @@ public class HouseKeepingUI {
         System.out.println("Total Waiting Bookings : " + waitingBookings.getSize());
         System.out.println("Ready Rooms w/ a Match : " + readyMatches.getSize());
         
-        Utility.printFooter();
+        printFooter();
+        InputUtility.pressEnterToContinue();
     }
 
 }
