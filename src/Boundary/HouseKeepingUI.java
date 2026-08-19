@@ -18,8 +18,6 @@ import Control.BookingControl;
 import Adt.ListInterface;
 
 import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class HouseKeepingUI {
@@ -521,34 +519,47 @@ public class HouseKeepingUI {
         }
         showCurrentRoomState(room);
 
-        List<String> optionsList = new ArrayList<>();
-        List<Runnable> actionsList = new ArrayList<>();
-
-        optionsList.add("1. Advance to Next Status");
-        actionsList.add(() -> advanceStatus(room));
-
-        optionsList.add("2. Correct Mistake (Rollback)");
-        actionsList.add(() -> rollbackStatus(room));
-
-        optionsList.add("3. Guest Requests Late Check-Out (Interrupt)");
-        actionsList.add(() -> interruptForLateCheckOut(room));
-
-        optionsList.add("4. Resume Cleaning (After Late Check-Out Resolved)");
-        actionsList.add(() -> resumeStatus(room));
-
         // Only offered while the room is actually Ready For Check-In -
         // there's nothing to assign otherwise.
         int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
-        if (currentStatus == RoomStatusUtil.Ready_For_CheckIN) {
-            optionsList.add("5. Assign to Waiting Booking (Check-In)");
-            actionsList.add(() -> assignRoomToBooking(room));
+        boolean canAssignToBooking = (currentStatus == RoomStatusUtil.Ready_For_CheckIN);
+
+        String[] options;
+        Runnable[] actions;
+
+        if (canAssignToBooking) {
+            options = new String[]{
+                "1. Advance to Next Status",
+                "2. Correct Mistake (Rollback)",
+                "3. Guest Requests Late Check-Out (Interrupt)",
+                "4. Resume Cleaning (After Late Check-Out Resolved)",
+                "5. Assign to Waiting Booking (Check-In)",
+                "0. Back"
+            };
+            actions = new Runnable[]{
+                () -> advanceStatus(room),
+                () -> rollbackStatus(room),
+                () -> interruptForLateCheckOut(room),
+                () -> resumeStatus(room),
+                () -> assignRoomToBooking(room),
+                () -> {}
+            };
+        } else {
+            options = new String[]{
+                "1. Advance to Next Status",
+                "2. Correct Mistake (Rollback)",
+                "3. Guest Requests Late Check-Out (Interrupt)",
+                "4. Resume Cleaning (After Late Check-Out Resolved)",
+                "0. Back"
+            };
+            actions = new Runnable[]{
+                () -> advanceStatus(room),
+                () -> rollbackStatus(room),
+                () -> interruptForLateCheckOut(room),
+                () -> resumeStatus(room),
+                () -> {}
+            };
         }
-
-        optionsList.add("0. Back");
-        actionsList.add(() -> {});
-
-        String[] options = optionsList.toArray(new String[0]);
-        Runnable[] actions = actionsList.toArray(new Runnable[0]);
         
         Utility.customMenu(
                 options,
