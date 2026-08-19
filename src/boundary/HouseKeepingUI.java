@@ -161,15 +161,18 @@ public class HouseKeepingUI {
     
     // 1. show room status //
     private static void showRoomStatusMenu() {
+
+        // Show all rooms immediately on entry - no need to make the
+        // user pick "View All Rooms" first.
+        showRoomStatus();
+
         String[] options = {
-            "1. View All Rooms",
-            "2. Search Rooms",
-            "3. Sort Rooms",
+            "1. Search Rooms",
+            "2. Sort Rooms",
             "0. Back"
         };
 
         Runnable[] actions = {
-            () -> showRoomStatus(),
             () -> searchRoomsUI(),
             () -> sortRoomsUI(),
             () -> {}
