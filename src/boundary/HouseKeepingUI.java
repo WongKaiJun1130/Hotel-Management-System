@@ -14,6 +14,7 @@ import utility.RoomStatusUtil;
 import utility.RoomTypeUtil;
 import control.HousekeepingControl;
 import control.BookingControl;
+import control.LoyaltyControl;
 import adt.ListInterface;
 
 import java.util.Iterator;
@@ -466,25 +467,76 @@ public class HouseKeepingUI {
     private static void guestCheckOut() {
         System.out.print("Enter Room Number: ");
         String roomNum = InputUtility.getStringInput().trim();
-    
+
+        //================================================
+        // Find Housekeeping Room
+        //================================================
         Room room = HousekeepingControl.findRoom(roomNum);
-    
-        if(room == null){
+        if (room == null) {
             System.out.println("Room " + roomNum + " not found.");
             return;
         }
-    
-        boolean success = HousekeepingControl.guestCheckOut(room);
-        if(success){
-            System.out.println("Room " + room.getRoomNum() + " checked out. Status updated to: Dirty (needs cleaning).");
+
+        //================================================
+        // Find Active Booking
+        //================================================
+        BookingControl bookingControl = new BookingControl();
+        Booking booking =bookingControl.getActiveServedBookingByRoomID(roomNum);
+
+
+        if (booking == null) {
+            System.out.println("No active guest booking found for Room "+ roomNum + ".");
+            System.out.println("Check-out cannot be performed.");
+            return;
         }
-        else{
-            System.out.println("Room " + room.getRoomNum() + " is already marked Dirty (needs cleaning).");
+
+        //================================================
+        // Housekeeping Checkout
+        //================================================
+        boolean roomSuccess = HousekeepingControl.guestCheckOut(room);
+        if (!roomSuccess) {
+            System.out.println("Room " + room.getRoomNum() + " is already Dirty.");
+            return;
+        }
+
+        //================================================
+        // Booking Checkout
+        //================================================
+        Booking checkedOutBooking = bookingControl.checkOutBookingByRoomID(roomNum);
+        if (checkedOutBooking == null) {
+            System.out.println("Unable to update booking status.");
+            return;
+        }
+
+        //================================================
+        // Add Loyalty Points
+        //================================================
+        LoyaltyControl loyaltyControl = new LoyaltyControl();
+        boolean pointsAdded =loyaltyControl.addPoints(checkedOutBooking.getGuestID(), checkedOutBooking.getRoomType());
+
+        //================================================
+        // Display Result
+        //================================================
+
+        System.out.println();
+        System.out.println("Guest checked out successfully.");
+        System.out.println("Booking ID : " + checkedOutBooking.getBookingID());
+        System.out.println("Guest ID   : " + checkedOutBooking.getGuestID());
+        System.out.println("Room       : " + checkedOutBooking.getRoomID());
+        System.out.println("Booking    : Checked Out");
+        System.out.println("Room       : Dirty (Needs Cleaning)");
+
+        if (pointsAdded) {
+            System.out.println();
+            System.out.println(loyaltyControl.getLastMessage());
+
+        } else {
+            System.out.println();
+            System.out.println("Loyalty points were not added: " + loyaltyControl.getLastMessage());
         }
     }
     
     // 4. need cleaning
-    
     private static void showRoomNeedCleaning(){
         
          printHeader("ROOMS NEEDING CLEANING");

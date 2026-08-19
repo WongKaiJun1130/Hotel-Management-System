@@ -1,6 +1,7 @@
 package boundary;
 
 import control.BookingControl;
+import control.LoyaltyControl;
 import entity.Booking;
 import adt.ListInterface;
 import utility.InputUtility;
@@ -14,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 public class BookingUI {
     private BookingControl bookingControl;
     private GuestDatabase guestDatabase;
+    private LoyaltyControl loyaltyControl;
     private static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
     private static final String ANSI_RESET = "\u001B[0m";
 
@@ -23,11 +25,13 @@ public class BookingUI {
     public BookingUI() {
         bookingControl = new BookingControl();
         guestDatabase = new GuestDatabase();
+        loyaltyControl = new LoyaltyControl();
     }
 
     public BookingUI(BookingControl bookingControl) {
         this.bookingControl = bookingControl;
         guestDatabase = new GuestDatabase();
+        loyaltyControl = new LoyaltyControl();
     }
 
     //==========================================================
@@ -127,14 +131,13 @@ public class BookingUI {
         if (existingGuest == null) {
             String guestRoomType;
             if (roomType.equalsIgnoreCase("Single")) {
-                guestRoomType = "Small Room";
+                guestRoomType = "Single Room";
             } else if (roomType.equalsIgnoreCase("Medium")) {
                 guestRoomType = "Medium Room";
             } else {
-                guestRoomType = "Big Room";
+                guestRoomType = "Large Room";
             }
             String guestCheckInDate = checkInDate.replace("-", "/");
-
             Guest newGuest = new Guest(
                     guestID,
                     guestName,
@@ -145,7 +148,12 @@ public class BookingUI {
                     guestCheckInDate,
                     guestCheckInDate + " 12:00"
             );
-            guestDatabase.addGuest(newGuest);
+
+            boolean guestAdded = guestDatabase.addGuest(newGuest);
+
+            if (guestAdded) {
+                loyaltyControl.createLoyaltyMember(newGuest,0);
+            }
         }
         Booking booking = new Booking(
                 bookingID,

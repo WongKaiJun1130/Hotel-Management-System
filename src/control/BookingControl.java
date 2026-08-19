@@ -400,16 +400,10 @@ public class BookingControl {
     //==========================================================
     // Calculate Booking Stay Days Within Selected Month
     //==========================================================
-    public long getBookingStayDaysInMonth(
-            Booking booking,
-            YearMonth yearMonth) {
-
+    public long getBookingStayDaysInMonth(Booking booking, YearMonth yearMonth) {
         LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), DATE_FORMATTER);
-
         LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), DATE_FORMATTER);
-
         LocalDate monthStart = yearMonth.atDay(1);
-
         LocalDate monthEnd = yearMonth.atEndOfMonth().plusDays(1);
 
         LocalDate start;
@@ -532,17 +526,36 @@ public class BookingControl {
     // Check Out Booking By Room ID
     //==========================================================
     public Booking checkOutBookingByRoomID(String roomID) {
+        Booking booking = getActiveServedBookingByRoomID(roomID);
+        if (booking == null) {
+            return null;
+        }
+        booking.setRoomStatus("Checked Out");
+        bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+        return booking;
+    }
+
+    //==========================================================
+    // Find Active Served Booking By Room ID
+    //==========================================================
+    public Booking getActiveServedBookingByRoomID(String roomID) {
+        if (roomID == null) {
+            return null;
+        }
         for (int i = 1; i <= servedBookingList.getSize(); i++) {
             Booking booking = servedBookingList.getEntry(i);
-            if (booking.getRoomID().equalsIgnoreCase(roomID) && booking.getRoomStatus().equalsIgnoreCase("Served")) {
-                booking.setRoomStatus("Checked Out");
-                bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+            if (booking == null) {
+                continue;
+            }
+            if (booking.getRoomID() != null
+                    && booking.getRoomID().equalsIgnoreCase(roomID)
+                    && booking.getRoomStatus().equalsIgnoreCase("Served")) {
                 return booking;
             }
         }
         return null;
     }
-    
+
     //==========================================================
     // Check In Booking To A Specific (Housekeeping) Room
     // Moves a waiting booking into the served list and ties it to the
