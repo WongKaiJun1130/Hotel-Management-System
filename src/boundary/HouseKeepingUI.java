@@ -21,9 +21,7 @@ import java.util.Iterator;
 
 
 public class HouseKeepingUI {
-    
-    private static final int BOX_WIDTH = 52;
-    
+        
     // ==========================
     // Main Housekeeping Menu
     // ==========================

@@ -1,226 +1,115 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
 import entity.Room;
 import entity.StatusEntry;
 import utility.RoomStatusUtil;
 import utility.RoomTypeUtil;
-import adt.DoublyLinkedList;
 import adt.ListInterface;
+import adt.DoublyLinkedList;
 
+/**
+ *
+ * @author Kah Shun
+ */
 public class RoomDao {
+    
+    DoublyLinkedList<Room> roomData = new DoublyLinkedList<>();
 
-    //====================================================
-    // In-Memory Room Data
-    //====================================================
-    private static DoublyLinkedList<Room> roomData = new DoublyLinkedList<>();
+    // Builds and returns the 20 dummy rooms directly in memory - no file
+    // storage involved.
+    public static ListInterface<Room> createRoomData() {
 
-    //====================================================
-    // Create Initial Room Data
-    //====================================================
-    public static void createRoomData() {
+        DoublyLinkedList<Room> rooms = new DoublyLinkedList<>();
+        
+        // --- Rooms 101-105: Normal, just registered (Dirty) ---
+        rooms.add(newRoom("101", RoomTypeUtil.Single_Room));
+        rooms.add(newRoom("102", RoomTypeUtil.Single_Room));
+        rooms.add(newRoom("103", RoomTypeUtil.Single_Room));
+        rooms.add(newRoom("104", RoomTypeUtil.Single_Room));
+        rooms.add(newRoom("105", RoomTypeUtil.Single_Room));
 
-    DoublyLinkedList<Room> rooms = new DoublyLinkedList<>();
+        // --- Rooms 106-110: Deluxe, cleaning in progress ---
+        rooms.add(advanceTo("106", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Maria"));
+        rooms.add(advanceTo("107", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: John"));
+        rooms.add(advanceTo("108", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Amy"));
+        rooms.add(advanceTo("109", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Ben"));
+        rooms.add(advanceTo("110", RoomTypeUtil.Medium_Room, RoomStatusUtil.Clean_In_Progress, "Staff: Cara"));
 
-    //================================================
-    // SINGLE ROOMS S01 - S10
-    //================================================
-    // S01-S05 Dirty
-        for (int i = 1; i <= 5; i++) {
-            rooms.add(
-                    newRoom(
-                            "S" + String.format("%02d", i),
-                            RoomTypeUtil.Single_Room
-                    )
-            );
-        }
+        // --- Rooms 111-114: VIP, inspected ---
+        rooms.add(advanceTo("111", RoomTypeUtil.Large_Room, RoomStatusUtil.Inspected, "Passed inspection"));
+        rooms.add(advanceTo("112", RoomTypeUtil.Large_Room, RoomStatusUtil.Inspected, "Passed inspection"));
+        rooms.add(advanceTo("113", RoomTypeUtil.Large_Room, RoomStatusUtil.Inspected, "Passed inspection"));
+        rooms.add(advanceTo("114", RoomTypeUtil.Large_Room, RoomStatusUtil.Inspected, "Passed inspection"));
 
-        // S06-S10 Ready
-        for (int i = 6; i <= 10; i++) {
-            rooms.add(
-                    advanceTo(
-                            "S" + String.format("%02d", i),
-                            RoomTypeUtil.Single_Room,
-                            RoomStatusUtil.Ready_For_CheckIN,
-                            "Ready"
-                    )
-            );
-        }
+        // --- Rooms 115-118: Ready for Check-In ---
+        rooms.add(advanceTo("115", RoomTypeUtil.Single_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+        rooms.add(advanceTo("116", RoomTypeUtil.Medium_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+        rooms.add(advanceTo("117", RoomTypeUtil.Medium_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
+        rooms.add(advanceTo("118", RoomTypeUtil.Large_Room, RoomStatusUtil.Ready_For_CheckIN, "Ready"));
 
+        // --- Rooms 119-120: VIP, mid-clean guest requested late check-out ---
+        // shows the rollback + interrupt (splice) behaviour: room was inspected,
+        // supervisor rolled it back to cleaning, then guest asked to hold the room.
+        rooms.add(lateCheckoutRoom("119", RoomTypeUtil.Large_Room));
+        rooms.add(lateCheckoutRoom("120", RoomTypeUtil.Large_Room));
+        
         //================================================
-        // MEDIUM ROOMS M01 - M10
+        // Save Into Shared Memory
         //================================================
-        // M01-M05 Cleaning
-        String[] staff = {
-            "Maria", "John", "Amy", "Ben", "Cara"
-        };
-        for (int i = 1; i <= 5; i++) {
-            rooms.add(
-                    advanceTo(
-                            "M" + String.format("%02d", i),
-                            RoomTypeUtil.Medium_Room,
-                            RoomStatusUtil.Clean_In_Progress,
-                            "Staff: " + staff[i - 1]
-                    )
-            );
-        }
+        //roomData = rooms;
 
-        // M06-M10 Ready
-        for (int i = 6; i <= 10; i++) {
-            rooms.add(
-                    advanceTo(
-                            "M" + String.format("%02d", i),
-                            RoomTypeUtil.Medium_Room,
-                            RoomStatusUtil.Ready_For_CheckIN,
-                            "Ready"
-                    )
-            );
-        }
+       // System.out.println(
+        //        roomData.getSize()
+       //         + " Rooms Created In Memory!"
+        //);
 
-        //================================================
-        // LARGE ROOMS L01 - L10
-        //================================================
-        // L01-L04 Inspected
-        for (int i = 1; i <= 4; i++) {
-
-            rooms.add(
-                    advanceTo(
-                            "L" + String.format("%02d", i),
-                            RoomTypeUtil.Large_Room,
-                            RoomStatusUtil.Inspected,
-                            "Passed inspection"
-                    )
-            );
-        }
-
-        // L05 Ready
-        rooms.add(
-                advanceTo(
-                        "L05",
-                        RoomTypeUtil.Large_Room,
-                        RoomStatusUtil.Ready_For_CheckIN,
-                        "Ready"
-                )
-        );
-
-        // L06-L07 Late Checkout Hold
-        rooms.add(
-                lateCheckoutRoom(
-                        "L06",
-                        RoomTypeUtil.Large_Room
-                )
-        );
-
-        rooms.add(
-                lateCheckoutRoom(
-                        "L07",
-                        RoomTypeUtil.Large_Room
-                )
-        );
-
-        // L08-L10 Ready
-        for (int i = 8; i <= 10; i++) {
-            rooms.add(
-                    advanceTo(
-                            "L" + String.format("%02d", i),
-                            RoomTypeUtil.Large_Room,
-                            RoomStatusUtil.Ready_For_CheckIN,
-                            "Ready"
-                    )
-            );
-        }
-
-
-        RoomDao roomDao = new RoomDao();
-
-        roomDao.saveToFile(rooms);
-
-        System.out.println(
-                rooms.getSize()
-                + " Rooms Created In Memory!"
-        );
+        return rooms;
     }
-    //====================================================
-    // Create New Room
-    //====================================================
-    private static Room newRoom(String roomNumber, int roomType) {
 
-        Room room = new Room(roomNumber, roomType);
-
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room registered!"));
-
+    // Fresh room, only the initial "Dirty" status entry
+    private static Room newRoom(String roomNum, int roomType) {
+        Room room = new Room(roomNum, roomType);
+        room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room registered"));
         return room;
     }
 
-    //====================================================
-    // Advance Room To Target Status
-    //====================================================
-    private static Room advanceTo(String roomNumber, int roomType, int targetStatus, String note) {
+    // Room advanced forward from Dirty up to the given status
+    private static Room advanceTo(String roomNum, int roomType, int targetStatus, String note) {
+        Room room = newRoom(roomNum, roomType);
 
-        Room room = newRoom(roomNumber, roomType);
-
-        int currentStatus = RoomStatusUtil.Dirty;
-
-        while (currentStatus != targetStatus) {
-
-            int nextStatus = RoomStatusUtil.nextStatusAfter(currentStatus);
-
-            if (nextStatus == -1) {
+        int status = RoomStatusUtil.Dirty;
+        while (status != targetStatus) {
+            int next = RoomStatusUtil.nextStatusAfter(status);
+            if (next == -1) {
                 break;
             }
-
-            String statusNote;
-
-            if (nextStatus == targetStatus) {
-                statusNote = note;
-            } else {
-                statusNote = "";
-            }
-
-            room.getStatusHistory().insertAndAdvance(new StatusEntry(nextStatus, statusNote));
-
-            currentStatus = nextStatus;
+            String entryNote = (next == targetStatus) ? note : "";
+            room.getStatusHistory().insertAndAdvance(new StatusEntry(next, entryNote));
+            status = next;
         }
 
         return room;
     }
 
-    //====================================================
-    // Create Late Check-Out Room
-    //====================================================
-    private static Room lateCheckoutRoom(String roomNumber, int roomType) {
+    // Room mid-clean, interrupted by a guest's late check-out request
+    private static Room lateCheckoutRoom(String roomNum, int roomType) {
+        Room room = advanceTo(roomNum, roomType, RoomStatusUtil.Inspected, "Passed inspection");
 
-        Room room = advanceTo(roomNumber, roomType, RoomStatusUtil.Inspected, "Passed inspection");
-
+        // supervisor logged it too early, rolls back to Cleaning In Progress
         room.getStatusHistory().rollback();
 
-        room.getStatusHistory().spliceAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, "Guest requested late check-out"));
+        // guest requests late check-out mid-clean - splice in a hold entry
+        room.getStatusHistory().spliceAfterCurrent(
+                new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, "Guest requested late check-out")
+        );
 
         return room;
     }
-
-    //====================================================
-    // Save Room Data In Memory
-    //====================================================
-    public void saveToFile(ListInterface<Room> roomList) {
-
-        roomData = new DoublyLinkedList<>();
-
-        if (roomList == null) {
-            return;
-        }
-
-        for (int i = 1; i <= roomList.getSize(); i++) {
-
-            Room room = roomList.getEntry(i);
-
-            if (room != null) {
-                roomData.add(room);
-            }
-        }
-
-        System.out.println("Room Database Updated In Memory!");
-    }
-
+    
     //====================================================
     // Retrieve Room Data From Memory
     //====================================================
@@ -242,121 +131,5 @@ public class RoomDao {
         }
 
         return copiedRoomList;
-    }
-
-    //====================================================
-    // Add Room
-    //====================================================
-    public boolean addRoom(Room room) {
-
-        if (room == null) {
-            return false;
-        }
-
-        if (room.getRoomNum() == null || room.getRoomNum().trim().isEmpty()) {
-            return false;
-        }
-
-        if (searchRoomByNumber(room.getRoomNum()) != null) {
-            return false;
-        }
-
-        roomData.add(room);
-
-        return true;
-    }
-
-    //====================================================
-    // Get Room By Position
-    //====================================================
-    public Room getRoom(int position) {
-
-        if (position < 1 || position > roomData.getSize()) {
-            return null;
-        }
-
-        return roomData.getEntry(position);
-    }
-
-    //====================================================
-    // Remove Room By Position
-    //====================================================
-    public Room removeRoom(int position) {
-
-        if (position < 1 || position > roomData.getSize()) {
-            return null;
-        }
-
-        return roomData.remove(position);
-    }
-
-    //====================================================
-    // Remove Room By Room Number
-    //====================================================
-    public Room removeRoomByNumber(String roomNumber) {
-
-        if (roomNumber == null || roomNumber.trim().isEmpty()) {
-            return null;
-        }
-
-        for (int i = 1; i <= roomData.getSize(); i++) {
-
-            Room room = roomData.getEntry(i);
-
-            if (room != null
-                    && room.getRoomNum() != null
-                    && room.getRoomNum().equalsIgnoreCase(roomNumber.trim())) {
-
-                return roomData.remove(i);
-            }
-        }
-
-        return null;
-    }
-
-    //====================================================
-    // Search Room By Room Number
-    //====================================================
-    public Room searchRoomByNumber(String roomNumber) {
-
-        if (roomNumber == null || roomNumber.trim().isEmpty()) {
-            return null;
-        }
-
-        for (int i = 1; i <= roomData.getSize(); i++) {
-
-            Room room = roomData.getEntry(i);
-
-            if (room == null || room.getRoomNum() == null) {
-                continue;
-            }
-
-            if (room.getRoomNum().equalsIgnoreCase(roomNumber.trim())) {
-                return room;
-            }
-        }
-
-        return null;
-    }
-
-    //====================================================
-    // Get Total Rooms
-    //====================================================
-    public int getTotalRooms() {
-        return roomData.getSize();
-    }
-
-    //====================================================
-    // Check Room Data Is Empty
-    //====================================================
-    public boolean isRoomDataEmpty() {
-        return roomData == null || roomData.isEmpty();
-    }
-
-    //====================================================
-    // Get All Room Data
-    //====================================================
-    public DoublyLinkedList<Room> getAllRooms() {
-        return roomData;
     }
 }
