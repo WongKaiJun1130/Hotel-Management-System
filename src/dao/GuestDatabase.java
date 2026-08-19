@@ -14,15 +14,15 @@ public class GuestDatabase {
 
         guests = new DoublyLinkedList<>();
 
-        guests.add(new Guest("R0001", "John Tan", "0123456789", "Elite", "Big Room", "Waiting", "20/07/2026", "20/07/2026 10:30"));
+        guests.add(new Guest("R0001", "John Tan", "0123456789", "Elite", "Large Room", "Waiting", "20/07/2026", "20/07/2026 10:30"));
         guests.add(new Guest("R0002", "Wong Lee", "0134567890", "Diamond", "Medium Room", "Waiting", "21/07/2026", "21/07/2026 08:45"));
-        guests.add(new Guest("R0003", "Alice Lim", "0145678901", "Platinum", "Small Room", "Waiting", "22/07/2026", "22/07/2026 09:15"));
-        guests.add(new Guest("R0004", "David Wong", "0166789012", "Elite", "Big Room", "Waiting", "23/07/2026", "23/07/2026 09:00"));
-        guests.add(new Guest("R0005", "Jason Lee", "0177890123", "Standard", "Small Room", "Waiting", "24/07/2026", "24/07/2026 07:30"));
+        guests.add(new Guest("R0003", "Alice Lim", "0145678901", "Platinum", "Single Room", "Waiting", "22/07/2026", "22/07/2026 09:15"));
+        guests.add(new Guest("R0004", "David Wong", "0166789012", "Elite", "Large Room", "Waiting", "23/07/2026", "23/07/2026 09:00"));
+        guests.add(new Guest("R0005", "Jason Lee", "0177890123", "Standard", "Single Room", "Waiting", "24/07/2026", "24/07/2026 07:30"));
         guests.add(new Guest("R0006", "Sarah Tan", "0188901234", "Diamond", "Medium Room", "Waiting", "25/07/2026", "25/07/2026 10:00"));
         guests.add(new Guest("R0007", "Michael Chen", "0199012345", "Platinum", "Medium Room", "Waiting", "26/07/2026", "26/07/2026 08:30"));
-        guests.add(new Guest("R0008", "Emily Wong", "0121122334", "Elite", "Big Room", "Waiting", "27/07/2026", "27/07/2026 11:00"));
-        guests.add(new Guest("R0009", "Kevin Lim", "0132233445", "Standard", "Small Room", "Waiting", "28/07/2026", "28/07/2026 09:30"));
+        guests.add(new Guest("R0008", "Emily Wong", "0121122334", "Elite", "Large Room", "Waiting", "27/07/2026", "27/07/2026 11:00"));
+        guests.add(new Guest("R0009", "Kevin Lim", "0132233445", "Standard", "Single Room", "Waiting", "28/07/2026", "28/07/2026 09:30"));
         guests.add(new Guest("R0010", "Jessica Ng", "0143344556", "Diamond", "Medium Room", "Waiting", "29/07/2026", "29/07/2026 08:15"));
 
         GuestDatabase guestDatabase = new GuestDatabase();

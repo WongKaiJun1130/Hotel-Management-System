@@ -529,4 +529,33 @@ public class BookingControl {
         }
         return null;
     }
+    
+     //==========================================================
+    // Check In Booking To A Specific (Housekeeping) Room
+    // Moves a waiting booking into the served list and ties it to the
+    // actual Room that was made ready by Housekeeping - this is what
+    // lets checkOutBookingByRoomID() find it again later at check-out.
+    //==========================================================
+    public boolean checkInBooking(Booking booking, String roomID) {
+        if (booking == null || roomID == null) {
+            return false;
+        }
+        boolean removed = false;
+        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
+            Booking candidate = waitingBookingList.getEntry(i);
+            if (candidate.getBookingID().equalsIgnoreCase(booking.getBookingID())) {
+                waitingBookingList.remove(i);
+                removed = true;
+                break;
+            }
+        }
+        if (!removed) {
+            return false;
+        }
+        booking.setRoomID(roomID);
+        booking.setRoomStatus(STATUS_SERVED);
+        servedBookingList.add(booking);
+        bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+        return true;
+    }
 }
