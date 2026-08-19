@@ -9,7 +9,7 @@ import Utility.Utility;
 
 /**
  *
- * @author kaijun,weikin,kahshun
+ * @author USER
  */
 public class MainUI { 
     
@@ -43,9 +43,7 @@ public class MainUI {
 
     }
 
-
     // Hotel Management System Logo
-
     private static void displayLogo(){
         System.out.println();
         System.out.println("|==============================================|");

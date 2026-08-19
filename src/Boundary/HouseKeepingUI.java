@@ -55,8 +55,8 @@ public class HouseKeepingUI {
     String[] options = {
             "1. Show Room Status",
             "2. Manage Room Status",
-            "3. Guest Check-Out",
-            "4. Rooms Needing Cleaning",
+            "3. Guest Check-Out ",
+            "4. Rooms Clean In Progress",
             "5. Report: Room Status History",
             "6. Report: Room Status Summary",
             "7. Filter Rooms (Multi-Criteria)",

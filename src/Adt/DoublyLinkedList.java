@@ -1,10 +1,5 @@
 package Adt;
 
-/**
- *
- * @author USER
- */
-
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -24,20 +19,51 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
         size = 0;
     }
     
+    @Override
     public void insertAndAdvance(T data) {
         Node<T> newNode = new Node<>(data);
+
+        //================================================
+        // Empty List
+        //================================================
         if (isEmpty()) {
             head = newNode;
             tail = newNode;
             current = newNode;
-        } else {
-            newNode.previous = current;
-            current.next = newNode;
-            current = newNode;
-            tail = newNode;
-        }size++;
+            size = 1;
+            return;
+        }
+
+        //================================================
+        // If Rollback Happened
+        //
+        // Remove all redo nodes after current before
+        // inserting a new history entry.
+        //================================================
+        if (current != null && current.next != null) {
+            Node<T> temp = current.next;
+            while (temp != null) {
+                Node<T> next = temp.next;
+                temp.previous = null;
+                temp.next = null;
+                size--;
+                temp = next;
+            }
+            current.next = null;
+            tail = current;
+        }
+
+        //================================================
+        // Insert New Node
+        //================================================
+        newNode.previous = current;
+        current.next = newNode;
+        current = newNode;
+        tail = newNode;
+        size++;
     }
  
+    @Override
     public T rollback() {
         if (current == null || current.previous == null) {
             return null;
@@ -46,6 +72,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
         return current.data;
     }
     
+    @Override
     public T redo() {
         if (current == null || current.next == null) {
             return null;
@@ -54,6 +81,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
         return current.data;
     }
  
+    @Override
     public void spliceAfterCurrent(T data) {
         Node<T> newNode = new Node<>(data);
  
@@ -80,6 +108,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
         size++;
     }
  
+    @Override
     public T getCurrentData() {
         return (current == null) ? null : current.data;
     }
@@ -167,10 +196,12 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
         size--;
     }
     
+    @Override
     public boolean isEmpty() {
         return size == 0;
     }
  
+    @Override
     public Iterator<T> getIterator() {
         return new DoublyLinkedListIterator();
     }
@@ -254,6 +285,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             array = (T[]) new Object[initialCapacity];
         }
 
+        @Override
         public boolean add(T newEntry) {
             if (isFull()) {
                 increaseCapacity();
@@ -263,6 +295,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             return true;
         }
 
+        @Override
         public boolean add(int newPosition, T newEntry) {
             boolean isSuccessful = true;
 
@@ -287,6 +320,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             System.arraycopy(oldArray, 0, array, 0, oldArray.length);
         }
 
+        @Override
         public T remove(int removePosition) {
             T result = null;
             if ((removePosition >= 1) && (removePosition <= numberOfEntries)) {
@@ -298,10 +332,12 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             }return result;
         }
 
+        @Override
         public void clear() {
             numberOfEntries = 0;
         }
 
+        @Override
         public boolean replace(int replacePosition, T newEntry) {
             boolean isSuccessful = true;
 
@@ -311,7 +347,8 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
                 isSuccessful = false;
             }return isSuccessful;
         }
-
+        
+        @Override
         public T getEntry(int givenPosition) {
             T result = null;
             if (givenPosition >= 1 && givenPosition <= numberOfEntries) {
@@ -319,10 +356,12 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             }return result;
         }
 
+        @Override
         public int getNumberOfEntries() {
             return numberOfEntries;
         }
 
+        @Override
         public boolean contains(T anEntry) {
             boolean found = false;
             for (int i = 0; !found && (i < numberOfEntries); i++) {
@@ -332,14 +371,17 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             }return found;
         }
 
+        @Override
         public boolean isEmpty() {
             return numberOfEntries == 0;
         }
 
+        @Override
         public boolean isFull() {
             return numberOfEntries == array.length;
         }
 
+        @Override
         public String toString() {
             String outputStr = "";
             for (int i = 0; i < numberOfEntries; ++i) {
@@ -412,9 +454,11 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
         public Iterator<T> iterator() {
             return new Iterator<T>() {
                 private int index = 0;
+                @Override
                 public boolean hasNext() {
                     return index < numberOfEntries;
                 }
+                @Override
                 public T next() {
                     return array[index++];
                 }
@@ -439,7 +483,8 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             array = (T[]) new Object[initialCapacity];
             topIndex = -1;
         }
-
+        
+        @Override
         public void push(T newEntry) {
             if (topIndex == array.length - 1) {
             doubleCapacity();
@@ -459,6 +504,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             }
         }
 
+        @Override
         public T peek() {
             T top = null;
             if (!isEmpty()) {
@@ -467,6 +513,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             return top;
         }
 
+        @Override
         public T pop() {
             T top = null;
             if (!isEmpty()) {
@@ -479,14 +526,17 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             return top;
         }
 
+        @Override
         public boolean isEmpty() {
             return topIndex < 0;
         }
 
+        @Override
         public void clear() {
             topIndex = -1;
         }
 
+        @Override
         public int getCurrentSize() {
             return topIndex + 1;
         }
@@ -510,6 +560,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             numberOfEntries = 0;
         }
 
+        @Override
         public void enqueue(T newEntry) {
 
             if (isFull()) {
@@ -521,6 +572,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             numberOfEntries++;
         }
 
+        @Override
         public T dequeue() {
 
             if (isEmpty()) {
@@ -541,6 +593,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             return frontEntry;
         }
 
+        @Override
         public T getFront() {
 
             if (isEmpty()) {
@@ -550,6 +603,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             return queue[front];
         }
 
+        @Override
         public boolean isEmpty() {
             return numberOfEntries == 0;
         }
@@ -558,6 +612,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             return numberOfEntries == queue.length;
         }
 
+        @Override
         public void clear() {
             queue = (T[]) new Object[DEFAULT_CAPACITY];
             front = 0;
@@ -578,6 +633,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
             back = numberOfEntries - 1;
         }
 
+        @Override
         public Iterator<T> getIterator() {
             return new ArrayQueueIterator();
         }
@@ -585,9 +641,11 @@ public class DoublyLinkedList<T> implements ListInterface<T>, QueueInterface<T>,
         private class ArrayQueueIterator implements Iterator<T> {
 
             private int current = 0;
+            @Override
             public boolean hasNext() {
                 return current < numberOfEntries;
             }
+            @Override
             public T next() {
 
                 if (!hasNext()) {

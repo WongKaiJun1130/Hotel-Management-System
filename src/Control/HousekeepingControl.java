@@ -41,15 +41,14 @@ public class HousekeepingControl {
             return;
         }
 
-        ListInterface<Room> dummyRooms = RoomDao.createRoomData();
-
-        Iterator<Room> iterator = dummyRooms.getIterator();
-        while (iterator.hasNext()) {
-            roomList.add(iterator.next());
-        }
-
-        dummyRoomsLoaded = true;
-    }
+        RoomDao roomDao = new RoomDao();
+          ListInterface<Room> dummyRooms = roomDao.retrieveFromFile();
+          Iterator<Room> iterator = dummyRooms.getIterator();
+          while (iterator.hasNext()) {
+              roomList.add(iterator.next());
+          }
+          dummyRoomsLoaded = true;
+      }
 
     // ==============================
     // Auto-advance: rooms move to the next status on their own after
