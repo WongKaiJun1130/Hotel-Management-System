@@ -84,44 +84,6 @@ public class HouseKeepingUI {
     );
 
 };
-    // design 
-    private static String border() {
-        StringBuilder sb = new StringBuilder("+");
-        for (int i = 0; i < BOX_WIDTH - 2; i++) {
-            sb.append("-");
-        }
-        sb.append("+");
-        return sb.toString();
-    }
-    
-    private static String centered(String text) {
-        int innerWidth = BOX_WIDTH - 2;
-        int totalPadding = innerWidth - text.length();
-        int left = Math.max(totalPadding / 2, 0);
-        int right = Math.max(totalPadding - left, 0);
- 
-        StringBuilder sb = new StringBuilder("|");
-        for (int i = 0; i < left; i++) {
-            sb.append(" ");
-        }
-        sb.append(text);
-        for (int i = 0; i < right; i++) {
-            sb.append(" ");
-        }
-        sb.append("|");
-        return sb.toString();
-    }
- 
-    private static void printHeader(String title) {
-        System.out.println();
-        System.out.println(border());
-        System.out.println(centered(title));
-        System.out.println(border());
-    }
- 
-    private static void printFooter() {
-        System.out.println(border());
-    }
 
     // Prints a simple proportional ASCII bar chart - a console app
     // can't render an actual image, but a bar chart made of repeated
@@ -185,17 +147,17 @@ public class HouseKeepingUI {
 
     private static void showRoomStatus(){
         
-        printHeader("ROOM STATUS OVERVIEW");
+        Utility.printHeader("ROOM STATUS OVERVIEW");
  
         if (HousekeepingControl.roomIsEmpty()) {
             System.out.println("  No rooms registered yet.");
-            printFooter();
+            Utility.printFooter();
             return;
         }
         
         printRoomTable(HousekeepingControl.roomList);
  
-        printFooter();
+        Utility.printFooter();
     }
 
     // Shared table printer - Room / Type / Status columns, reused by
@@ -225,7 +187,7 @@ public class HouseKeepingUI {
 
         ListInterface<Room> results = HousekeepingControl.searchRooms(keyword);
 
-        printHeader("SEARCH RESULTS: \"" + keyword + "\"");
+        Utility.printHeader("SEARCH RESULTS: \"" + keyword + "\"");
 
         if (results.isEmpty()) {
             System.out.println("  No rooms matched.");
@@ -233,7 +195,7 @@ public class HouseKeepingUI {
             printRoomTable(results);
         }
 
-        printFooter();
+        Utility.printFooter();
     }
 
     // ==============================
@@ -263,7 +225,7 @@ public class HouseKeepingUI {
     }
 
     private static void displaySortedRooms(ListInterface<Room> sortedRooms, String title) {
-        printHeader(title);
+        Utility.printHeader(title);
 
         if (sortedRooms.isEmpty()) {
             System.out.println("  No rooms registered yet.");
@@ -271,7 +233,7 @@ public class HouseKeepingUI {
             printRoomTable(sortedRooms);
         }
 
-        printFooter();
+        Utility.printFooter();
     }
 
 
@@ -360,7 +322,7 @@ public class HouseKeepingUI {
     // "all Dirty VIP rooms" - a single keyword search can't express an
     // exact combined condition like that.
     private static void filterRoomsUI() {
-        printHeader("FILTER ROOMS");
+        Utility.printHeader("FILTER ROOMS");
 
         Integer typeFilter = promptRoomTypeFilter();
         Integer statusFilter = promptStatusFilter();
@@ -380,7 +342,7 @@ public class HouseKeepingUI {
             System.out.println("  " + results.getSize() + " room(s) matched.");
         }
 
-        printFooter();
+        Utility.printFooter();
     }
 
 
@@ -394,7 +356,7 @@ public class HouseKeepingUI {
     // and reporting all chained into one pipeline via
     // HousekeepingControl.generateBusinessCycleReport().
     private static void businessCycleReportUI() {
-        printHeader("BUSINESS CYCLE REPORT - SETUP");
+        Utility.printHeader("BUSINESS CYCLE REPORT - SETUP");
 
         Integer typeFilter = promptRoomTypeFilter();
         Integer statusFilter = promptStatusFilter();
@@ -402,7 +364,7 @@ public class HouseKeepingUI {
 
         ListInterface<Room> report = HousekeepingControl.generateBusinessCycleReport(typeFilter, statusFilter, sortOption);
 
-        printHeader("BUSINESS CYCLE REPORT");
+        Utility.printHeader("BUSINESS CYCLE REPORT");
         System.out.println("  Type Filter   : " + (typeFilter == null ? "Any" : RoomTypeUtil.roomTypeName(typeFilter)));
         System.out.println("  Status Filter : " + (statusFilter == null ? "Any" : RoomStatusUtil.statusName(statusFilter)));
         System.out.println("  Sorted By     : " + sortLabel(sortOption));
@@ -410,7 +372,7 @@ public class HouseKeepingUI {
 
         if (report.isEmpty()) {
             System.out.println("  No rooms matched the selected filters.");
-            printFooter();
+            Utility.printFooter();
             return;
         }
 
@@ -459,7 +421,7 @@ public class HouseKeepingUI {
         System.out.println();
         System.out.println("  Ready rooms in this set with a waiting-booking match: " + readyWithMatch);
 
-        printFooter();
+        Utility.printFooter();
     }
     
     
@@ -539,11 +501,11 @@ public class HouseKeepingUI {
     // 4. need cleaning
     private static void showRoomNeedCleaning(){
         
-         printHeader("ROOMS NEEDING CLEANING");
+        Utility.printHeader("ROOMS NEEDING CLEANING");
         
         if(HousekeepingControl.roomIsEmpty()){
             System.out.println("  No rooms registered yet.");
-            printFooter();
+            Utility.printFooter();
             return;
         }
         
@@ -564,7 +526,7 @@ public class HouseKeepingUI {
             System.out.println("  No rooms currently need cleaning.");
         }
         
-        printFooter();
+        Utility.printFooter();
     }
     
     
@@ -800,7 +762,7 @@ public class HouseKeepingUI {
             return;
         }
  
-        printHeader("HISTORY - ROOM " + room.getRoomNum() + " (" + RoomTypeUtil.roomTypeName(room.getRoomType()) + ")");
+        Utility.printHeader("HISTORY - ROOM " + room.getRoomNum() + " (" + RoomTypeUtil.roomTypeName(room.getRoomType()) + ")");
         
         StatusEntry current = room.getStatusHistory().getCurrentData();
         Iterator<StatusEntry> iterator = room.getStatusHistory().getIterator();
@@ -832,7 +794,7 @@ public class HouseKeepingUI {
             }
         }
 
-        printFooter();
+        Utility.printFooter();
     }
     
     // ==============================
@@ -840,11 +802,11 @@ public class HouseKeepingUI {
     // ==============================
     private static void reportStatusSummary() {
         
-        printHeader("ROOM STATUS SUMMARY REPORT");
+        Utility.printHeader("ROOM STATUS SUMMARY REPORT");
  
         if (HousekeepingControl.roomIsEmpty()) {
             System.out.println("No rooms registered yet.");
-            printFooter();
+            Utility.printFooter();
             return;
         }
  
@@ -894,7 +856,7 @@ public class HouseKeepingUI {
         System.out.println("Total Waiting Bookings : " + waitingBookings.getSize());
         System.out.println("Ready Rooms w/ a Match : " + readyMatches.getSize());
         
-        printFooter();
+        Utility.printFooter();
     }
 
 }

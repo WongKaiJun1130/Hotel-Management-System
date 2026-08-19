@@ -99,8 +99,6 @@ public class LoyaltyDatabase {
                 loyaltyData.add(loyaltyRecord);
             }
         }
-
-        System.out.println("Loyalty Database Updated In Memory!");
     }
 
     //====================================================

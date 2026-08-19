@@ -5,6 +5,7 @@ import control.LoyaltyControl;
 import entity.Booking;
 import adt.ListInterface;
 import utility.InputUtility;
+import utility.Utility;
 import dao.GuestDatabase;
 import entity.Guest;
 
@@ -38,52 +39,32 @@ public class BookingUI {
     // Booking Menu
     //==========================================================
     public void bookingMenu() {
-        int choice;
-        do {
-            InputUtility.clearScreen();
-            System.out.println("==========================================");
-            System.out.println("        STANDARD BOOKING MANAGEMENT       ");
-            System.out.println("==========================================");
-            System.out.println("1. Add Standard Reservation");
-            System.out.println("2. Process Next Reservation");
-            System.out.println("3. Cancel Booking");
-            System.out.println("4. Search Booking");
-            System.out.println("5. Edit Booking");
-            System.out.println("6. Display Booking Queue");
-            System.out.println("7. Room Availability Schedule");
-            System.out.println("8. Monthly Booking Calendar Report");
-            System.out.println("9. Monthly Room Occupancy Report");
-            System.out.println("0. Back");
-            System.out.print("\nEnter Choice : ");
-            choice = InputUtility.getIntInput();
+        String[] options = {
+            "1. Add Standard Reservation",
+            "2. Process Next Reservation",
+            "3. Cancel Booking",
+            "4. Search Booking",
+            "5. Edit Booking",
+            "6. Display Booking Queue",
+            "7. Room Availability Schedule",
+            "8. Monthly Booking Calendar Report",
+            "9. Monthly Room Occupancy Report",
+            "0. Back"
+        };
 
-            switch(choice) {
-                case 1 -> addBooking();
-
-                case 2 -> processNextReservation();
-
-                case 3 -> cancelBooking();
-
-                case 4 -> searchBooking();
-
-                case 5 -> editBooking();
-
-                case 6 -> displayBooking();
-
-                case 7 -> displayRoomSchedule();
-
-                case 8 -> displayBookingCalendar();
-
-                case 9 -> displayOccupancy();
-
-                case 0 -> {}
-
-                default -> {
-                    System.out.println("\nInvalid Choice.Plaese enter again.");
-                    InputUtility.pressEnterToContinue();
-                }
-            }
-        }while(choice != 0);
+        Runnable[] actions = {
+            () -> addBooking(),
+            () -> processNextReservation(),
+            () -> cancelBooking(),
+            () -> searchBooking(),
+            () -> editBooking(),
+            () -> displayBooking(),
+            () -> displayRoomSchedule(),
+            () -> displayBookingCalendar(),
+            () -> displayOccupancy(),
+            () -> {}
+        };
+        Utility.customMenu( options, "STANDARD BOOKING MANAGEMENT", "Enter Choice: ", actions);
     }
 
     //==========================================================
@@ -92,7 +73,7 @@ public class BookingUI {
     //==========================================================
     private void addBooking() {
         InputUtility.clearScreen();
-        System.out.println("========== ADD STANDARD RESERVATION ==========");
+        Utility.printHeader("ADD STANDARD RESERVATION");        
         String bookingID = bookingControl.generateBookingID();
         System.out.println("Booking ID      : " + bookingID);
         System.out.print("Guest Name      : ");
@@ -167,10 +148,10 @@ public class BookingUI {
                 "Waiting"
         );
         if(bookingControl.addBooking(booking)) {
-            System.out.println("\nReservation added successfully.");
+            Utility.printMessageBox("Reservation added successfully.");
         }
         else {
-            System.out.println("\nFailed to add reservation.");
+            Utility.printMessageBox("\nFailed to add reservation.");
         }
         InputUtility.pressEnterToContinue();
     }
@@ -661,7 +642,7 @@ public class BookingUI {
             ListInterface<Booking> bookings = bookingControl.getBookingsByDate(currentDate);
 
             if (!bookings.isEmpty()) {
-                System.out.println("\n                    " + currentDate.format(formatter));
+                System.out.println("\n" + currentDate.format(formatter));
                 System.out.println("------------------------------------------------------------------------------------------------------------------");
                 System.out.printf("%-12s %-18s %-14s %-10s %-10s %-12s %-12s %-8s %-12s%n",
                         "Booking ID",
@@ -730,9 +711,9 @@ public class BookingUI {
         System.out.println("Served Bookings     : " + served);
         System.out.println("Total Stay Days     : " + totalStayDays);
         System.out.println("---------------------------------------------------------");
-        System.out.println("Single Bookings     : " + single);
-        System.out.println("Medium Bookings     : " + medium);
-        System.out.println("Large Bookings      : " + large);
+        System.out.println("Single Room Bookings     : " + single);
+        System.out.println("Medium Room Bookings     : " + medium);
+        System.out.println("Large Room Bookings      : " + large);
         System.out.println("=========================================================");
     }
     

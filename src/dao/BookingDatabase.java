@@ -52,7 +52,6 @@ public class BookingDatabase {
     public void saveToFile(ListInterface<Booking> waitingBookingList, ListInterface<Booking> servedBookingList) {
         waitingBookingData = copyBookingList(waitingBookingList);
         servedBookingData = copyBookingList(servedBookingList);
-        System.out.println("Booking Database Updated In Memory!");
     }
         
 

@@ -21,16 +21,19 @@ public class MainUI {
 
         // Display Hotel Logo
         displayLogo();
-        
         Utility.customMenu(
             new String[]{
-                "1.Booking",
-                "2.HouseKeeping",
-                "3.Loyalty & Prize Service",
-                "4.VIP & Loyalty Tier Priority Room Allocation",
-                "0.Exit"
+                "1. Standard Booking Management",
+
+                "2. Housekeeping Management",
+
+                "3. Loyalty & Rewards Management",
+
+                "4. VIP & Loyalty Room Allocation",
+
+                "0. Exit"
             },
-                "Main Menu",
+                "HOTEL MANAGEMENT SYSTEM",
                 "Select option: ",
                 new Runnable[]{
                 () -> bookingUI.bookingMenu(),
@@ -40,7 +43,6 @@ public class MainUI {
                 () -> System.exit(0)
             }
         );
-
     }
 
     // Hotel Management System Logo

@@ -4,6 +4,7 @@ import control.LoyaltyControl;
 import entity.LoyaltyRecord;
 import entity.RedemptionRecord;
 import utility.InputUtility;
+import utility.Utility;
 import adt.DoublyLinkedList;
 
 import java.time.LocalDate;
@@ -27,70 +28,44 @@ public class LoyaltyAndRewardsUI {
     // Loyalty And Rewards Menu
     //====================================================
     public void loyaltyMenu() {
+        String[] options = {
 
-        int choice;
+            "1. Display Loyalty Members",
+            "2. Search Loyalty Member",
+            "3. Redeem Reward",
+            "4. Points Expiry Management",
+            "5. Daily Reward Redemption Report",
+            "6. Top Loyalty Members Report",
+            "7. Add Loyalty Points",
+            "0. Back"
+        };
 
-        InputUtility.clearScreen();
 
-        do {
+        Runnable[] actions = {
 
-            System.out.println("+------------------------------------------------+");
-            System.out.println("|           LOYALTY AND REWARDS MENU             |");
-            System.out.println("+------------------------------------------------+");
-            System.out.println("| 1. Display Loyalty Members                     |");
-            System.out.println("| 2. Search Loyalty Member                       |");
-            System.out.println("| 3. Redeem Reward                               |");
-            System.out.println("| 4. Points Expiry Management                    |");
-            System.out.println("| 5. Daily Reward Redemption Report              |");
-            System.out.println("| 6. Top Loyalty Members Report                  |");
-            System.out.println("| 7. Add Loyalty Points                          |");
-            System.out.println("| 0. Back                                        |");
-            System.out.println("+------------------------------------------------+");
+            () -> displayLoyaltyMembers(),
 
-            System.out.print("Please enter your choice: ");
+            () -> searchLoyaltyMember(),
 
-            choice = InputUtility.getIntInput();
+            () -> redeemReward(),
 
-            switch (choice) {
+            () -> pointsExpiryManagement(),
 
-                case 1:
-                    displayLoyaltyMembers();
-                    break;
+            () -> dailyRewardRedemptionReport(),
 
-                case 2:
-                    searchLoyaltyMember();
-                    break;
+            () -> topLoyaltyMembersReport(),
 
-                case 3:
-                    redeemReward();
-                    break;
+            () -> addLoyaltyPoints(),
 
-                case 4:
-                    pointsExpiryManagement();
-                    break;
+            () -> {}
+        };
 
-                case 5:
-                    dailyRewardRedemptionReport();
-                    break;
-
-                case 6:
-                    topLoyaltyMembersReport();
-                    break;
-
-                case 7:
-                    addLoyaltyPoints();
-                    break;
-
-                case 0:
-                    break;
-
-                default:
-                    InputUtility.clearScreen();
-                    System.out.println("\nInvalid choice. Try again!");
-                    break;
-            }
-
-        } while (choice != 0);
+        Utility.customMenu(
+                options,
+                "LOYALTY AND REWARDS MENU",
+                "Enter Choice: ",
+                actions
+        );
     }
 
     //====================================================
@@ -100,24 +75,24 @@ public class LoyaltyAndRewardsUI {
 
         InputUtility.clearScreen();
 
-        System.out.println("+------------------------------------------------+");
-        System.out.println("|            DISPLAY LOYALTY MEMBERS             |");
-        System.out.println("+------------------------------------------------+");
-        System.out.println("| 1. Standard                                    |");
-        System.out.println("| 2. Platinum                                    |");
-        System.out.println("| 3. Diamond                                     |");
-        System.out.println("| 4. Elite                                       |");
-        System.out.println("| 5. All                                         |");
-        System.out.println("| 0. Back                                        |");
-        System.out.println("+------------------------------------------------+");
+            System.out.println("+------------------------------------------------+");
+            System.out.println("|            DISPLAY LOYALTY MEMBERS             |");
+            System.out.println("+------------------------------------------------+");
+            System.out.println("| 1. Standard                                    |");
+            System.out.println("| 2. Platinum                                    |");
+            System.out.println("| 3. Diamond                                     |");
+            System.out.println("| 4. Elite                                       |");
+            System.out.println("| 5. All                                         |");
+            System.out.println("| 0. Back                                        |");
+            System.out.println("+------------------------------------------------+");
 
-        System.out.print("Please Enter your choice : ");
+            System.out.print("Please Enter your choice : ");
 
-        String tier = selectTier();
+            String tier = selectTier();
 
-        if (tier == null) {
-            return;
-        }
+            if (tier == null) {
+                return;
+            }
 
         DoublyLinkedList<LoyaltyRecord> result = loyaltyControl.getGuestsByTier(tier);
 
