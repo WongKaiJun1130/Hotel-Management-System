@@ -457,22 +457,10 @@ public class HousekeepingControl {
     // Booking and Housekeeping use different room-type vocabularies
     // (see RoomTypeUtil.matchesLabel for details), so the comparison is
     // delegated there instead of a direct string match.
-    private static boolean matchesRoomType(int housekeepingRoomType, String bookingRoomType) {
-        if (bookingRoomType == null) {
-            return false;
-        }
-        int bookingTypeCode;
-        String typeLower = bookingRoomType.trim().toLowerCase();
-
-        if (typeLower.contains("deluxe")) {
-            bookingTypeCode = RoomTypeUtil.Single_Room;
-        } else if (typeLower.contains("vip") || typeLower.contains("suite")) {
-            bookingTypeCode = RoomTypeUtil.Medium_Room;
-        } else {
-            bookingTypeCode = RoomTypeUtil.Large_Room;
-        }
-
-        return housekeepingRoomType == bookingTypeCode;
+    private static boolean matchesRoomType(
+        int housekeepingRoomType,
+        String bookingRoomType) {
+        return RoomTypeUtil.matchesLabel(housekeepingRoomType, bookingRoomType  );
     }
 
     // Pairs a Room with a Booking for display - not a persisted

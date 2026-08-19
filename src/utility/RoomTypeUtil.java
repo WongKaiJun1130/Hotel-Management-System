@@ -33,20 +33,23 @@ public class RoomTypeUtil {
     // vocabulary. This lets cross-module code (matching a Housekeeping
     // Room against a Booking's room-type string) recognise either naming
     // instead of silently matching nothing.
-    public static boolean matchesLabel(int roomType, String label){
+    public static boolean matchesLabel(
+        int roomType,
+        String label) {
         if (label == null) {
             return false;
         }
-
         String normalized = label.trim().toLowerCase();
-
         switch (roomType) {
             case Single_Room:
-                return normalized.equals("single room") || normalized.equals("Single") || normalized.equals("single");
+                return normalized.equals("single")
+                        || normalized.equals("single room");
             case Medium_Room:
-                return normalized.equals("medium room") || normalized.equals("Medium") || normalized.equals("medium");
+                return normalized.equals("medium")
+                        || normalized.equals("medium room");
             case Large_Room:
-                return normalized.equals("large room") || normalized.equals("Large") || normalized.equals("large");
+                return normalized.equals("large")
+                        || normalized.equals("large room");
             default:
                 return false;
         }
