@@ -37,17 +37,17 @@ public class HousekeepingControl {
     // calling it again after rooms have already been registered/modified
     // won't wipe out that in-memory progress.
     public static void loadDummyRooms() {
-        if (dummyRoomsLoaded) {
-            return;
-        }
-        RoomDao roomDao = new RoomDao();
-        ListInterface<Room> dummyRooms = roomDao.retrieveFromFile();
-        Iterator<Room> iterator = dummyRooms.getIterator();
-        while (iterator.hasNext()) {
-            roomList.add(iterator.next());
-        }
-        dummyRoomsLoaded = true;
-    }
+          if (dummyRoomsLoaded) {
+              return;
+          }
+          RoomDao roomDao = new RoomDao();
+          ListInterface<Room> dummyRooms = roomDao.retrieveFromFile();
+          Iterator<Room> iterator = dummyRooms.getIterator();
+          while (iterator.hasNext()) {
+              roomList.add(iterator.next());
+          }
+          dummyRoomsLoaded = true;
+      }
 
     // ==============================
     // Auto-advance: rooms move to the next status on their own after
@@ -458,7 +458,21 @@ public class HousekeepingControl {
     // (see RoomTypeUtil.matchesLabel for details), so the comparison is
     // delegated there instead of a direct string match.
     private static boolean matchesRoomType(int housekeepingRoomType, String bookingRoomType) {
-        return RoomTypeUtil.matchesLabel(housekeepingRoomType, bookingRoomType);
+        if (bookingRoomType == null) {
+            return false;
+        }
+        int bookingTypeCode;
+        String typeLower = bookingRoomType.trim().toLowerCase();
+
+        if (typeLower.contains("deluxe")) {
+            bookingTypeCode = RoomTypeUtil.Single_Room;
+        } else if (typeLower.contains("vip") || typeLower.contains("suite")) {
+            bookingTypeCode = RoomTypeUtil.Medium_Room;
+        } else {
+            bookingTypeCode = RoomTypeUtil.Large_Room;
+        }
+
+        return housekeepingRoomType == bookingTypeCode;
     }
 
     // Pairs a Room with a Booking for display - not a persisted

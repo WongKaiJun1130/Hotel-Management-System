@@ -13,13 +13,10 @@ import utility.InputUtility;
 import utility.RoomStatusUtil;
 import utility.RoomTypeUtil;
 import control.HousekeepingControl;
-import control.HousekeepingControl.RoomBookingMatch;
 import control.BookingControl;
 import adt.ListInterface;
 
 import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class HouseKeepingUI {
@@ -293,10 +290,17 @@ public class HouseKeepingUI {
         String choice = InputUtility.getStringInput().trim();
 
         switch (choice) {
-            case "1": return RoomTypeUtil.Single_Room;
-            case "2": return RoomTypeUtil.Medium_Room;
-            case "3": return RoomTypeUtil.Large_Room;
-            default: return null;
+            case "1":
+                return RoomTypeUtil.Single_Room;
+
+            case "2":
+                return RoomTypeUtil.Medium_Room;
+
+            case "3":
+                return RoomTypeUtil.Large_Room;
+
+            default:
+                return null;
         }
     }
 
@@ -430,9 +434,9 @@ public class HouseKeepingUI {
                 + "  Inspected: " + statusBreakdown[RoomStatusUtil.Inspected]
                 + "  Ready: " + statusBreakdown[RoomStatusUtil.Ready_For_CheckIN]
                 + "  Hold: " + statusBreakdown[RoomStatusUtil.Late_CheckOut_Hold]);
-        System.out.println("    Type   -> Normal: " + typeBreakdown[RoomTypeUtil.Single_Room]
-                + "  Deluxe: " + typeBreakdown[RoomTypeUtil.Medium_Room]
-                + "  VIP: " + typeBreakdown[RoomTypeUtil.Large_Room]);
+        System.out.println("    Type   -> Single: " + typeBreakdown[RoomTypeUtil.Single_Room]
+                + "  Medium: " + typeBreakdown[RoomTypeUtil.Medium_Room]
+                + "  Large: " + typeBreakdown[RoomTypeUtil.Large_Room]);
 
         // Cross-module (Room <-> Booking): within this filtered/sorted
         // set, how many Ready rooms already have a matching waiting booking.
@@ -521,34 +525,47 @@ public class HouseKeepingUI {
         }
         showCurrentRoomState(room);
 
-        List<String> optionsList = new ArrayList<>();
-        List<Runnable> actionsList = new ArrayList<>();
-
-        optionsList.add("1. Advance to Next Status");
-        actionsList.add(() -> advanceStatus(room));
-
-        optionsList.add("2. Correct Mistake (Rollback)");
-        actionsList.add(() -> rollbackStatus(room));
-
-        optionsList.add("3. Guest Requests Late Check-Out (Interrupt)");
-        actionsList.add(() -> interruptForLateCheckOut(room));
-
-        optionsList.add("4. Resume Cleaning (After Late Check-Out Resolved)");
-        actionsList.add(() -> resumeStatus(room));
-
         // Only offered while the room is actually Ready For Check-In -
         // there's nothing to assign otherwise.
         int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
-        if (currentStatus == RoomStatusUtil.Ready_For_CheckIN) {
-            optionsList.add("5. Assign to Waiting Booking (Check-In)");
-            actionsList.add(() -> assignRoomToBooking(room));
+        boolean canAssignToBooking = (currentStatus == RoomStatusUtil.Ready_For_CheckIN);
+
+        String[] options;
+        Runnable[] actions;
+
+        if (canAssignToBooking) {
+            options = new String[]{
+                "1. Advance to Next Status",
+                "2. Correct Mistake (Rollback)",
+                "3. Guest Requests Late Check-Out (Interrupt)",
+                "4. Resume Cleaning (After Late Check-Out Resolved)",
+                "5. Assign to Waiting Booking (Check-In)",
+                "0. Back"
+            };
+            actions = new Runnable[]{
+                () -> advanceStatus(room),
+                () -> rollbackStatus(room),
+                () -> interruptForLateCheckOut(room),
+                () -> resumeStatus(room),
+                () -> assignRoomToBooking(room),
+                () -> {}
+            };
+        } else {
+            options = new String[]{
+                "1. Advance to Next Status",
+                "2. Correct Mistake (Rollback)",
+                "3. Guest Requests Late Check-Out (Interrupt)",
+                "4. Resume Cleaning (After Late Check-Out Resolved)",
+                "0. Back"
+            };
+            actions = new Runnable[]{
+                () -> advanceStatus(room),
+                () -> rollbackStatus(room),
+                () -> interruptForLateCheckOut(room),
+                () -> resumeStatus(room),
+                () -> {}
+            };
         }
-
-        optionsList.add("0. Back");
-        actionsList.add(() -> {});
-
-        String[] options = optionsList.toArray(new String[0]);
-        Runnable[] actions = actionsList.toArray(new Runnable[0]);
         
         Utility.customMenu(
                 options,
@@ -591,9 +608,9 @@ public class HouseKeepingUI {
     
     private static int selectRoomType() {
         System.out.println("Select Room Type:");
-        System.out.println("1. Normal Room");
-        System.out.println("2. Deluxe Room");
-        System.out.println("3. VIP Room");
+        System.out.println("1. Single Room");
+        System.out.println("2. Medium Room");
+        System.out.println("3. Large Room");
         System.out.print("Enter choice: ");
         String choice = InputUtility.getStringInput().trim();
  
@@ -806,7 +823,7 @@ public class HouseKeepingUI {
                 });
 
         printBarChart("Type Chart",
-                new String[]{"Normal", "Deluxe", "VIP"},
+                new String[]{"Single", "Medium", "Large"},
                 new int[]{
                     typeCounts[RoomTypeUtil.Single_Room],
                     typeCounts[RoomTypeUtil.Medium_Room],

@@ -38,21 +38,30 @@ public class BookingControl {
     // Linear ADT Queue Enqueue
     //==========================================================
     public boolean addBooking(Booking booking) {
-        if(getBookingByID(booking.getBookingID()) != null){
+        if (getBookingByID(booking.getBookingID()) != null) {
             return false;
         }
         booking.setRoomStatus(STATUS_WAITING);
-        return waitingBookingList.add(booking);
+
+        boolean added = waitingBookingList.add(booking);
+        if (added) {
+            bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+        }
+        return added;
     }
 
     //==========================================================
     // Cancel Booking
     //==========================================================
-    public boolean cancelBooking(String bookingID){
-        for(int i=1; i<=waitingBookingList.getSize(); i++){
+    public boolean cancelBooking(String bookingID) {
+        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
             Booking booking = waitingBookingList.getEntry(i);
-            if(booking.getBookingID().equalsIgnoreCase(bookingID)){
-               return waitingBookingList.remove(booking);
+            if (booking.getBookingID().equalsIgnoreCase(bookingID)) {
+                boolean removed = waitingBookingList.remove(booking);
+                if (removed) {
+                    bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+                }
+                return removed;
             }
         }
         return false;
@@ -109,13 +118,14 @@ public class BookingControl {
     // Process Next Reservation
     //==========================================================
     public Booking processNextReservation() {
-        if(waitingBookingList.isEmpty()){
+        if (waitingBookingList.isEmpty()) {
             return null;
         }
         Booking booking = waitingBookingList.getEntry(1);
         waitingBookingList.remove(1);
         booking.setRoomStatus(STATUS_SERVED);
         servedBookingList.add(booking);
+        bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
         return booking;
     }
   
@@ -217,7 +227,9 @@ public class BookingControl {
             if (!used) {
                 for (int j = 1; j <= servedBookingList.getSize(); j++) {
                     Booking booking = servedBookingList.getEntry(j);
-                    if (booking.getRoomID() != null && booking.getRoomID().equalsIgnoreCase(roomID)) {
+                    if (booking.getRoomStatus().equalsIgnoreCase("Served")
+                            && booking.getRoomID() != null
+                            && booking.getRoomID().equalsIgnoreCase(roomID)) {
                         used = true;
                         break;
                     }
@@ -524,13 +536,14 @@ public class BookingControl {
             Booking booking = servedBookingList.getEntry(i);
             if (booking.getRoomID().equalsIgnoreCase(roomID) && booking.getRoomStatus().equalsIgnoreCase("Served")) {
                 booking.setRoomStatus("Checked Out");
+                bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
                 return booking;
             }
         }
         return null;
     }
     
-     //==========================================================
+    //==========================================================
     // Check In Booking To A Specific (Housekeeping) Room
     // Moves a waiting booking into the served list and ties it to the
     // actual Room that was made ready by Housekeeping - this is what

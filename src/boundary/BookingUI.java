@@ -47,8 +47,8 @@ public class BookingUI {
             System.out.println("5. Edit Booking");
             System.out.println("6. Display Booking Queue");
             System.out.println("7. Room Availability Schedule");
-            System.out.println("8. Booking Calendar");
-            System.out.println("9. Room Occupancy Report");
+            System.out.println("8. Monthly Booking Calendar Report");
+            System.out.println("9. Monthly Room Occupancy Report");
             System.out.println("0. Back");
             System.out.print("\nEnter Choice : ");
             choice = InputUtility.getIntInput();
@@ -769,7 +769,7 @@ public class BookingUI {
         System.out.println("+------+----------------------+------------------+------------------+");
 
         double averageRate = (singleRate + mediumRate + largeRate) / 3.0;
-        System.out.printf("| %-27s | %-15.2f%% | %-16s |%n", "Average Occupancy Rate", averageRate, "-");
+        System.out.printf("| %-27s | %-15.2f%% | %-16s |%n", "Average Occupancy Rate", averageRate, getOccupancyStatus(averageRate));
         System.out.println("+-------------------------------------------------------------------+");
 
         //==========================================================
