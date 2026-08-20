@@ -5,16 +5,22 @@
 package utility;
 
 import adt.DoublyLinkedList;
+import adt.ListInterface.StackInterface;
+
 /**
  *
  * @author USER
  */
 public class Navigation {
-    
-    public static DoublyLinkedList.ArrayStack<Runnable> stack = new DoublyLinkedList.ArrayStack<>();
+
+    public static StackInterface<Runnable> stack = new DoublyLinkedList<>();
+
     public static void goBack() {
+
         if (!stack.isEmpty()) {
+
             stack.pop();
+
             if (!stack.isEmpty()) {
                 stack.peek().run();
             } else {
@@ -22,5 +28,4 @@ public class Navigation {
             }
         }
     }
-    
 }

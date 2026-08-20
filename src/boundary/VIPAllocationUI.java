@@ -7,9 +7,9 @@ import entity.Guest;
 import entity.LoyaltyRecord;
 import entity.Room;
 import utility.InputUtility;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -17,6 +17,11 @@ import java.time.format.ResolverStyle;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
+/**
+ * Module: VIP & Loyalty Tier Priority Room Allocation
+ *
+ * @author Wong Kai Jun
+ */
 public class VIPAllocationUI {
 
     private VIPAllocationControl allocationControl;
@@ -26,10 +31,7 @@ public class VIPAllocationUI {
 
     private static final String MENU_BORDER = "+----------------------------------------------------------+";
     private static final String DETAIL_BORDER = "+----------------------------------------------------------+";
-
-    // Added Points column
     private static final String TABLE_BORDER = "+-----+----------+----------------------+---------------+----------+------------+---------------+------------+------------+------------------+";
-
     private static final String REPORT_BORDER = "+------+-----------------+--------------+-----------------+";
 
     //==========================================================
@@ -63,10 +65,10 @@ public class VIPAllocationUI {
             printBoxTitle("VIP & LOYALTY ROOM ALLOCATION MENU");
             System.out.println(MENU_BORDER);
 
-            printMenuItem(1, "Add Guest To Allocation Queue");
+            printMenuItem(1, "Add Guest To Allocation Stack");
             printMenuItem(2, "Allocate Room");
             printMenuItem(3, "View Next Priority Guest");
-            printMenuItem(4, "Display Allocation Queue");
+            printMenuItem(4, "Display Allocation Stack");
             printMenuItem(5, "Search Guest Allocation");
             printMenuItem(6, "View Available Rooms");
             printMenuItem(7, "Remove Guest Allocation");
@@ -93,7 +95,7 @@ public class VIPAllocationUI {
                     break;
 
                 case 4:
-                    displayAllocationQueue();
+                    displayAllocationStack();
                     InputUtility.pressEnterToContinue();
                     break;
 
@@ -135,7 +137,7 @@ public class VIPAllocationUI {
         InputUtility.clearScreen();
 
         System.out.println(MENU_BORDER);
-        printBoxTitle("ADD GUEST TO ALLOCATION QUEUE");
+        printBoxTitle("ADD GUEST TO ALLOCATION STACK");
         System.out.println(MENU_BORDER);
 
         String guestID = allocationControl.generateGuestID();
@@ -148,42 +150,28 @@ public class VIPAllocationUI {
 
         String phoneNumber = inputValidPhoneNumber();
 
-        //======================================================
-        // Choose Loyalty Tier
-        //======================================================
         String loyaltyTier = inputLoyaltyTier();
 
-        //======================================================
-        // Automatically Set Minimum Lifetime Points
-        //
-        // Elite      = 6000
-        // Diamond    = 4000
-        // Platinum   = 2000
-        // Standard   = 0
-        //======================================================
         int lifetimePoints = getMinimumPointsForTier(loyaltyTier);
 
         String roomType = inputRoomType();
 
         String checkInDate = inputCheckInDate();
 
-        String arrivalDateTime = inputArrivalDateTime();
+        //======================================================
+        // FIX:
+        // Arrival Date Uses Selected Check-In Date
+        //======================================================
+        String arrivalDateTime = inputArrivalDateTime(checkInDate);
 
-        Guest guest = new Guest( guestID, guestName, phoneNumber, loyaltyTier, roomType, "Waiting", checkInDate, arrivalDateTime );
+        Guest guest = new Guest(guestID, guestName, phoneNumber, loyaltyTier, roomType, "Waiting", checkInDate, arrivalDateTime);
 
         System.out.println();
 
-        //======================================================
-        // Display New Guest Information
-        // Includes Selected Lifetime Points
-        //======================================================
         displayNewGuestInformation(guest, lifetimePoints);
 
         System.out.println();
 
-        //======================================================
-        // Display Point Level Rule
-        //======================================================
         displayPointLevelGuide();
 
         System.out.println();
@@ -199,19 +187,13 @@ public class VIPAllocationUI {
 
         if (confirmation == 1) {
 
-            //==================================================
-            // Pass Guest + Lifetime Points To Control
-            //==================================================
-            boolean added = allocationControl.addGuestToQueue(guest, lifetimePoints);
+            boolean added = allocationControl.addGuestToStack(guest, lifetimePoints);
 
             System.out.println();
 
             if (added) {
-
-                printMessageBox("Guest added to allocation queue successfully.");
-
+                printMessageBox("Guest added to allocation stack successfully.");
             } else {
-
                 printMessageBox("Unable to add guest.");
             }
 
@@ -226,15 +208,13 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Loyalty Tier Selection
+    // Loyalty Tier
     //==========================================================
     private String inputLoyaltyTier() {
 
         System.out.println();
         System.out.println(MENU_BORDER);
-
         printBoxTitle("LOYALTY TIER");
-
         System.out.println(MENU_BORDER);
 
         System.out.printf("| %-56s |%n", "1. Elite      - Minimum 6000 Points");
@@ -263,7 +243,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Get Minimum Lifetime Points From Selected Tier
+    // Minimum Points
     //==========================================================
     private int getMinimumPointsForTier(String loyaltyTier) {
 
@@ -287,7 +267,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Point Level Guide
+    // Point Level
     //==========================================================
     private void displayPointLevelGuide() {
 
@@ -306,8 +286,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // New Guest Information
-    // Before LoyaltyRecord Is Created
+    // Guest Information
     //==========================================================
     private void displayNewGuestInformation(Guest guest, int lifetimePoints) {
 
@@ -316,9 +295,7 @@ public class VIPAllocationUI {
         }
 
         System.out.println(DETAIL_BORDER);
-
         printBoxTitle("GUEST INFORMATION");
-
         System.out.println(DETAIL_BORDER);
 
         System.out.printf("| %-18s : %-35s |%n", "Guest ID", limitText(guest.getGuestID(), 35));
@@ -347,25 +324,19 @@ public class VIPAllocationUI {
             String guestName = InputUtility.getStringInput();
 
             if (guestName == null || guestName.trim().isEmpty()) {
-
                 System.out.println("Guest name cannot be empty.");
-
                 continue;
             }
 
             guestName = guestName.trim().replaceAll("\\s+", " ");
 
             if (guestName.length() < 2 || guestName.length() > 30) {
-
                 System.out.println("Guest name must contain 2 to 30 characters.");
-
                 continue;
             }
 
             if (!guestName.matches("[A-Za-z][A-Za-z .'-]*")) {
-
                 System.out.println("Guest name can only contain letters, spaces, apostrophes, dots and hyphens.");
-
                 continue;
             }
 
@@ -385,18 +356,14 @@ public class VIPAllocationUI {
             String phoneNumber = InputUtility.getStringInput();
 
             if (phoneNumber == null || phoneNumber.trim().isEmpty()) {
-
                 System.out.println("Phone number cannot be empty.");
-
                 continue;
             }
 
             phoneNumber = phoneNumber.replaceAll("[\\s-]", "");
 
             if (!phoneNumber.matches("01\\d{8,9}")) {
-
                 System.out.println("Invalid phone number. Example: 0123456789");
-
                 continue;
             }
 
@@ -410,11 +377,8 @@ public class VIPAllocationUI {
     private String inputRoomType() {
 
         System.out.println();
-
         System.out.println(MENU_BORDER);
-
         printBoxTitle("ROOM TYPE");
-
         System.out.println(MENU_BORDER);
 
         printMenuItem(1, "Small Room");
@@ -448,11 +412,8 @@ public class VIPAllocationUI {
         String defaultDate = LocalDate.now().format(formatter);
 
         System.out.println();
-
         System.out.println(MENU_BORDER);
-
         printBoxTitle("CHECK-IN DATE");
-
         System.out.println(MENU_BORDER);
 
         System.out.printf("| %-18s : %-35s |%n", "Default Date", defaultDate);
@@ -472,7 +433,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // New Check-In Date
+    // Change Check-In Date
     //==========================================================
     private String inputNewCheckInDate(DateTimeFormatter formatter) {
 
@@ -483,9 +444,7 @@ public class VIPAllocationUI {
             String newDate = InputUtility.getStringInput();
 
             if (newDate == null || newDate.trim().isEmpty()) {
-
                 System.out.println("Check-in date cannot be empty.");
-
                 continue;
             }
 
@@ -494,9 +453,7 @@ public class VIPAllocationUI {
                 LocalDate parsedDate = LocalDate.parse(newDate.trim(), formatter);
 
                 if (parsedDate.isBefore(LocalDate.now())) {
-
                     System.out.println("Check-in date cannot be before today.");
-
                     continue;
                 }
 
@@ -504,78 +461,97 @@ public class VIPAllocationUI {
 
             } catch (DateTimeParseException exception) {
 
-                System.out.println("Invalid date. Example: 20/08/2026");
+                System.out.println("Invalid date. Example: 25/08/2026");
             }
         }
     }
 
     //==========================================================
-    // Arrival Date Time
+    // Arrival DateTime
+    //
+    // FIXED:
+    // Date Always Follows Selected Check-In Date
     //==========================================================
-    private String inputArrivalDateTime() {
+    private String inputArrivalDateTime(String checkInDate) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm").withResolverStyle(ResolverStyle.STRICT);
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm");
 
-        String currentDateTime = LocalDateTime.now().format(formatter);
+        LocalDate selectedDate;
+
+        try {
+            selectedDate = LocalDate.parse(checkInDate, dateFormatter);
+        } catch (DateTimeParseException exception) {
+            selectedDate = LocalDate.now();
+        }
+
+        LocalTime defaultTime = LocalTime.now().withSecond(0).withNano(0);
+
+        LocalDateTime defaultArrival = LocalDateTime.of(selectedDate, defaultTime);
+
+        String defaultArrivalDateTime = defaultArrival.format(dateTimeFormatter);
 
         System.out.println();
-
         System.out.println(MENU_BORDER);
-
         printBoxTitle("ARRIVAL DATE AND TIME");
-
         System.out.println(MENU_BORDER);
 
-        System.out.printf("| %-18s : %-35s |%n", "Current DateTime", currentDateTime);
+        System.out.printf("| %-18s : %-35s |%n", "Check-In Date", checkInDate);
+        System.out.printf("| %-18s : %-35s |%n", "Default DateTime", defaultArrivalDateTime);
 
-        printMenuItem(1, "Use Current Date And Time");
-        printMenuItem(2, "Enter Arrival Date And Time");
+        printMenuItem(1, "Use Default Date And Time");
+        printMenuItem(2, "Change Arrival Time");
 
         System.out.println(MENU_BORDER);
 
         int choice = readChoice(1, 2, "Enter Choice: ");
 
         if (choice == 1) {
-            return currentDateTime;
+            return defaultArrivalDateTime;
         }
 
-        return inputCustomArrivalDateTime(formatter);
+        return inputCustomArrivalTime(selectedDate);
     }
 
     //==========================================================
-    // Custom Arrival Date Time
+    // Custom Arrival Time
+    //
+    // Only Change Time
+    // Date Remains Check-In Date
     //==========================================================
-    private String inputCustomArrivalDateTime(DateTimeFormatter formatter) {
+    private String inputCustomArrivalTime(LocalDate selectedDate) {
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm");
 
         while (true) {
 
-            System.out.print("Enter Arrival Date & Time (DD/MM/YYYY HH:MM): ");
+            System.out.print("Enter Arrival Time (HH:MM): ");
 
-            String arrivalDateTime = InputUtility.getStringInput();
+            String arrivalTime = InputUtility.getStringInput();
 
-            if (arrivalDateTime == null || arrivalDateTime.trim().isEmpty()) {
-
-                System.out.println("Arrival date and time cannot be empty.");
-
+            if (arrivalTime == null || arrivalTime.trim().isEmpty()) {
+                System.out.println("Arrival time cannot be empty.");
                 continue;
             }
 
             try {
 
-                LocalDateTime parsedDateTime = LocalDateTime.parse(arrivalDateTime.trim(), formatter);
+                LocalTime parsedTime = LocalTime.parse(arrivalTime.trim(), timeFormatter);
 
-                if (parsedDateTime.isBefore(LocalDateTime.now().minusMinutes(1))) {
+                LocalDateTime arrivalDateTime = LocalDateTime.of(selectedDate, parsedTime);
 
+                if (arrivalDateTime.isBefore(LocalDateTime.now().minusMinutes(1))) {
                     System.out.println("Arrival date and time cannot be in the past.");
-
                     continue;
                 }
 
-                return parsedDateTime.format(formatter);
+                return arrivalDateTime.format(dateTimeFormatter);
 
             } catch (DateTimeParseException exception) {
 
-                System.out.println("Invalid date or time. Example: 29/08/2026 14:30");
+                System.out.println("Invalid time. Example: 14:30");
             }
         }
     }
@@ -588,16 +564,14 @@ public class VIPAllocationUI {
         InputUtility.clearScreen();
 
         System.out.println(MENU_BORDER);
-
         printBoxTitle("ALLOCATE ROOM");
-
         System.out.println(MENU_BORDER);
 
         Guest guest = allocationControl.allocateRoom();
 
         if (guest == null) {
 
-            printMessageBox("No waiting guest in the allocation queue.");
+            printMessageBox("No waiting guest in the allocation stack.");
 
             InputUtility.pressEnterToContinue();
 
@@ -623,16 +597,14 @@ public class VIPAllocationUI {
         InputUtility.clearScreen();
 
         System.out.println(MENU_BORDER);
-
         printBoxTitle("NEXT PRIORITY GUEST");
-
         System.out.println(MENU_BORDER);
 
         Guest guest = allocationControl.getNextPriorityGuest();
 
         if (guest == null) {
 
-            printMessageBox("No waiting guest in the allocation queue.");
+            printMessageBox("No waiting guest in the allocation stack.");
 
             InputUtility.pressEnterToContinue();
 
@@ -647,9 +619,11 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // 4. Display Allocation Queue
+    // 4. Display Allocation Stack
+    //
+    // Also Gets Waiting Guest From Booking Module
     //==========================================================
-    private void displayAllocationQueue() {
+    private void displayAllocationStack() {
 
         InputUtility.clearScreen();
 
@@ -657,21 +631,18 @@ public class VIPAllocationUI {
 
         if (guestList == null || guestList.isEmpty()) {
 
-            printMessageBox("No guest records in the allocation queue.");
+            printMessageBox("No guest records in the allocation stack.");
 
             return;
         }
 
-        //======================================================
-        // Point Level
-        //======================================================
         displayPointLevelGuide();
 
         System.out.println();
 
         System.out.println(TABLE_BORDER);
 
-        System.out.printf("| %-138s |%n", centerText("ALLOCATION QUEUE", 138));
+        System.out.printf("| %-138s |%n", centerText("ALLOCATION STACK", 138));
 
         System.out.println(TABLE_BORDER);
 
@@ -694,16 +665,14 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // 5. Search Guest
+    // 5. Search
     //==========================================================
     private void searchGuestAllocation() {
 
         InputUtility.clearScreen();
 
         System.out.println(MENU_BORDER);
-
         printBoxTitle("SEARCH GUEST ALLOCATION");
-
         System.out.println(MENU_BORDER);
 
         String keyword;
@@ -715,9 +684,7 @@ public class VIPAllocationUI {
             keyword = InputUtility.getStringInput();
 
             if (keyword != null && !keyword.trim().isEmpty()) {
-
                 keyword = keyword.trim();
-
                 break;
             }
 
@@ -738,7 +705,6 @@ public class VIPAllocationUI {
         }
 
         System.out.println();
-
         System.out.println(TABLE_BORDER);
 
         System.out.printf("| %-138s |%n", centerText("SEARCH RESULT", 138));
@@ -767,13 +733,15 @@ public class VIPAllocationUI {
 
     //==========================================================
     // 6. Available Rooms
+    //
+    // Room Class From Housekeeping Module
     //==========================================================
     private void viewAvailableRooms() {
 
         InputUtility.clearScreen();
 
         System.out.println("+----------------------------------------------------------------+");
-        System.out.println("|                    AVAILABLE ROOMS                             |");
+        System.out.println("|                       AVAILABLE ROOMS                          |");
         System.out.println("+----------------------------------------------------------------+");
 
         int totalHotelRooms = allocationControl.getTotalRoomsFromRoomModule();
@@ -783,7 +751,7 @@ public class VIPAllocationUI {
         System.out.printf("| %-24s : %-35d |%n", "Total Hotel Rooms", totalHotelRooms);
         System.out.printf("| %-24s : %-35d |%n", "Total Available Rooms", availableRooms.getSize());
 
-        System.out.println("+------------------------------------------------------------------+");
+        System.out.println("+----------------------------------------------------------------+");
 
         if (availableRooms.isEmpty()) {
 
@@ -831,14 +799,12 @@ public class VIPAllocationUI {
         InputUtility.clearScreen();
 
         System.out.println(MENU_BORDER);
-
         printBoxTitle("REMOVE GUEST ALLOCATION");
-
         System.out.println(MENU_BORDER);
 
-        if (allocationControl.isQueueEmpty()) {
+        if (allocationControl.isStackEmpty()) {
 
-            printMessageBox("No guest records in the allocation queue.");
+            printMessageBox("No guest records in the allocation stack.");
 
             InputUtility.pressEnterToContinue();
 
@@ -869,7 +835,6 @@ public class VIPAllocationUI {
         System.out.println(MENU_BORDER);
 
         printMenuItem(1, "Confirm Remove");
-
         printMenuItem(2, "Cancel");
 
         System.out.println(MENU_BORDER);
@@ -885,9 +850,7 @@ public class VIPAllocationUI {
             if (removedGuest != null) {
 
                 System.out.println(MENU_BORDER);
-
                 printBoxTitle("GUEST REMOVED SUCCESSFULLY");
-
                 System.out.println(MENU_BORDER);
 
                 System.out.printf("| %-18s : %-35s |%n", "Guest ID", removedGuest.getGuestID());
@@ -911,7 +874,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Guest ID Validation
+    // Guest ID
     //==========================================================
     private String inputValidGuestID(String prompt) {
 
@@ -922,18 +885,14 @@ public class VIPAllocationUI {
             String guestID = InputUtility.getStringInput();
 
             if (guestID == null || guestID.trim().isEmpty()) {
-
                 System.out.println("Guest ID cannot be empty.");
-
                 continue;
             }
 
             guestID = guestID.trim().toUpperCase();
 
             if (!guestID.matches("R\\d{4}")) {
-
                 System.out.println("Invalid Guest ID format. Example: R0001");
-
                 continue;
             }
 
@@ -980,6 +939,80 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
+    // Loyalty Tier Filter
+    //==========================================================
+    private String inputLoyaltyTierFilter() {
+
+        System.out.println();
+        System.out.println(MENU_BORDER);
+        printBoxTitle("LOYALTY TIER FILTER");
+        System.out.println(MENU_BORDER);
+
+        printMenuItem(1, "All Loyalty Tiers");
+        printMenuItem(2, "Elite");
+        printMenuItem(3, "Diamond");
+        printMenuItem(4, "Platinum");
+        printMenuItem(5, "Standard");
+
+        System.out.println(MENU_BORDER);
+
+        int choice = readChoice(1, 5, "Choose Filter: ");
+
+        switch (choice) {
+
+            case 2:
+                return "Elite";
+
+            case 3:
+                return "Diamond";
+
+            case 4:
+                return "Platinum";
+
+            case 5:
+                return "Standard";
+
+            default:
+                return "All";
+        }
+    }
+
+    //==========================================================
+    // Room Type Filter
+    //==========================================================
+    private String inputRoomTypeFilter() {
+
+        System.out.println();
+        System.out.println(MENU_BORDER);
+        printBoxTitle("ROOM TYPE FILTER");
+        System.out.println(MENU_BORDER);
+
+        printMenuItem(1, "All Room Types");
+        printMenuItem(2, "Small Room");
+        printMenuItem(3, "Medium Room");
+        printMenuItem(4, "Big Room");
+
+        System.out.println(MENU_BORDER);
+
+        int choice = readChoice(1, 4, "Choose Filter: ");
+
+        switch (choice) {
+
+            case 2:
+                return "Small Room";
+
+            case 3:
+                return "Medium Room";
+
+            case 4:
+                return "Big Room";
+
+            default:
+                return "All";
+        }
+    }
+
+    //==========================================================
     // Month Name
     //==========================================================
     private String getMonthName(int month) {
@@ -987,43 +1020,44 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // 8. Loyalty Tier Report
+    // 8. Loyalty Tier Summary Report
+    // With Filtering
     //==========================================================
     private void displayLoyaltyTierSummaryReport() {
 
         InputUtility.clearScreen();
 
         System.out.println(MENU_BORDER);
-
         printBoxTitle("LOYALTY TIER SUMMARY REPORT");
-
         System.out.println(MENU_BORDER);
 
         int year = inputReportYear();
-
         int month = inputReportMonth();
+
+        String loyaltyFilter = inputLoyaltyTierFilter();
+        String roomTypeFilter = inputRoomTypeFilter();
 
         String reportPeriod = getMonthName(month).toUpperCase() + " " + year;
 
-        int[] loyaltyTierCounts = allocationControl.getLoyaltyTierCountsFromLoyaltyModule(year, month);
+        int[] loyaltyTierCounts = allocationControl.getLoyaltyTierCountsFromLoyaltyModule(year, month, loyaltyFilter, roomTypeFilter);
 
-        int totalGuests = allocationControl.getTotalLoyaltyMembersFromLoyaltyModule(year, month);
+        int totalGuests = allocationControl.getTotalLoyaltyMembersFromLoyaltyModule(year, month, loyaltyFilter, roomTypeFilter);
 
         InputUtility.clearScreen();
 
         if (totalGuests == 0) {
 
             System.out.println(MENU_BORDER);
-
             printBoxTitle("LOYALTY TIER SUMMARY REPORT");
-
             System.out.println(MENU_BORDER);
 
             System.out.printf("| %-18s : %-35s |%n", "Report Period", reportPeriod);
+            System.out.printf("| %-18s : %-35s |%n", "Tier Filter", loyaltyFilter);
+            System.out.printf("| %-18s : %-35s |%n", "Room Filter", roomTypeFilter);
 
             System.out.println(MENU_BORDER);
 
-            System.out.printf("| %-56s |%n", limitText("No loyalty records found for " + reportPeriod + ".", 56));
+            System.out.printf("| %-56s |%n", "No matching loyalty records found.");
 
             System.out.println(MENU_BORDER);
 
@@ -1045,6 +1079,8 @@ public class VIPAllocationUI {
         System.out.println(REPORT_BORDER);
 
         System.out.printf("| %-15s : %-36s |%n", "Report Period", reportPeriod);
+        System.out.printf("| %-15s : %-36s |%n", "Tier Filter", loyaltyFilter);
+        System.out.printf("| %-15s : %-36s |%n", "Room Filter", roomTypeFilter);
         System.out.printf("| %-15s : %-36s |%n", "Generated At", generatedDateTime);
         System.out.printf("| %-15s : %-36d |%n", "Total Members", totalGuests);
 
@@ -1083,43 +1119,44 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // 9. Room Type Report
+    // 9. Room Type Summary Report
+    // With Filtering
     //==========================================================
     private void displayRoomTypeSummaryReport() {
 
         InputUtility.clearScreen();
 
         System.out.println(MENU_BORDER);
-
         printBoxTitle("ROOM TYPE SUMMARY REPORT");
-
         System.out.println(MENU_BORDER);
 
         int year = inputReportYear();
-
         int month = inputReportMonth();
+
+        String loyaltyFilter = inputLoyaltyTierFilter();
+        String roomTypeFilter = inputRoomTypeFilter();
 
         String reportPeriod = getMonthName(month).toUpperCase() + " " + year;
 
-        int[] roomTypeCounts = allocationControl.getRoomTypeCounts(year, month);
+        int[] roomTypeCounts = allocationControl.getRoomTypeCounts(year, month, loyaltyFilter, roomTypeFilter);
 
-        int totalGuests = allocationControl.getTotalGuests(year, month);
+        int totalGuests = allocationControl.getTotalGuests(year, month, loyaltyFilter, roomTypeFilter);
 
         InputUtility.clearScreen();
 
         if (totalGuests == 0) {
 
             System.out.println(MENU_BORDER);
-
             printBoxTitle("ROOM TYPE SUMMARY REPORT");
-
             System.out.println(MENU_BORDER);
 
             System.out.printf("| %-18s : %-35s |%n", "Report Period", reportPeriod);
+            System.out.printf("| %-18s : %-35s |%n", "Tier Filter", loyaltyFilter);
+            System.out.printf("| %-18s : %-35s |%n", "Room Filter", roomTypeFilter);
 
             System.out.println(MENU_BORDER);
 
-            System.out.printf("| %-56s |%n", limitText("No guest records found for " + reportPeriod + ".", 56));
+            System.out.printf("| %-56s |%n", "No matching guest records found.");
 
             System.out.println(MENU_BORDER);
 
@@ -1141,6 +1178,8 @@ public class VIPAllocationUI {
         System.out.println(REPORT_BORDER);
 
         System.out.printf("| %-15s : %-36s |%n", "Report Period", reportPeriod);
+        System.out.printf("| %-15s : %-36s |%n", "Tier Filter", loyaltyFilter);
+        System.out.printf("| %-15s : %-36s |%n", "Room Filter", roomTypeFilter);
         System.out.printf("| %-15s : %-36s |%n", "Generated At", generatedDateTime);
         System.out.printf("| %-15s : %-36d |%n", "Total Guests", totalGuests);
 
@@ -1190,7 +1229,6 @@ public class VIPAllocationUI {
         String[] graphLines = new String[lineCount];
 
         graphLines[0] = title;
-
         graphLines[1] = "     ^";
 
         int lineIndex = 2;
@@ -1202,11 +1240,8 @@ public class VIPAllocationUI {
             for (int i = 0; i < values.length; i++) {
 
                 if (values[i] >= level) {
-
                     graphLine += centerText(ANSI_GREEN_BACKGROUND + "     " + ANSI_RESET, 11);
-
                 } else {
-
                     graphLine += centerText("", 11);
                 }
             }
@@ -1249,7 +1284,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Maximum Graph Value
+    // Maximum
     //==========================================================
     private int getMaximumValue(int[] values) {
 
@@ -1290,7 +1325,6 @@ public class VIPAllocationUI {
 
     //==========================================================
     // Existing Guest Information
-    // Gets Points From Loyalty Module
     //==========================================================
     private void displayGuestInformation(Guest guest) {
 
@@ -1316,11 +1350,8 @@ public class VIPAllocationUI {
         System.out.printf("| %-18s : %-35d |%n", "Priority", guest.getPriority());
 
         if (loyaltyRecord != null) {
-
             System.out.printf("| %-18s : %-35d |%n", "Lifetime Points", loyaltyRecord.getLifetimePoints());
-
         } else {
-
             System.out.printf("| %-18s : %-35s |%n", "Lifetime Points", "No Loyalty Record");
         }
 
@@ -1333,7 +1364,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Guest Table Header
+    // Table Header
     //==========================================================
     private void displayGuestTableHeader() {
 
@@ -1343,16 +1374,10 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Guest Table Row
+    // Table Row
     //==========================================================
     private void displayGuestTableRow(int number, Guest guest) {
 
-        //======================================================
-        // OTHER MODULE FUNCTION
-        // Loyalty & Rewards Module
-        //
-        // Get Lifetime Points From Loyalty Module
-        //======================================================
         int lifetimePoints = allocationControl.getLifetimePointsFromLoyaltyModule(guest.getGuestID());
 
         String pointsDisplay;
@@ -1381,7 +1406,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Message Box
+    // Message
     //==========================================================
     private void printMessageBox(String message) {
 
@@ -1430,16 +1455,14 @@ public class VIPAllocationUI {
         }
 
         int totalPadding = width - visibleLength;
-
         int leftPadding = totalPadding / 2;
-
         int rightPadding = totalPadding - leftPadding;
 
         return repeatCharacter(' ', leftPadding) + text + repeatCharacter(' ', rightPadding);
     }
 
     //==========================================================
-    // Repeat Character
+    // Repeat
     //==========================================================
     private String repeatCharacter(char character, int total) {
 
@@ -1453,7 +1476,7 @@ public class VIPAllocationUI {
     }
 
     //==========================================================
-    // Remove ANSI Code
+    // Remove ANSI
     //==========================================================
     private String removeAnsiCodes(String text) {
 
@@ -1471,6 +1494,6 @@ public class VIPAllocationUI {
 
         int totalLoaded = allocationControl.loadGuestDatabase();
 
-        System.out.println(totalLoaded + " Waiting Guests Loaded!");
+        System.out.println(totalLoaded + " Waiting Guests Loaded Into VIP Stack!");
     }
 }
