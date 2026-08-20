@@ -6,7 +6,7 @@ package control;
 
 /**
  *
- * @author USER
+ * @author Kah Shun
  */
 
 import adt.ListInterface;
@@ -22,10 +22,6 @@ import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- *
- * @author Kah Shun
- */
 public class HousekeepingControl {
 
     public static ListInterface<Room> roomList = new DoublyLinkedList<>();
