@@ -12,7 +12,7 @@ package control;
 import adt.ListInterface;
 import adt.DoublyLinkedList;
 import entity.StatusEntry;
-import utility.RoomStatusUtil;
+import utility.RoomStatusUtil;  
 import utility.RoomTypeUtil;
 import entity.Room;
 import entity.Booking;
