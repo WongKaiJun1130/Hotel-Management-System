@@ -19,7 +19,7 @@ import java.util.Iterator;
 
 public class VIPAllocationControl {
 
-    private ListInterface<Guest> vipQueue;
+    private ListInterface<Guest> vipQueue = new DoublyLinkedList<>();
 
     private int nextGuestID;
 
@@ -34,8 +34,6 @@ public class VIPAllocationControl {
     // Constructor
     //==========================================================
     public VIPAllocationControl() {
-
-        vipQueue = new DoublyLinkedList<>();
 
         guestDatabase = new GuestDao();
 

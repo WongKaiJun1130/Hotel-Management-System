@@ -24,6 +24,7 @@ import java.util.TimerTask;
 
 public class HousekeepingControl {
 
+    // ADT declaration
     public static ListInterface<Room> roomList = new DoublyLinkedList<>();
     
     private static boolean dummyRoomsLoaded = false;
