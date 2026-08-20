@@ -257,4 +257,23 @@ public class BookingDao {
         }
         return String.format("B%04d", maxID + 1);
     }
+    
+    public ListInterface<Booking> getAllBookings() {
+        ListInterface<Booking> allBookings = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= waitingBookingData.getSize(); i++) {
+            Booking booking = waitingBookingData.getEntry(i);
+            if (booking != null) {
+                allBookings.add(booking);
+            }
+        }
+
+        for (int i = 1; i <= servedBookingData.getSize(); i++) {
+            Booking booking = servedBookingData.getEntry(i);
+            if (booking != null) {
+                allBookings.add(booking);
+            }
+        }
+        return allBookings;
+    }
 }

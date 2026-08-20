@@ -22,8 +22,8 @@ public class LoyaltyDao {
             return;
         }
 
-        if (guests.getSize() < 10) {
-            System.out.println("Not enough guest records. At least 10 guests are required.");
+        if (guests.getSize() < 20) {
+            System.out.println("Not enough guest records. At least 20 guests are required.");
             return;
         }
 
@@ -168,5 +168,24 @@ public class LoyaltyDao {
     //====================================================
     public boolean isLoyaltyDataEmpty() {
         return loyaltyData.isEmpty();
+    }
+    
+    public LoyaltyRecord searchLoyaltyByGuestID(String guestID) {
+
+        if (guestID == null || guestID.trim().isEmpty()) {
+            return null;
+        }
+
+        for (int i = 1; i <= loyaltyData.getSize(); i++) {
+            LoyaltyRecord record = loyaltyData.getEntry(i);
+            if (record == null || record.getGuestID() == null) {
+                continue;
+            }
+
+            if (record.getGuestID().equalsIgnoreCase(guestID.trim())) {
+                return record;
+            }
+        }
+        return null;
     }
 }
