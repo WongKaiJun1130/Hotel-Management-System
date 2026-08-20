@@ -24,7 +24,7 @@ import java.util.TimerTask;
 
 /**
  *
- * @author Kah SHun
+ * @author Kah Shun
  */
 public class HousekeepingControl {
 
@@ -74,7 +74,7 @@ public class HousekeepingControl {
     // How long a room can sit at its current status before it's
     // auto-advanced to the next stage. Set small (e.g. 15 * 1000 for
     // 15 seconds) while testing; 15 minutes for the real thing.
-    private static final long AUTO_ADVANCE_INTERVAL_MILLIS = 30 * 1000; // TESTING: 15 seconds (set to 15 * 60 * 1000 for the real 15 min)
+    private static final long AUTO_ADVANCE_INTERVAL_MILLIS = 60 * 1000; // TESTING: 15 seconds (set to 15 * 60 * 1000 for the real 15 min)
 
     // How often the scheduler checks all rooms. Independent of the
     // interval above - just needs to be frequent enough that a room

@@ -46,13 +46,7 @@ public class RoomDao {
 
         // S06-S10 Ready
         for (int i = 6; i <= 10; i++) {
-            rooms.add(
-                    advanceTo(
-                            "S" + String.format("%02d", i),
-                            RoomTypeUtil.Single_Room,
-                            RoomStatusUtil.Ready_For_CheckIN,
-                            "Ready"
-                    )
+            rooms.add( advanceTo("S" + String.format("%02d", i),RoomTypeUtil.Single_Room,RoomStatusUtil.Ready_For_CheckIN,"Ready")
             );
         }
 
@@ -229,8 +223,6 @@ public class RoomDao {
                 roomData.add(room);
             }
         }
-
-        System.out.println("Room Database Updated In Memory!");
     }
 
     //====================================================
