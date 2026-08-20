@@ -14,8 +14,7 @@ import java.time.temporal.ChronoUnit;
 
 public class BookingControl {
 
-    private ListInterface<Booking> waitingBookingList = new DoublyLinkedList<>();
-    private ListInterface<Booking> servedBookingList = new DoublyLinkedList<>();
+    private ListInterface<Booking> bookingList = new DoublyLinkedList<>();
     private BookingDao bookingDatabase = new BookingDao();
     private static final int ROOMS_PER_TYPE = 10;
     private static final int ROOM_TYPE_COUNT = 3;
@@ -25,8 +24,7 @@ public class BookingControl {
     private static final String STATUS_SERVED = "Served";
   
     public BookingControl() {
-        waitingBookingList = bookingDatabase.getWaitingBooking();
-        servedBookingList = bookingDatabase.getServedBooking();
+        bookingList = bookingDatabase.getAllBookings();
     }
  
     public String generateBookingID() {
@@ -43,9 +41,9 @@ public class BookingControl {
         }
         booking.setRoomStatus(STATUS_WAITING);
 
-        boolean added = waitingBookingList.add(booking);
+        boolean added = bookingList.add(booking);
         if (added) {
-            bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+            bookingDatabase.saveToFile(bookingList);
         }
         return added;
     }
@@ -54,12 +52,12 @@ public class BookingControl {
     // Cancel Booking
     //==========================================================
     public boolean cancelBooking(String bookingID) {
-        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
-            Booking booking = waitingBookingList.getEntry(i);
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
             if (booking.getBookingID().equalsIgnoreCase(bookingID)) {
-                boolean removed = waitingBookingList.remove(booking);
+                boolean removed = bookingList.remove(booking);
                 if (removed) {
-                    bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+                    bookingDatabase.saveToFile(bookingList);
                 }
                 return removed;
             }
@@ -67,172 +65,136 @@ public class BookingControl {
         return false;
     }
 
-    //==========================================================
-    // Get Booking By ID
-    //==========================================================
-    public Booking getBookingByID(String bookingID){
-        Iterator<Booking> waiting = waitingBookingList.getIterator();
-            while(waiting.hasNext()){
-            Booking booking = waiting.next();
-                if(booking.getBookingID().equalsIgnoreCase(bookingID)){
-                    return booking;
-                }
-            }
-        Iterator<Booking> served = servedBookingList.getIterator();
-            while(served.hasNext()){
-            Booking booking = served.next();
-                if(booking.getBookingID().equalsIgnoreCase(bookingID)){
-                    return booking;
-                }
-            }
-        return null;
-    }
+    public Booking getBookingByID(String bookingID) {
+     for (int i = 1; i <= bookingList.getSize(); i++) {
+         Booking booking = bookingList.getEntry(i);
 
-    //==========================================================
-    // Get All Booking
-    //==========================================================
-    public ListInterface<Booking> getAllBooking(){
-    ListInterface<Booking> all = new DoublyLinkedList<>();
-        for(int i=1; i<=waitingBookingList.getSize(); i++){
-            all.add(waitingBookingList.getEntry(i));
-        }
-        for(int i=1; i<=servedBookingList.getSize(); i++){
-            all.add(servedBookingList.getEntry(i));
+         if (booking != null && booking.getBookingID().equalsIgnoreCase(bookingID)) {
+             return booking;
+         }
+     }
+     return null;
+ }
+
+    public ListInterface<Booking> getAllBooking() {
+        ListInterface<Booking> all = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if (booking != null) {
+                all.add(booking);
+            }
         }
         return all;
     }
 
-    //==========================================================
-    // FIFO Queue Peek
-    // View Next Waiting Reservation
-    //==========================================================
     public Booking getNextWaitingBooking() {
-        if(waitingBookingList.isEmpty()) {
-            return null;
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking =  bookingList.getEntry(i);
+            if (booking != null && booking.getRoomStatus().equalsIgnoreCase(STATUS_WAITING)) {
+                return booking;
+            }
         }
-        return waitingBookingList.getEntry(1);
+        return null;
     }
 
-    //==========================================================
-    // FIFO Queue Dequeue
-    // Process Next Reservation
-    //==========================================================
-    public Booking processNextReservation() {
-        if (waitingBookingList.isEmpty()) {
-            return null;
+   public Booking processNextReservation() {
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if (booking != null && booking.getRoomStatus().equalsIgnoreCase(STATUS_WAITING)) {
+                booking.setRoomStatus(STATUS_SERVED);
+                bookingDatabase.saveToFile(bookingList);
+                return booking;
+            }
         }
-        Booking booking = waitingBookingList.getEntry(1);
-        waitingBookingList.remove(1);
-        booking.setRoomStatus(STATUS_SERVED);
-        servedBookingList.add(booking);
-        bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
-        return booking;
+        return null;
     }
   
-    //==========================================================
-    // Booking Conflict
-    //==========================================================
-    public boolean hasConflict(
-            Guest guest,
-            String checkInDate,
-            String checkOutDate){
-        for(int i=1;i<=waitingBookingList.getSize();i++){
-            Booking booking = waitingBookingList.getEntry(i);
-            
-            if(booking.getGuestName().equalsIgnoreCase(guest.getGuestName())){
-                if(checkInDate.compareTo(booking.getCheckOutDate()) < 0 && 
-                   checkOutDate.compareTo(booking.getCheckInDate()) > 0){
-                   return true;
+    public boolean hasConflict(Guest guest, String checkInDate, String checkOutDate) {
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if (booking == null || !booking.getRoomStatus().equalsIgnoreCase(STATUS_WAITING)) {
+                continue;
+            }
+
+            if (booking.getGuestName().equalsIgnoreCase(guest.getGuestName())) {
+                if (checkInDate.compareTo(booking.getCheckOutDate()) < 0 && checkOutDate.compareTo(booking.getCheckInDate()) > 0) {
+                    return true;
                 }
             }
         }
         return false;
     }
     
-    //==========================================================
-    // Get All Waiting Booking
-    //==========================================================
     public ListInterface<Booking> getWaitingBookings() {
-        return waitingBookingList;
+
+        ListInterface<Booking> result = new DoublyLinkedList<>();
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if (booking != null && booking.getRoomStatus().equalsIgnoreCase(STATUS_WAITING)) {
+                result.add(booking);
+            }
+        }
+        return result;
     }
 
-    //==========================================================
-    // Get All Served Booking
-    //==========================================================
     public ListInterface<Booking> getServedBookings() {
-        return servedBookingList;
-    }
+        ListInterface<Booking> result = new DoublyLinkedList<>();
 
-    //==========================================================
-    // Update Booking
-    //==========================================================
-    public boolean updateBooking(Booking booking){
-        boolean found = false;
-
-        // Check waiting booking list
-        for(int i = 1; i <= waitingBookingList.getSize(); i++){
-            Booking temp = waitingBookingList.getEntry(i);
-            if(temp.getBookingID().equalsIgnoreCase(booking.getBookingID())){
-                found = true;
-                break;
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if (booking != null && booking.getRoomStatus().equalsIgnoreCase(STATUS_SERVED)) {
+                result.add(booking);
             }
         }
-        // Check served booking list
-        if(!found){
-            for(int i = 1; i <= servedBookingList.getSize(); i++){
-                Booking temp = servedBookingList.getEntry(i);
-                if(temp.getBookingID().equalsIgnoreCase(booking.getBookingID())){
-                    found = true;
-                    break;
-                }
+        return result;
+    }
+
+    public boolean updateBooking(Booking booking) {
+        if (booking == null) {
+            return false;
+        }
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking existing = bookingList.getEntry(i);
+
+            if (existing != null && existing.getBookingID().equalsIgnoreCase(booking.getBookingID())) {
+                bookingDatabase.saveToFile(bookingList);
+                return true;
             }
         }
-        return found;
+        return false;
     }
-    
-    //==========================================================
-    // Generate Room ID
-    // 30 Hotel Rooms
-    // Single  : S01 - S10
-    // Medium  : M01 - M10
-    // Large   : L01 - L10
-    //==========================================================
+
     public String assignRoomID(String roomType) {
         String prefix;
         if (roomType.equalsIgnoreCase("Single")) {
             prefix = "S";
-        }
-        else if (roomType.equalsIgnoreCase("Medium")) {
+
+        } else if (roomType.equalsIgnoreCase("Medium")) {
             prefix = "M";
-        }
-        else if (roomType.equalsIgnoreCase("Large")) {
+
+        } else if (roomType.equalsIgnoreCase("Large")) {
             prefix = "L";
-        }
-        else {
+
+        } else {
             return null;
         }
+
 
         for (int i = 1; i <= ROOMS_PER_TYPE; i++) {
             String roomID = prefix + String.format("%02d", i);
             boolean used = false;
-            // Check waiting bookings
-            for (int j = 1; j <= waitingBookingList.getSize(); j++) {
-                Booking booking = waitingBookingList.getEntry(j);
-                if (booking.getRoomID() != null && booking.getRoomID().equalsIgnoreCase(roomID)) {
+
+            for (int j = 1; j <= bookingList.getSize(); j++) {
+                Booking booking = bookingList.getEntry(j);
+
+                if (booking == null) {
+                    continue;
+                }
+
+                if (booking.getRoomID() != null && booking.getRoomID().equalsIgnoreCase(roomID) && !booking.getRoomStatus().equalsIgnoreCase("Checked Out")) {
                     used = true;
                     break;
-                }
-            }
-            // Check served bookings
-            if (!used) {
-                for (int j = 1; j <= servedBookingList.getSize(); j++) {
-                    Booking booking = servedBookingList.getEntry(j);
-                    if (booking.getRoomStatus().equalsIgnoreCase("Served")
-                            && booking.getRoomID() != null
-                            && booking.getRoomID().equalsIgnoreCase(roomID)) {
-                        used = true;
-                        break;
-                    }
                 }
             }
             if (!used) {
@@ -242,110 +204,71 @@ public class BookingControl {
         return null;
     }
     
-    //==========================================================
-    //  Get Booking Schedule
-    //==========================================================
-    public ListInterface<Booking> getBookingSchedule() {
-        ListInterface<Booking> schedule = new DoublyLinkedList<>();
-
-        // Waiting bookings
-        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
-            Booking booking = waitingBookingList.getEntry(i);
-            schedule.add(booking);
-        }
-        // Served bookings
-        for (int i = 1; i <= servedBookingList.getSize(); i++) {
-            Booking booking = servedBookingList.getEntry(i);
-            schedule.add(booking);
-        }
-        return schedule;
+   public ListInterface<Booking> getBookingSchedule() {
+        return getAllBooking();
     }
 
-    //==========================================================
-    //  Get Occupied Rooms
-    //==========================================================
-    public ListInterface<Booking> getOccupiedRooms() {
+   public ListInterface<Booking> getOccupiedRooms() {
         ListInterface<Booking> occupied = new DoublyLinkedList<>();
 
-        for (int i = 1; i <= servedBookingList.getSize(); i++) {
-            Booking booking = servedBookingList.getEntry(i);
-            if (booking.getRoomStatus() != null && booking.getRoomStatus().equalsIgnoreCase("Served")) {
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if (booking != null && booking.getRoomStatus().equalsIgnoreCase(STATUS_SERVED)) {
                 occupied.add(booking);
             }
         }
         return occupied;
     }
 
-    //==========================================================
-    //  Get Booking History
-    //==========================================================
     public ListInterface<Booking> getBookingHistory() {
+
         ListInterface<Booking> history = new DoublyLinkedList<>();
 
-        for (int i = 1; i <= servedBookingList.getSize(); i++) {
-            history.add(servedBookingList.getEntry(i));
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+
+            if (booking != null && !booking.getRoomStatus().equalsIgnoreCase(STATUS_WAITING)) {
+                history.add(booking);
+            }
         }
         return history;
     }
     
     public ListInterface<Booking> searchBooking(String keyword) {
+
         ListInterface<Booking> result = new DoublyLinkedList<>();
-        // Search waiting bookings
-        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
-            Booking booking = waitingBookingList.getEntry(i);
-            if (booking.getBookingID().equalsIgnoreCase(keyword)
-                    ||booking.getGuestName().toLowerCase().contains(keyword.toLowerCase())
-                    || booking.getPhoneNumber().equals(keyword)) {
-                result.add(booking);
-            }
-        }
-        // Search served bookings
-        for (int i = 1; i <= servedBookingList.getSize(); i++) {
-            Booking booking = servedBookingList.getEntry(i);
-            if (booking.getBookingID().equalsIgnoreCase(keyword)
-                    || booking.getGuestName().toLowerCase().contains(keyword.toLowerCase())
-                    || booking.getPhoneNumber().equals(keyword)) {
+
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+
+            Booking booking = bookingList.getEntry(i);
+
+            if (booking != null&& (booking.getBookingID().equalsIgnoreCase(keyword) || booking.getGuestName().toLowerCase().contains(keyword.toLowerCase()) || booking.getPhoneNumber().equals(keyword))) {
                 result.add(booking);
             }
         }
         return result;
     }
 
-    //==========================================================
-    //  Search Booking By Guest Name
-    //==========================================================
     public ListInterface<Booking> getBookingsByGuestName(String guestName) {
         ListInterface<Booking> result = new DoublyLinkedList<>();
-        // Search waiting bookings
-        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
-            Booking booking = waitingBookingList.getEntry(i);
-            if (booking.getGuestName().equalsIgnoreCase(guestName)) {
-                result.add(booking);
-            }
-        }
-        // Search served bookings
-        for (int i = 1; i <= servedBookingList.getSize(); i++) {
-            Booking booking = servedBookingList.getEntry(i);
-            if (booking.getGuestName().equalsIgnoreCase(guestName)) {
+
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+
+            Booking booking = bookingList.getEntry(i);
+            if (booking != null && booking.getGuestName().equalsIgnoreCase(guestName)) {
                 result.add(booking);
             }
         }
         return result;
     }
     
-    public ListInterface<Booking> getBookingsByPhoneNumber(String phoneNumber) {
+   public ListInterface<Booking> getBookingsByPhoneNumber(String phoneNumber) {
         ListInterface<Booking> result = new DoublyLinkedList<>();
-        // Search waiting bookings
-        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
-            Booking booking = waitingBookingList.getEntry(i);
-            if (booking.getPhoneNumber().equals(phoneNumber)) {
-                result.add(booking);
-            }
-        }
-        // Search served bookings
-        for (int i = 1; i <= servedBookingList.getSize(); i++) {
-            Booking booking = servedBookingList.getEntry(i);
-            if (booking.getPhoneNumber().equals(phoneNumber)) {
+
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+
+            if (booking != null && booking.getPhoneNumber().equals(phoneNumber)) {
                 result.add(booking);
             }
         }
@@ -433,18 +356,12 @@ public class BookingControl {
         return !getBookingsByDate(date).isEmpty();
     }
 
-    //==========================================================
-    //  Get Number Of Waiting Bookings
-    //==========================================================
     public int getWaitingBookingCount() {
-        return waitingBookingList.getSize();
+        return getWaitingBookings().getSize();
     }
 
-    //==========================================================
-    //  Get Number Of Served Bookings
-    //==========================================================
     public int getServedBookingCount() {
-        return servedBookingList.getSize();
+        return getServedBookings().getSize();
     }
     
     
@@ -522,66 +439,51 @@ public class BookingControl {
         }
     }
     
-    //==========================================================
-    // Check Out Booking By Room ID
-    //==========================================================
+    
     public Booking checkOutBookingByRoomID(String roomID) {
         Booking booking = getActiveServedBookingByRoomID(roomID);
         if (booking == null) {
             return null;
         }
         booking.setRoomStatus("Checked Out");
-        bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+        bookingDatabase.saveToFile(bookingList);
         return booking;
     }
 
-    //==========================================================
-    // Find Active Served Booking By Room ID
-    //==========================================================
     public Booking getActiveServedBookingByRoomID(String roomID) {
         if (roomID == null) {
             return null;
         }
-        for (int i = 1; i <= servedBookingList.getSize(); i++) {
-            Booking booking = servedBookingList.getEntry(i);
-            if (booking == null) {
-                continue;
-            }
-            if (booking.getRoomID() != null
-                    && booking.getRoomID().equalsIgnoreCase(roomID)
-                    && booking.getRoomStatus().equalsIgnoreCase("Served")) {
-                return booking;
+            for (int i = 1; i <= bookingList.getSize(); i++) {
+                Booking booking = bookingList.getEntry(i);
+                if (booking == null) {
+                    continue;
+                }
+
+                if (booking.getRoomID() != null && booking.getRoomID().equalsIgnoreCase(roomID) && booking.getRoomStatus().equalsIgnoreCase(STATUS_SERVED)) {
+                    return booking;
             }
         }
         return null;
     }
+    
 
-    //==========================================================
-    // Check In Booking To A Specific (Housekeeping) Room
-    // Moves a waiting booking into the served list and ties it to the
-    // actual Room that was made ready by Housekeeping - this is what
-    // lets checkOutBookingByRoomID() find it again later at check-out.
-    //==========================================================
-    public boolean checkInBooking(Booking booking, String roomID) {
+   public boolean checkInBooking(Booking booking, String roomID) {
         if (booking == null || roomID == null) {
             return false;
         }
-        boolean removed = false;
-        for (int i = 1; i <= waitingBookingList.getSize(); i++) {
-            Booking candidate = waitingBookingList.getEntry(i);
-            if (candidate.getBookingID().equalsIgnoreCase(booking.getBookingID())) {
-                waitingBookingList.remove(i);
-                removed = true;
-                break;
-            }
-        }
-        if (!removed) {
+
+        Booking existing = getBookingByID(booking.getBookingID());
+        if (existing == null) {
             return false;
         }
-        booking.setRoomID(roomID);
-        booking.setRoomStatus(STATUS_SERVED);
-        servedBookingList.add(booking);
-        bookingDatabase.saveToFile(waitingBookingList, servedBookingList);
+
+        if (!existing.getRoomStatus().equalsIgnoreCase(STATUS_WAITING)) {
+            return false;
+        }
+        existing.setRoomID(roomID);
+        existing.setRoomStatus(STATUS_SERVED);
+        bookingDatabase.saveToFile(bookingList);
         return true;
     }
 }

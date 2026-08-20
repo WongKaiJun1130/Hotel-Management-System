@@ -595,7 +595,7 @@ public class BookingUI {
 
     private void displayBookingCalendar() {
         InputUtility.clearScreen();
-        System.out.println("========= MONTHLY BOOKING CALENDAR ========");
+        System.out.println("======== MONTHLY BOOKING CALENDAR ========");
         System.out.print("Enter Year  : ");
         int year = InputUtility.getIntInput();
         int month;
@@ -608,7 +608,7 @@ public class BookingUI {
             System.out.println("Invalid month. Please enter 1 to 12.");
         }
         YearMonth yearMonth = YearMonth.of(year, month);
-        System.out.println("\n=============== " + yearMonth.getMonth() + " " + year + " ==============");
+        System.out.println("\n=============== " + yearMonth.getMonth() + " " + year + " ================");
         System.out.println(" Mon   Tue   Wed   Thu   Fri   Sat   Sun");
         System.out.println("------------------------------------------");
 
@@ -730,19 +730,45 @@ public class BookingUI {
         }
 
         totalStayDays += bookingControl.getBookingStayDaysInMonth(booking, yearMonth);}
-
-        DoublyLinkedList<LoyaltyRecord> loyaltyRecords = loyaltyControl.getGuestsByTier("All");
         int standard = 0;
         int platinum = 0;
         int diamond = 0;
         int elite = 0;
 
-        for (int i = 1; i <= loyaltyRecords.getSize(); i++) {
-            LoyaltyRecord record = loyaltyRecords.getEntry(i);
-            if (record == null) {
+        int monthlyLoyaltyMembers = 0;
+
+        DoublyLinkedList<String> countedGuestIDs = new DoublyLinkedList<>();
+
+        for (int i = 1; i <= bookingList.getSize(); i++) {
+            Booking booking = bookingList.getEntry(i);
+            if (booking == null || booking.getGuestID() == null) {
                 continue;
             }
-            String tier = record.getLoyaltyTier();
+            String guestID = booking.getGuestID();
+
+            boolean alreadyCounted = false;
+
+            for (int j = 1; j <= countedGuestIDs.getSize(); j++) {
+                String countedID = countedGuestIDs.getEntry(j);
+
+                if (countedID != null && countedID.equalsIgnoreCase(guestID)) {
+                    alreadyCounted = true;
+                    break;
+                }
+            }
+            if (alreadyCounted) {
+                continue;
+            }
+            LoyaltyRecord loyaltyRecord = loyaltyControl.searchGuest(guestID);
+
+            if (loyaltyRecord == null) {
+                continue;
+            }
+            
+            countedGuestIDs.add(guestID);
+            monthlyLoyaltyMembers++;
+            String tier = loyaltyRecord.getLoyaltyTier();
+
             if (tier.equalsIgnoreCase("Standard")) {
                 standard++;
             } else if (tier.equalsIgnoreCase("Platinum")) {
@@ -772,7 +798,7 @@ public class BookingUI {
         System.out.println("Platinum Members         : " + platinum);
         System.out.println("Diamond Members          : " + diamond);
         System.out.println("Elite Members            : " + elite);
-        System.out.println("Total Loyalty Members    : " + loyaltyRecords.getSize());
+        System.out.println("Total Loyalty Members    : " + monthlyLoyaltyMembers);
         System.out.println("=========================================================");
     }
     
@@ -846,12 +872,12 @@ public class BookingUI {
         String generatedAt = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
         System.out.println();
-        System.out.println("+-------------------------------------------------------------------+");
-        System.out.println("|                       ROOM OCCUPANCY REPORT                       |");
-        System.out.println("+-------------------------------------------------------------------+");
-        System.out.printf("| %-18s : %-42s   |%n", "Generated At", generatedAt);
-        System.out.printf("| %-18s : %-42s   |%n", "Report Month", yearMonth.getMonth() + " " + yearMonth.getYear());
-        System.out.printf("| %-18s : %-42d   |%n", "Total Room Types", bookingControl.getRoomTypeCount());
+        System.out.println("+-----------------------------------------------------------------------------------+");
+        System.out.println("|                               ROOM OCCUPANCY REPORT                               |");
+        System.out.println("+-----------------------------------------------------------------------------------+");
+        System.out.printf("| %-18s : %-58s   |%n", "Generated At", generatedAt);
+        System.out.printf("| %-18s : %-58s   |%n", "Report Month", yearMonth.getMonth() + " " + yearMonth.getYear());
+        System.out.printf("| %-18s : %-58d   |%n", "Total Room Types", bookingControl.getRoomTypeCount());
         System.out.println("+------+---------------+-------------+-------------+------------------+-------------+");
         System.out.printf(
                 "| %-4s | %-13s | %-11s | %-11s | %-16s | %-11s |%n",
@@ -903,12 +929,12 @@ public class BookingUI {
         String averageRateText = String.format("%.2f%%", averageRate);
 
         System.out.printf(
-                "| %-46s | %-16s | %-11s |%n",
+                "| %-48s | %-16s | %-11s |%n",
                 "Average Occupancy Rate",
                 averageRateText,
                 getOccupancyStatus(averageRate)
         );
-        System.out.println("+-------------------------------------------------------------------------------------+");
+        System.out.println("+-----------------------------------------------------------------------------------+");
         System.out.println();
         int[] occupancyValues = {
             (int) Math.round(singleRate * 10),
