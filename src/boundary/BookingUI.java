@@ -176,7 +176,7 @@ public class BookingUI {
 
     private void cancelBooking() {
         InputUtility.clearScreen();
-        System.out.println("=========== CANCEL BOOKING ===========");
+        System.out.println("============ CANCEL BOOKING ============");
 
         while(true) {
             System.out.print("Enter Booking ID : ");
@@ -187,7 +187,7 @@ public class BookingUI {
                 System.out.println("\nBooking ID does not exist. Please enter again.");
                 continue;  // return to the start of while loop
             }
-            System.out.println("\n=========== BOOKING DETAILS ===========");
+            System.out.println("\n=========== BOOKING DETAILS ============");
             displayBookingInformation(booking);
             System.out.print("\nProceed with cancellation? (Y/N): ");
             String choice = InputUtility.getYOrNInput();
