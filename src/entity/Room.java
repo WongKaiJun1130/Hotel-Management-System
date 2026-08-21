@@ -4,6 +4,10 @@
  */
 package entity;
 
+/**
+ *
+ * @author Chia Kah Shun
+ */
 
 import adt.DoublyLinkedList;
 import java.io.Serializable;

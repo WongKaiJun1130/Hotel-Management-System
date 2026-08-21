@@ -1,5 +1,8 @@
 package boundary;
-
+/**
+ *
+ * @author Yeong Wei Kin
+ */
 
 import control.BookingControl;
 import control.LoyaltyControl;

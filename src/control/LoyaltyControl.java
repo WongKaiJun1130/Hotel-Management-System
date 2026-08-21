@@ -1,5 +1,10 @@
 package control;
 
+/**
+ *
+ * @author Heng Chun Wai
+ */
+
 import entity.LoyaltyRecord;
 import entity.RedemptionRecord;
 import entity.Guest;

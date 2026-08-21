@@ -1,6 +1,7 @@
 package boundary;
 /*
- * @author Kah Shun
+ *
+ * @author Chia Kah Shun
  */
 
 import entity.Room;

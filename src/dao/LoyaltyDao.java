@@ -1,4 +1,8 @@
 package dao;
+/**
+ *
+ * @author Heng Chun Wai
+ */
 
 import entity.Guest;
 import entity.LoyaltyRecord;

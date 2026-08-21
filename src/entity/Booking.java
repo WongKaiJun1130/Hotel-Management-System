@@ -1,4 +1,8 @@
 package entity;
+/**
+ *
+ * @author Yeong Wei Kin
+ */
 
 import java.io.Serializable;
 

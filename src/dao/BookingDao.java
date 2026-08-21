@@ -1,4 +1,8 @@
 package dao;
+/**
+ *
+ * @author Yeong Wei Kin
+ */
 
 import adt.DoublyLinkedList;
 import adt.ListInterface;

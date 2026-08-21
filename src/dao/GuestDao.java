@@ -1,4 +1,8 @@
 package dao;
+/**
+ *
+ * @author Wong Kai Jun
+ */
 
 import entity.Guest;
 import adt.DoublyLinkedList;
