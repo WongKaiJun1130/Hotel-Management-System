@@ -726,7 +726,7 @@ public class BookingUI {
                 elite++;
             }
         }
-        System.out.println("                       TARUMT RESORTS                      ");
+        System.out.println("\n                       TARUMT RESORTS                      ");
         System.out.println("================== MONTHLY BOOKING SUMMARY ================");
         System.out.println("Month                    : " + yearMonth.getMonth() + " " + yearMonth.getYear());
         System.out.println("Total Bookings           : " + bookingList.getSize());
@@ -749,141 +749,265 @@ public class BookingUI {
         System.out.println("=========================================================");
     }
     
-    private void displayOccupancy() {
-        InputUtility.clearScreen();
-        System.out.println("                  TARUMT RESORTS               ");
-        System.out.println("========== MONTHLY ROOM OCCUPANCY REPORT ==========");
+   private void displayOccupancy() {
 
-        System.out.print("Enter Year (YYYY) : ");
-        int year = InputUtility.getIntInput();
-        int month;
-        
-        while (true) {
-            System.out.print("Enter Month (1-12) : ");
-            month = InputUtility.getIntInput();
-            if (month >= 1 && month <= 12) {
-                break;
-            }
-            System.out.println("Invalid month. Please enter 1 to 12.");
+    InputUtility.clearScreen();
+
+    System.out.println("============ TARUMT RESORTS =============");
+
+    System.out.println("===== MONTHLY ROOM OCCUPANCY REPORT =====");
+
+    System.out.print("Enter Year  : ");
+
+    int year = InputUtility.getIntInput();
+    
+    int month;
+
+    while (true) {
+
+        System.out.print("Enter Month : ");
+
+        month = InputUtility.getIntInput();
+
+        if (month >= 1 && month <= 12) {
+
+            break;
         }
+        System.out.println("Invalid month. Please enter 1 to 12.");
+    }
 
-        YearMonth yearMonth = YearMonth.of(year, month);
-        double singleRate = bookingControl.getRoomOccupancyRate(yearMonth, "Single");
-        double mediumRate = bookingControl.getRoomOccupancyRate(yearMonth, "Medium");
-        double largeRate = bookingControl.getRoomOccupancyRate(yearMonth, "Large");
-        RoomDao roomDao =
-        new RoomDao();
 
-        DoublyLinkedList<Room> rooms = roomDao.retrieveFromFile();
+    YearMonth yearMonth =
+            YearMonth.of(
+                    year,
+                    month
+            );
 
-        int singleRooms = 0;
-        int mediumRooms = 0;
-        int largeRooms = 0;
+    ListInterface<Booking> monthlyBookings = bookingControl.getBookingsByMonth(yearMonth);
 
-        int singleReady = 0;
-        int mediumReady = 0;
-        int largeReady = 0;
+        int totalMonthlyBookings = monthlyBookings.getSize();
 
-        for (int i = 1; i <= rooms.getSize(); i++) {
-            Room room = rooms.getEntry(i);
-            if (room == null) {
+
+        int servedMonthlyBookings = 0;
+        int waitingMonthlyBookings = 0;
+
+
+        for (int i = 1; i <= monthlyBookings.getSize(); i++) {
+
+            Booking booking = monthlyBookings.getEntry(i);
+
+
+            if (booking == null) {
                 continue;
             }
 
-            StatusEntry currentStatus = room.getStatusHistory().getCurrentData();
-            boolean ready = currentStatus != null && currentStatus.getStatusCode() == RoomStatusUtil.Ready_For_CheckIN;
 
-            switch (room.getRoomType()) {
-                case RoomTypeUtil.Single_Room:
-                    singleRooms++;
-                    if (ready) {
-                        singleReady++;
-                    }
-                    break;
+            if (booking.getRoomStatus()
+                    .equalsIgnoreCase("Served")) {
 
-                case RoomTypeUtil.Medium_Room:
-                    mediumRooms++;
-                    if (ready) {
-                        mediumReady++;
-                    }
-                    break;
+                servedMonthlyBookings++;
 
-                case RoomTypeUtil.Large_Room:
-                    largeRooms++;
-                    if (ready) {
-                        largeReady++;
-                    }
-                    break;
+            } else if (booking.getRoomStatus()
+                    .equalsIgnoreCase("Waiting")) {
+
+                waitingMonthlyBookings++;
             }
         }
-        
-        String generatedAt = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+        long singleBookedDays =
+                bookingControl.getBookedRoomDays(
+                        yearMonth,
+                        "Single"
+                );
+
+        long mediumBookedDays =
+                bookingControl.getBookedRoomDays(
+                        yearMonth,
+                        "Medium"
+                );
+
+        long largeBookedDays =
+                bookingControl.getBookedRoomDays(
+                        yearMonth,
+                        "Large"
+                );
+
+
+        long totalBookedDays =
+                singleBookedDays
+                + mediumBookedDays
+                + largeBookedDays;
+
+        double singleRate =
+                bookingControl.getRoomOccupancyRate(
+                        yearMonth,
+                        "Single"
+                );
+
+        double mediumRate =
+                bookingControl.getRoomOccupancyRate(
+                        yearMonth,
+                        "Medium"
+                );
+
+        double largeRate =
+                bookingControl.getRoomOccupancyRate(
+                        yearMonth,
+                        "Large"
+                );
+
+        RoomDao roomDao =
+                new RoomDao();
+
+
+        int singleRooms =
+                roomDao.getTotalRoomByType(
+                        RoomTypeUtil.Single_Room
+                );
+
+        int mediumRooms =
+                roomDao.getTotalRoomByType(
+                        RoomTypeUtil.Medium_Room
+                );
+
+        int largeRooms =
+                roomDao.getTotalRoomByType(
+                        RoomTypeUtil.Large_Room
+                );
+
+
+        int singleReady =
+                roomDao.getReadyRoomByType(
+                        RoomTypeUtil.Single_Room
+                );
+
+        int mediumReady =
+                roomDao.getReadyRoomByType(
+                        RoomTypeUtil.Medium_Room
+                );
+
+        int largeReady =
+                roomDao.getReadyRoomByType(
+                        RoomTypeUtil.Large_Room
+                );
+
+
+        String singleRateText =
+                String.format(
+                        "%.2f%%",
+                        singleRate
+                );
+
+        String mediumRateText =
+                String.format(
+                        "%.2f%%",
+                        mediumRate
+                );
+
+        String largeRateText =
+                String.format(
+                        "%.2f%%",
+                        largeRate
+                );
 
         System.out.println();
-        System.out.println("+-----------------------------------------------------------------------------------+");
-        System.out.println("|                                  TARUMT RESORTS                                   |");
-        System.out.println("|                               ROOM OCCUPANCY REPORT                               |");
-        System.out.println("+-----------------------------------------------------------------------------------+");
-        System.out.printf("| %-18s : %-58s   |%n", "Generated At", generatedAt);
-        System.out.printf("| %-18s : %-58s   |%n", "Report Month", yearMonth.getMonth() + " " + yearMonth.getYear());
-        System.out.printf("| %-18s : %-58d   |%n", "Total Room Types", bookingControl.getRoomTypeCount());
-        System.out.println("+------+---------------+-------------+-------------+------------------+-------------+");
+
+        System.out.println("+--------------------------------------------------------------------------------------+");
+        System.out.println("|                                TARUMT RESORTS                                        |");
+        System.out.println("|                         MONTHLY ROOM OCCUPANCY REPORT                                |");       
+        System.out.println("+--------------------------------------------------------------------------------------+" );
         System.out.printf(
-                "| %-4s | %-13s | %-11s | %-11s | %-16s | %-11s |%n",
+                "| %-20s : %-61s |%n",
+                "Report Month",
+                yearMonth.getMonth()
+                + " "
+                + yearMonth.getYear()
+        );
+
+        System.out.println("+--------------------------------------------------------------------------------------+");
+        System.out.println("|                              BOOKING SUMMARY                                         |");
+        System.out.println("+--------------------------------------------------------------------------------------+");
+
+        System.out.printf(
+                "| %-30s : %-51d |%n",
+                "Total Monthly Bookings",
+                totalMonthlyBookings
+        );
+
+        System.out.printf(
+                "| %-30s : %-51d |%n",
+                "Served Bookings",
+                servedMonthlyBookings
+        );
+
+        System.out.printf(
+                "| %-30s : %-51d |%n",
+                "Waiting Bookings",
+                waitingMonthlyBookings
+        );
+
+        System.out.printf(
+                "| %-30s : %-51d |%n",
+                "Total Booked Room Days",
+                totalBookedDays
+        );
+
+        System.out.println("+--------------------------------------------------------------------------------------+");
+        System.out.println("|                         ROOM OCCUPANCY DETAILS                                       |");
+        System.out.println("+------+---------------+-------------+-------------+-------------+---------------------+");
+
+        System.out.printf(
+                "| %-4s | %-13s | %-11s | %-11s | %-11s | %-19s |%n",
                 "No.",
                 "Room Type",
                 "Rooms",
-                "Ready Rooms",
-                "Occupancy Rate",
-                "Status"
+                "Available",
+                "Booked Days",
+                "Occupancy Rate"
         );
 
-        System.out.println( "+------+---------------+-------------+-------------+------------------+-------------+");
+        System.out.println("+------+---------------+-------------+-------------+-------------+---------------------+");
 
-        String singleRateText = String.format("%.2f%%", singleRate);
-        String mediumRateText = String.format("%.2f%%", mediumRate);
-        String largeRateText = String.format("%.2f%%", largeRate);
-       
         System.out.printf(
-                "| %-4d | %-13s | %-11d | %-11d | %-16s | %-11s |%n",
+                "| %-4d | %-13s | %-11d | %-11d | %-11d | %-19s |%n",
                 1,
                 "Single",
                 singleRooms,
                 singleReady,
-                singleRateText,
-                getOccupancyStatus(singleRate)
+                singleBookedDays,
+                singleRateText
         );
-       
+
         System.out.printf(
-                "| %-4d | %-13s | %-11d | %-11d | %-16s | %-11s |%n",
+                "| %-4d | %-13s | %-11d | %-11d | %-11d | %-19s |%n",
                 2,
                 "Medium",
                 mediumRooms,
                 mediumReady,
-                mediumRateText,
-                getOccupancyStatus(mediumRate)
+                mediumBookedDays,
+                mediumRateText
         );
 
         System.out.printf(
-                "| %-4d | %-13s | %-11d | %-11d | %-16s | %-11s |%n",
+                "| %-4d | %-13s | %-11d | %-11d | %-11d | %-19s |%n",
                 3,
                 "Large",
                 largeRooms,
                 largeReady,
-                largeRateText,
-                getOccupancyStatus(largeRate)
+                largeBookedDays,
+                largeRateText
         );
-        System.out.println("+------+---------------+-------------+-------------+------------------+-------------+");
-        double averageRate = (singleRate + mediumRate + largeRate) / 3.0;
-        String averageRateText = String.format("%.2f%%", averageRate);
 
-        System.out.printf(
-                "| %-48s | %-16s | %-11s |%n",
-                "Average Occupancy Rate",
-                averageRateText,
-                getOccupancyStatus(averageRate)
-        );
-        System.out.println("+-----------------------------------------------------------------------------------+");
+
+        System.out.println("+------+---------------+-------------+-------------+-------------+---------------------+");
+
+        double averageRate =
+                (singleRate
+                + mediumRate
+                + largeRate) / 3.0;
+
+        System.out.printf("Average Occupancy Rate : %.2f%%%n", averageRate);
+
         System.out.println();
         int[] occupancyValues = {
             (int) Math.round(singleRate * 10),
@@ -897,25 +1021,19 @@ public class BookingUI {
             "Large"
         };
 
-        String[] occupancyGraph = buildVerticalBarChart(
-                "Room Occupancy Rate",
-                roomLabels,
-                occupancyValues,
-                "Room Types"
+        String[] occupancyGraph =
+                buildVerticalBarChart(
+                        "Room Occupancy Rate",
+                        roomLabels,
+                        occupancyValues,
+                        "Room Types"
+                );
+
+        printSingleGraph(
+                occupancyGraph
         );
 
-        printSingleGraph(occupancyGraph);
         InputUtility.pressEnterToContinue();
-    }
-    
-    private String getOccupancyStatus(double rate) {
-        if (rate >= 75) {
-            return "High";
-        } else if (rate >= 40) {
-            return "Moderate";
-        } else {
-            return "Low";
-        }
     }
    
     private String[] buildVerticalBarChart(
