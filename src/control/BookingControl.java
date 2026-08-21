@@ -31,10 +31,6 @@ public class BookingControl {
         return bookingDatabase.generateBookingID();
     }
     
-    //==========================================================
-    // Add Standard Reservation
-    // Linear ADT Queue Enqueue
-    //==========================================================
     public boolean addBooking(Booking booking) {
         if (getBookingByID(booking.getBookingID()) != null) {
             return false;
@@ -48,9 +44,6 @@ public class BookingControl {
         return added;
     }
 
-    //==========================================================
-    // Cancel Booking
-    //==========================================================
     public boolean cancelBooking(String bookingID) {
         for (int i = 1; i <= bookingList.getSize(); i++) {
             Booking booking = bookingList.getEntry(i);
@@ -275,9 +268,6 @@ public class BookingControl {
         return result;
     }
     
-     //==========================================================
-    // Get Bookings By Date
-    //==========================================================
     public ListInterface<Booking> getBookingsByDate(LocalDate date) {
         ListInterface<Booking> result = new DoublyLinkedList<>();
         ListInterface<Booking> bookingList = getAllBooking();
@@ -292,9 +282,6 @@ public class BookingControl {
         return result;
     }
     
-    //==========================================================
-    // Get Bookings By Month
-    //==========================================================
     public ListInterface<Booking> getBookingsByMonth(YearMonth yearMonth) {
         ListInterface<Booking> result = new DoublyLinkedList<>();
         LocalDate monthStart = yearMonth.atDay(1);
@@ -311,18 +298,12 @@ public class BookingControl {
         return result;
     }
   
-    //==========================================================
-    // Calculate Booking Stay Days
-    //==========================================================
     public long getBookingStayDays(Booking booking) {
         LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), DATE_FORMATTER);
         LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), DATE_FORMATTER);
         return ChronoUnit.DAYS.between(checkIn, checkOut);
     }
-    
-    //==========================================================
-    // Calculate Booking Stay Days Within Selected Month
-    //==========================================================
+ 
     public long getBookingStayDaysInMonth(Booking booking, YearMonth yearMonth) {
         LocalDate checkIn = LocalDate.parse(booking.getCheckInDate(), DATE_FORMATTER);
         LocalDate checkOut = LocalDate.parse(booking.getCheckOutDate(), DATE_FORMATTER);
@@ -349,9 +330,6 @@ public class BookingControl {
         return 0;
     }
     
-    //==========================================================
-    // Check If Date Has Booking
-    //==========================================================
     public boolean hasBookingOnDate(LocalDate date) {
         return !getBookingsByDate(date).isEmpty();
     }
@@ -366,24 +344,17 @@ public class BookingControl {
     
     
     //Total Available Days = 10 × 31 = 310 room-days
-    //==========================================================
-    // Calculate Monthly Room Occupancy Rate
-    //==========================================================
     public double getRoomOccupancyRate(YearMonth yearMonth, String roomType) {
         long bookedDays = getBookedRoomDays(yearMonth, roomType);
         int totalAvailableDays = ROOMS_PER_TYPE * yearMonth.lengthOfMonth();
         return ((double) bookedDays / totalAvailableDays) * 100;
     }
     
-    //==========================================================
-    // Get Total Booked Room Days By Month And Room Type
-    //==========================================================
     public long getBookedRoomDays(YearMonth yearMonth, String roomType) {
         LocalDate monthStart = yearMonth.atDay(1);
         LocalDate monthEnd = yearMonth.atEndOfMonth().plusDays(1);
 
         long bookedDays = 0;
-        ListInterface<Booking> bookingList = getAllBooking();
         for (int i = 1; i <= bookingList.getSize(); i++) {
             Booking booking = bookingList.getEntry(i);
             if (!booking.getRoomType().equalsIgnoreCase(roomType)) {
@@ -420,9 +391,6 @@ public class BookingControl {
         return ROOM_TYPE_COUNT;
     }
     
-    //==========================================================
-    // Sort Booking List By Booking ID
-    //==========================================================
     public void sortBookingByID(ListInterface<Booking> bookingList) {
 
         for (int i = 1; i <= bookingList.getSize(); i++) {
