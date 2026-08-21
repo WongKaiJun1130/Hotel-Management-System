@@ -31,9 +31,6 @@ public class BookingUI {
     private static final String ANSI_GREEN_BACKGROUND = "\u001B[42m";
     private static final String ANSI_RESET = "\u001B[0m";
 
-    //==========================================================
-    // Constructor
-    //==========================================================
     public BookingUI() {
         bookingControl = new BookingControl();
         guestDatabase = new GuestDao();
@@ -46,10 +43,8 @@ public class BookingUI {
         loyaltyControl = new LoyaltyControl();
     }
 
-    //==========================================================
-    // Booking Menu
-    //==========================================================
     public void bookingMenu() {
+        
         String[] options = {
             "1. Add Standard Reservation",
             "2. Process Next Reservation",
@@ -75,13 +70,9 @@ public class BookingUI {
             () -> displayOccupancy(),
             () -> {}
         };
-        Utility.customMenu( options, "STANDARD BOOKING MANAGEMENT", "Enter Choice: ", actions);
+        Utility.customMenu( options, Utility.HOTEL_NAME + " - STANDARD BOOKING MANAGEMENT", "Enter Choice: ", actions);
     }
 
-    //==========================================================
-    // Add Standard Reservation
-    // FIFO Queue Enqueue
-    //==========================================================
     private void addBooking() {
         InputUtility.clearScreen();
         Utility.printHeader("ADD STANDARD RESERVATION");        
@@ -117,9 +108,7 @@ public class BookingUI {
         String checkInDate = InputUtility.getDateInput();
         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
         
-        //====================================================
         // CREATE NEW GUEST ONLY IF GUEST DOES NOT EXIST
-        //====================================================
         if (existingGuest == null) {
             String guestRoomType;
             if (roomType.equalsIgnoreCase("Single")) {
@@ -167,10 +156,6 @@ public class BookingUI {
         InputUtility.pressEnterToContinue();
     }
 
-    //==========================================================
-    // Process Next Reservation
-    // FIFO Queue Dequeue
-    //==========================================================
     private void processNextReservation() {
         InputUtility.clearScreen();
         System.out.println("========== PROCESS NEXT RESERVATION ==========");
@@ -189,9 +174,6 @@ public class BookingUI {
         InputUtility.pressEnterToContinue();
     }
 
-    //==========================================================
-    // Cancel Booking
-    //==========================================================
     private void cancelBooking() {
         InputUtility.clearScreen();
         System.out.println("========== CANCEL BOOKING ==========");
@@ -226,10 +208,7 @@ public class BookingUI {
         InputUtility.pressEnterToContinue();
     }
 
-    //==========================================================
-    // Search Booking
     // Search by Booking ID / Guest Name / Phone Number
-    //==========================================================
     private void searchBooking() {
         InputUtility.clearScreen();
         System.out.println("========== SEARCH BOOKING ==========");
@@ -251,9 +230,6 @@ public class BookingUI {
         InputUtility.pressEnterToContinue();
     }
 
-    //==========================================================
-    // Edit Booking
-    //==========================================================
     private void editBooking() {
         InputUtility.clearScreen();
         System.out.println("========== UPDATE BOOKING ==========");
@@ -352,9 +328,7 @@ public class BookingUI {
                     }
 
                     case 5 -> {
-                        //==================================================
                         // Edit All Details
-                        //==================================================
                         String oldGuestName = booking.getGuestName();
                         String oldPhoneNumber = booking.getPhoneNumber();
                         String oldRoomType = booking.getRoomType();
@@ -362,9 +336,7 @@ public class BookingUI {
                         String oldCheckInDate = booking.getCheckInDate();
                         String oldCheckOutDate = booking.getCheckOutDate();
 
-                        //==================================================
                         // Enter New Information
-                        //==================================================
                         System.out.print("\nNew Guest Name : ");
                         String newGuestName = InputUtility.getValidName();
 
@@ -381,14 +353,10 @@ public class BookingUI {
                         System.out.print("New");
                         String newCheckOutDate = InputUtility.getCheckOutDate(newCheckInDate);
 
-                        //==================================================
                         // Display Old Information
-                        //==================================================
-
                         System.out.println("\n==============================================");
                         System.out.println("              BOOKING COMPARISON");
                         System.out.println("==============================================");
-
                         System.out.println("\n       OLD INFORMATION");
                         System.out.println("----------------------------------------------");
                         System.out.println("Guest Name      : " + oldGuestName);
@@ -397,9 +365,7 @@ public class BookingUI {
                         System.out.println("Room ID         : " + oldRoomID);
                         System.out.println("Check-In Date   : " + oldCheckInDate);
                         System.out.println("Check-Out Date  : " + oldCheckOutDate);
-                        //==================================================
                         // Find New Room ID
-                        //==================================================
                         String newRoomID = oldRoomID;
                         if (!newRoomType.equalsIgnoreCase(oldRoomType)) {
                             newRoomID = bookingControl.assignRoomID(newRoomType);
@@ -409,9 +375,7 @@ public class BookingUI {
                                 return;
                             }
                         }
-                        //==================================================
                         // Display New Information
-                        //==================================================
                         System.out.println("\n       NEW INFORMATION");
                         System.out.println("----------------------------------------------");
                         System.out.println("Guest Name      : " + newGuestName);
@@ -420,9 +384,7 @@ public class BookingUI {
                         System.out.println("Room ID         : " + newRoomID);
                         System.out.println("Check-In Date   : " + newCheckInDate);
                         System.out.println("Check-Out Date  : " + newCheckOutDate);
-                        //==================================================
                         // Show Changes
-                        //==================================================
                         System.out.println("\n==============================================");
                         System.out.println("                  CHANGES");
                         System.out.println("==============================================");
@@ -432,9 +394,6 @@ public class BookingUI {
                         System.out.println("Room ID        : " + oldRoomID + "  ->  " + newRoomID);
                         System.out.println("Check-In Date  : " + oldCheckInDate + "  ->  " + newCheckInDate);
                         System.out.println("Check-Out Date : " + oldCheckOutDate + "  ->  " + newCheckOutDate);
-                        //==================================================
-                        // Confirm Update
-                        //==================================================
                         System.out.print("\nConfirm update? (Y/N): ");
                         String confirmation = InputUtility.getYOrNInput();
 
@@ -464,9 +423,7 @@ public class BookingUI {
         }
     }
 
-    //==========================================================
     // Display Booking Queue
-    //==========================================================
     private void displayBooking() {
         InputUtility.clearScreen();
         System.out.println("======================================= STANDARD RESERVATION QUEUE ===========================================\n");
@@ -489,9 +446,6 @@ public class BookingUI {
         InputUtility.pressEnterToContinue();
     }
 
-    //==========================================================
-    // Display Booking Information
-    //==========================================================
     private void displayBookingInformation(Booking booking) {
         System.out.println("----------------------------------------");
         System.out.println("Booking ID     : " + booking.getBookingID());
@@ -505,9 +459,6 @@ public class BookingUI {
         System.out.println("----------------------------------------");
     }
 
-    //==========================================================
-    // Display Room Schedule
-    //==========================================================
     private void displayRoomSchedule(
             String roomType,
             String roomPrefix,
@@ -526,9 +477,7 @@ public class BookingUI {
                     break;
                 }
             }
-            //==================================================
             // Room is occupied
-            //==================================================
             if (roomBooking != null) {
                 System.out.printf("%-12s %-10s %-12s %-20s %-15s %-12s %-12s %-12s%n",
                     roomBooking.getBookingID(),
@@ -559,12 +508,12 @@ public class BookingUI {
         }
     }
 
-    //==========================================================
-    // Display Booking Schedule / 30 Hotel Rooms
-    //==========================================================
     private void displayRoomSchedule() {
         InputUtility.clearScreen();
-        System.out.println("========================================== HOTEL ROOM SCHEDULE ===============================================");
+        System.out.println("=============================================================================================================");
+        System.out.println("                                            TARUMT RESORTS");
+        System.out.println("                                          HOTEL ROOM SCHEDULE");
+        System.out.println("=============================================================================================================");
         System.out.printf("%-12s %-10s %-12s %-20s %-15s %-12s %-12s %-12s%n",
             "Booking ID",
             "Room ID",
@@ -577,19 +526,13 @@ public class BookingUI {
         );
 
         System.out.println("--------------------------------------------------------------------------------------------------------------");
-        //======================================================
         // Single Rooms S01 - S10
-        //======================================================
         displayRoomSchedule("Single", "S", 1, 10);
         System.out.println("--------------------------------------------------------------------------------------------------------------");
-        //======================================================
         // Medium Rooms M01 - M10
-        //======================================================
         displayRoomSchedule("Medium", "M", 1, 10);
         System.out.println("--------------------------------------------------------------------------------------------------------------");
-        //======================================================
         // Large Rooms L01 - L10
-        //======================================================
         displayRoomSchedule("Large", "L", 1, 10);
         System.out.println("--------------------------------------------------------------------------------------------------------------");
         System.out.println("Total Rooms : 30");
@@ -598,6 +541,7 @@ public class BookingUI {
 
     private void displayBookingCalendar() {
         InputUtility.clearScreen();
+        System.out.println("             TARUMT RESORTS               ");
         System.out.println("======== MONTHLY BOOKING CALENDAR ========");
         System.out.print("Enter Year  : ");
         int year = InputUtility.getIntInput();
@@ -647,7 +591,7 @@ public class BookingUI {
 
     private void displayMonthlyBookingDetails(YearMonth yearMonth) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-
+        System.out.println("                                                     TARUMT RESORTS                                                                 ");
         System.out.println("\n============================================== MONTHLY BOOKING DETAILS ==========================================================");
 
         for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
@@ -782,7 +726,7 @@ public class BookingUI {
                 elite++;
             }
         }
-
+        System.out.println("                       TARUMT RESORTS                      ");
         System.out.println("\n================ MONTHLY BOOKING SUMMARY ================");
         System.out.println("Month                    : " + yearMonth.getMonth() + " " + yearMonth.getYear());
         System.out.println("Total Bookings           : " + bookingList.getSize());
@@ -807,6 +751,7 @@ public class BookingUI {
     
     private void displayOccupancy() {
         InputUtility.clearScreen();
+        System.out.println("                  TARUMT RESORTS               ");
         System.out.println("========== MONTHLY ROOM OCCUPANCY REPORT ==========");
 
         System.out.print("Enter Year  : ");
@@ -876,6 +821,7 @@ public class BookingUI {
 
         System.out.println();
         System.out.println("+-----------------------------------------------------------------------------------+");
+        System.out.println("|                                  TARUMT RESORTS                                   |");
         System.out.println("|                               ROOM OCCUPANCY REPORT                               |");
         System.out.println("+-----------------------------------------------------------------------------------+");
         System.out.printf("| %-18s : %-58s   |%n", "Generated At", generatedAt);
@@ -971,10 +917,7 @@ public class BookingUI {
             return "Low";
         }
     }
-    
-    //==========================================================
-    // Build Vertical Bar Chart
-    //==========================================================
+   
     private String[] buildVerticalBarChart(
             String title,
             String[] labels,
@@ -1018,9 +961,6 @@ public class BookingUI {
         return graphLines;
     }
 
-    //==========================================================
-    // Print Single Graph
-    //==========================================================
     private void printSingleGraph(String[] graph) {
         if (graph == null) {
             return;
@@ -1032,9 +972,6 @@ public class BookingUI {
         }
     }
     
-    //==========================================================
-    // Get Maximum Graph Value
-    //==========================================================
     private int getMaximumValue(int[] values) {
         int maximumValue = 1;
         if (values == null) {
@@ -1077,9 +1014,6 @@ public class BookingUI {
         return text.replaceAll( "\u001B\\[[;\\d]*m", "");
     }
     
-    //==========================================================
-    // Display Booking Table Header
-    //==========================================================
    private void displayTableHeader() {
         System.out.println("--------------------------------------------------------------------------------------------------------------");
         System.out.printf("%-13s %-20s %-15s %-12s %-10s %-12s %-12s %-12s%n",
@@ -1095,9 +1029,6 @@ public class BookingUI {
         System.out.println("--------------------------------------------------------------------------------------------------------------");
     }
 
-    //==========================================================
-    // Display One Booking as Row
-    //==========================================================
     private void displayBookingRow(Booking booking) {
          System.out.printf("%-13s %-20s %-15s %-12s %-10s %-12s %-12s %-12s%n",
              booking.getBookingID(),

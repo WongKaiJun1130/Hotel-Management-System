@@ -16,6 +16,8 @@ public class Utility {
 
     public static final String DETAIL_BORDER = "+----------------------------------------------------------+";
     
+    public static final String HOTEL_NAME = "TARUMT RESORTS";
+    
     public static void customMenu(String[] options, String menuTitle, String customMessage, Runnable[] actions) {
         boolean resume;
         do {

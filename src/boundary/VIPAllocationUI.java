@@ -47,7 +47,7 @@ public class VIPAllocationUI {
     }
 
     //Hotel Header
-    private void printHotelHeader() {
+    public void printHotelHeader() {
         System.out.println(MENU_BORDER);
         System.out.printf("|%-58s|%n", centerText("TARUMT RESORTS", 58));
         System.out.printf("|%-58s|%n", centerText("HOTEL MANAGEMENT SYSTEM", 58));

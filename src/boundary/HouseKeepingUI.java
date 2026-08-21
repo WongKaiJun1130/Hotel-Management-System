@@ -78,7 +78,7 @@ public class HouseKeepingUI {
 
     Utility.customMenu(
             options,
-            "Housekeeping Menu",
+            Utility.HOTEL_NAME + " - HOUSEKEEPING MENU",
             "Enter your choice: ",
             actions
     );
