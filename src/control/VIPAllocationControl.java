@@ -223,9 +223,7 @@ public class VIPAllocationControl {
             return 0;
         }
 
-        StackInterface<Guest> oldStack = vipStack;
-
-        vipStack = new DoublyLinkedList<>();
+        StackInterface<Guest> oldStack = new DoublyLinkedList<>();
 
         int totalTierChanged = 0;
 
@@ -864,8 +862,6 @@ public class VIPAllocationControl {
     public int loadGuestDatabase() {
 
         DoublyLinkedList<Guest> guests = guestDatabase.retrieveFromFile();
-
-        vipStack = new DoublyLinkedList<>();
 
         if (guests == null || guests.isEmpty()) {
 
