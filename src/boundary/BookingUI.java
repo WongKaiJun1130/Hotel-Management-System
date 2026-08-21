@@ -591,8 +591,8 @@ public class BookingUI {
 
     private void displayMonthlyBookingDetails(YearMonth yearMonth) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        System.out.println("                                                     TARUMT RESORTS                                                                 ");
-        System.out.println("\n============================================== MONTHLY BOOKING DETAILS ==========================================================");
+        System.out.println("                                                   TARUMT RESORTS                                                              ");
+        System.out.println("============================================= MONTHLY BOOKING DETAILS ========================================================");
 
         for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
             LocalDate currentDate = yearMonth.atDay(day);
