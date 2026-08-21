@@ -36,7 +36,10 @@ public class MainUI {
                 () -> HouseKeepingUI.menu(),
                 () -> loyaltyUI.loyaltyMenu(),
                 () -> allocationUI.allocationMenu(),
-                () -> System.exit(0)
+                () -> {
+                    System.out.println("THANKS FOR USING");
+                    System.exit(0);
+                }
             }
         );
     }
