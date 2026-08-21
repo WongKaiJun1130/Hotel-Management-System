@@ -48,7 +48,7 @@ public class HousekeepingControl {
           ListInterface<Room> dummyRooms = roomDao.retrieveFromFile();
           Iterator<Room> iterator = dummyRooms.getIterator();
           while (iterator.hasNext()) {
-              roomList.add(iterator.next());
+              roomList.add(iterator.next()); // adt method
           }
           dummyRoomsLoaded = true;
       }
@@ -101,20 +101,17 @@ public class HousekeepingControl {
     // for at least AUTO_ADVANCE_INTERVAL_MILLIS and there is a valid
     // next status, advances it automatically.
     private static void autoAdvanceDueRooms() {
-        long now = System.currentTimeMillis();
+    long now = System.currentTimeMillis();
 
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
+    // Lock roomList while reading/updating to ensure thread safety
+    synchronized (roomList) {
+        Iterator<Room> iterator = roomList.getIterator();
+        while (iterator.hasNext()) {
+            Room room = iterator.next();
+            if (room.getStatusHistory() == null) continue;
+
             StatusEntry current = room.getStatusHistory().getCurrentData();
-
-            if (current == null) {
-                continue;
-            }
-
-            // Rooms on hold for a guest's late check-out must stay put
-            // until a supervisor manually resumes them - never auto-advance
-            // out of this status, regardless of how long it's been sitting.
-            if (current.getStatusCode() == RoomStatusUtil.Late_CheckOut_Hold) {
+            if (current == null || current.getStatusCode() == RoomStatusUtil.Late_CheckOut_Hold) {
                 continue;
             }
 
@@ -124,13 +121,12 @@ public class HousekeepingControl {
             }
 
             int nextStatus = RoomStatusUtil.nextStatusAfter(current.getStatusCode());
-            if (nextStatus == -1) {
-                continue;
+            if (nextStatus != -1) {
+                advanceStatus(room, "Auto-advanced after " + formatInterval(AUTO_ADVANCE_INTERVAL_MILLIS));
             }
-
-            advanceStatus(room, "Auto-advanced after " + formatInterval(AUTO_ADVANCE_INTERVAL_MILLIS));
         }
     }
+}
 
     // Formats the interval as seconds if it's under a minute, otherwise
     // as minutes - so the note text stays accurate whether you're
@@ -266,29 +262,31 @@ public class HousekeepingControl {
     // every VIP room, "dirty" finds every dirty room, "101" finds room
     // 101. Mirrors VIPAllocationControl.searchGuest()'s pattern.
     public static ListInterface<Room> searchRooms(String keyword) {
-        ListInterface<Room> result = new DoublyLinkedList<>();
+    ListInterface<Room> result = new DoublyLinkedList<>();
+    if (keyword == null || keyword.trim().isEmpty()) {
+        return result;
+    }
 
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return result;
-        }
+    String searchKeyword = keyword.trim().toLowerCase();
 
-        String searchKeyword = keyword.trim().toLowerCase();
+    synchronized (roomList) {
+        Iterator<Room> iterator = roomList.getIterator();
+        while (iterator.hasNext()) {
+            Room room = iterator.next();
+            StatusEntry current = (room.getStatusHistory() != null) ? room.getStatusHistory().getCurrentData() : null;
 
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            StatusEntry current = room.getStatusHistory().getCurrentData();
-
+            String statusLabel = (current != null) ? RoomStatusUtil.statusName(current.getStatusCode()) : "";
             String searchData = room.getRoomNum() + " "
                     + RoomTypeUtil.roomTypeName(room.getRoomType()) + " "
-                    + RoomStatusUtil.statusName(current.getStatusCode());
+                    + statusLabel;
 
             if (searchData.toLowerCase().contains(searchKeyword)) {
                 result.add(room);
             }
         }
-
-        return result;
     }
+    return result;
+}
 
 
     // ==============================
@@ -500,4 +498,37 @@ public class HousekeepingControl {
             return booking;
         }
     }
+    
+    public static boolean processGuestCheckOut(String roomNum, BookingControl bookingControl, StringBuilder resultMessage) {
+    Room room = findRoom(roomNum);
+
+    if (room == null) {
+        resultMessage.append("Room ").append(roomNum).append(" not found.");
+        return false;
+    }
+
+    // 1. Update Housekeeping Status
+    boolean statusUpdated = guestCheckOut(room);
+    if (!statusUpdated) {
+        resultMessage.append("Room ").append(room.getRoomNum()).append(" is already marked Dirty (needs cleaning).");
+        return false;
+    }
+
+    resultMessage.append("Room ").append(room.getRoomNum())
+                 .append(" checked out. Housekeeping Status updated to: Dirty (needs cleaning).\n");
+
+    // 2. Update Booking Module Status
+    if (bookingControl != null) {
+        Booking closedBooking = bookingControl.checkOutBookingByRoomID(room.getRoomNum());
+        if (closedBooking != null) {
+            resultMessage.append("Booking ").append(closedBooking.getBookingID())
+                         .append(" (").append(closedBooking.getGuestName())
+                         .append(") updated to: Checked Out.");
+        } else {
+            resultMessage.append("No active booking record found for Room ").append(room.getRoomNum()).append(".");
+        }
+    }
+
+    return true;
+}
 }
