@@ -142,7 +142,7 @@ public class HousekeepingControl {
 
     public static Room registerRoom(String roomNum, int roomType) {
         Room room = new Room(roomNum, roomType);
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room Registered"));
+        room.getStatusHistory().addAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room Registered"));
         synchronized (roomList) {
             roomList.add(room);
         }
@@ -199,7 +199,7 @@ public class HousekeepingControl {
                 return -1;
             }
 
-            room.getStatusHistory().insertAndAdvance(new StatusEntry(nextStatus, note));
+            room.getStatusHistory().addAndAdvance(new StatusEntry(nextStatus, note));
         }
         syncToDao();
         return nextStatus;
@@ -221,7 +221,7 @@ public class HousekeepingControl {
     // without discarding whatever cleaning step was queued next
     public static void interruptForLateCheckout(Room room, String note) {
         synchronized (roomList) {
-            room.getStatusHistory().spliceAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, note));
+            room.getStatusHistory().insertAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, note));
         }
         syncToDao();
     }
@@ -246,7 +246,7 @@ public class HousekeepingControl {
                 return false;
             }
 
-            room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Guest checked out - needs cleaning"));
+            room.getStatusHistory().addAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Guest checked out - needs cleaning"));
         }
         syncToDao();
         return true;

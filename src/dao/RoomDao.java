@@ -152,7 +152,7 @@ public class RoomDao {
 
         Room room = new Room(roomNumber, roomType);
 
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room registered!"));
+        room.getStatusHistory().addAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room registered!"));
 
         return room;
     }
@@ -182,7 +182,7 @@ public class RoomDao {
                 statusNote = "";
             }
 
-            room.getStatusHistory().insertAndAdvance(new StatusEntry(nextStatus, statusNote));
+            room.getStatusHistory().addAndAdvance(new StatusEntry(nextStatus, statusNote));
 
             currentStatus = nextStatus;
         }
@@ -199,7 +199,7 @@ public class RoomDao {
 
         room.getStatusHistory().rollback();
 
-        room.getStatusHistory().spliceAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, "Guest requested late check-out"));
+        room.getStatusHistory().insertAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, "Guest requested late check-out"));
 
         return room;
     }
