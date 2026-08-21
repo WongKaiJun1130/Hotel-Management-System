@@ -360,4 +360,58 @@ public class RoomDao {
     public DoublyLinkedList<Room> getAllRooms() {
         return roomData;
     }
+    
+    public int getTotalRoomByType(
+        int roomType) {
+
+        int count = 0;
+
+        for (int i = 1;
+             i <= roomData.getSize();
+             i++) {
+
+            Room room =
+                    roomData.getEntry(i);
+
+            if (room != null
+                    && room.getRoomType()
+                    == roomType) {
+
+                count++;
+            }
+        }
+        return count;
+    }
+    
+    public int getReadyRoomByType(int roomType) {
+
+        int count = 0;
+
+        for (int i = 1;
+             i <= roomData.getSize();
+             i++) {
+
+            Room room =
+                    roomData.getEntry(i);
+
+            if (room == null
+                    || room.getRoomType()
+                    != roomType) {
+
+                continue;
+            }
+
+            StatusEntry currentStatus =
+                    room.getStatusHistory()
+                            .getCurrentData();
+
+            if (currentStatus != null
+                    && currentStatus.getStatusCode()
+                    == RoomStatusUtil.Ready_For_CheckIN) {
+
+                count++;
+            }
+        }
+        return count;
+    }
 }
