@@ -753,7 +753,7 @@ public class BookingUI {
 
     InputUtility.clearScreen();
 
-    System.out.println("============ TARUMT RESORTS ============");
+    System.out.println("============ TARUMT RESORTS =============");
 
     System.out.println("===== MONTHLY ROOM OCCUPANCY REPORT =====");
 
