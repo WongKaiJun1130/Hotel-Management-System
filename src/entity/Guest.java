@@ -22,9 +22,6 @@ public class Guest implements Serializable {
     private String checkInDate;
     private String arrivalDateTime;
 
-    //==========================================================
-    // Constructor
-    //==========================================================
     public Guest(String guestID, String guestName, String phoneNumber, String loyaltyTier, String roomType, String roomStatus, String checkInDate, String arrivalDateTime) {
 
         this.guestID = guestID;
@@ -37,9 +34,6 @@ public class Guest implements Serializable {
         this.arrivalDateTime = arrivalDateTime;
     }
 
-    //==========================================================
-    // Getter Methods
-    //==========================================================
     public String getGuestID() {
         return guestID;
     }
@@ -72,9 +66,6 @@ public class Guest implements Serializable {
         return arrivalDateTime;
     }
 
-    //==========================================================
-    // Setter Methods
-    //==========================================================
     public void setGuestName(String guestName) {
         this.guestName = guestName;
     }
@@ -103,9 +94,6 @@ public class Guest implements Serializable {
         this.arrivalDateTime = arrivalDateTime;
     }
 
-    //==========================================================
-    // Get Loyalty Tier Priority
-    //==========================================================
     public int getPriority() {
 
         if (loyaltyTier == null) {
@@ -131,9 +119,6 @@ public class Guest implements Serializable {
         }
     }
 
-    //==========================================================
-    // Equals
-    //==========================================================
     @Override
     public boolean equals(Object obj) {
 
@@ -150,17 +135,11 @@ public class Guest implements Serializable {
         return Objects.equals(guestID, guest.guestID);
     }
 
-    //==========================================================
-    // Hash Code
-    //==========================================================
     @Override
     public int hashCode() {
         return Objects.hash(guestID);
     }
 
-    //==========================================================
-    // To String
-    //==========================================================
     @Override
     public String toString() {
 

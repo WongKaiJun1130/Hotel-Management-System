@@ -28,11 +28,6 @@ public class RoomTypeUtil {
         }
     }
 
-    // Booking module labels rooms "Single/Medium/Large" while Housekeeping
-    // labels them "Normal/Deluxe/VIP Room" - same three tiers, different
-    // vocabulary. This lets cross-module code (matching a Housekeeping
-    // Room against a Booking's room-type string) recognise either naming
-    // instead of silently matching nothing.
     public static boolean matchesLabel(
         int roomType,
         String label) {

@@ -13,9 +13,7 @@ public class LoyaltyDao {
 
     private static DoublyLinkedList<LoyaltyRecord> loyaltyData = new DoublyLinkedList<>();
 
-    //====================================================
-    // Create Initial Loyalty Data
-    //====================================================
+  
     public static void createLoyaltyData() {
 
         GuestDao guestDatabase = new GuestDao();
@@ -85,9 +83,7 @@ public class LoyaltyDao {
         System.out.println(loyaltyRecords.getSize() + " Loyalty Records Created In Memory!");
     }
 
-    //====================================================
-    // Save Loyalty Data In Memory
-    //====================================================
+   
     public void saveToFile(DoublyLinkedList<LoyaltyRecord> loyaltyRecords) {
 
         loyaltyData = new DoublyLinkedList<>();
@@ -105,9 +101,7 @@ public class LoyaltyDao {
         }
     }
 
-    //====================================================
-    // Retrieve Loyalty Data From Memory
-    //====================================================
+   
     public DoublyLinkedList<LoyaltyRecord> retrieveFromFile() {
 
         DoublyLinkedList<LoyaltyRecord> copiedLoyaltyRecords = new DoublyLinkedList<>();
@@ -123,9 +117,7 @@ public class LoyaltyDao {
         return copiedLoyaltyRecords;
     }
 
-    //====================================================
-    // Add Loyalty Record
-    //====================================================
+    
     public boolean addLoyaltyRecord(LoyaltyRecord loyaltyRecord) {
 
         if (loyaltyRecord == null) {
@@ -136,9 +128,7 @@ public class LoyaltyDao {
         return true;
     }
 
-    //====================================================
-    // Get Loyalty Record
-    //====================================================
+
     public LoyaltyRecord getLoyaltyRecord(int position) {
 
         if (position < 1 || position > loyaltyData.getSize()) {
@@ -148,9 +138,6 @@ public class LoyaltyDao {
         return loyaltyData.getEntry(position);
     }
 
-    //====================================================
-    // Remove Loyalty Record
-    //====================================================
     public LoyaltyRecord removeLoyaltyRecord(int position) {
 
         if (position < 1 || position > loyaltyData.getSize()) {
@@ -160,16 +147,10 @@ public class LoyaltyDao {
         return loyaltyData.remove(position);
     }
 
-    //====================================================
-    // Get Total Loyalty Records
-    //====================================================
     public int getTotalLoyaltyRecords() {
         return loyaltyData.getSize();
     }
 
-    //====================================================
-    // Check Loyalty Data Is Empty
-    //====================================================
     public boolean isLoyaltyDataEmpty() {
         return loyaltyData.isEmpty();
     }

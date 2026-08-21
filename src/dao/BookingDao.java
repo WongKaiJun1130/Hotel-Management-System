@@ -10,23 +10,17 @@ import entity.Booking;
 
 public class BookingDao {
 
-    //====================================================
-    // In-Memory Booking Data
-    //====================================================
+    
     private static ListInterface<Booking> bookingList = new DoublyLinkedList<>();
 
 
-    //====================================================
-    // Create Initial Booking Data
-    //====================================================
+    
     public static void createBookingData() {
 
         bookingList = new DoublyLinkedList<>();
 
 
-        //================================================
-        // Served Booking
-        //================================================
+        
         bookingList.add(new Booking(
                 "B0001",
                 "John Tan",
@@ -88,9 +82,7 @@ public class BookingDao {
         ));
 
 
-        //================================================
-        // Waiting Booking
-        //================================================
+        
         bookingList.add(new Booking(
                 "B0006",
                 "Sarah Tan",
@@ -159,9 +151,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Save Booking Data In Memory
-    //====================================================
+    
     public void saveToFile(
             ListInterface<Booking> bookings) {
 
@@ -170,9 +160,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Get All Booking
-    //====================================================
+    
     public ListInterface<Booking> getAllBookings() {
 
         return copyBookingList(
@@ -181,9 +169,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Get Waiting Booking
-    //====================================================
+    
     public ListInterface<Booking> getWaitingBooking() {
 
         ListInterface<Booking> result =
@@ -211,9 +197,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Get Served Booking
-    //====================================================
+    
     public ListInterface<Booking> getServedBooking() {
 
         ListInterface<Booking> result =
@@ -241,9 +225,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Add Waiting Booking
-    //====================================================
+    
     public boolean addWaitingBooking(
             Booking booking) {
 
@@ -265,9 +247,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Add Served Booking
-    //====================================================
+    
     public boolean addServedBooking(
             Booking booking) {
 
@@ -289,9 +269,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Change Waiting Booking To Served
-    //====================================================
+    
     public boolean servedBooking(
             String bookingID) {
 
@@ -333,9 +311,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Search Waiting Booking By ID
-    //====================================================
+    
     public Booking searchWaitingBookingByID(
             String bookingID) {
 
@@ -373,9 +349,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Search Served Booking By ID
-    //====================================================
+    
     public Booking searchServedBookingByID(
             String bookingID) {
 
@@ -413,9 +387,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Remove Waiting Booking
-    //====================================================
+    
     public Booking removeWaitingBooking(
             int position) {
 
@@ -453,9 +425,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Remove Served Booking
-    //====================================================
+    
     public Booking removeServedBooking(
             int position) {
 
@@ -493,9 +463,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Get Total Waiting Booking
-    //====================================================
+    
     public int getTotalWaitingBooking() {
 
         return getWaitingBooking()
@@ -503,9 +471,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Get Total Served Booking
-    //====================================================
+    
     public int getTotalServedBooking() {
 
         return getServedBooking()
@@ -513,9 +479,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Check Waiting Booking Is Empty
-    //====================================================
+    
     public boolean isWaitingBookingEmpty() {
 
         return getWaitingBooking()
@@ -523,9 +487,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Check Served Booking Is Empty
-    //====================================================
+    
     public boolean isServedBookingEmpty() {
 
         return getServedBooking()
@@ -533,9 +495,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Generate Next Booking ID
-    //====================================================
+    
     public String generateBookingID() {
 
         int maxID = 0;
@@ -591,9 +551,7 @@ public class BookingDao {
     }
 
 
-    //====================================================
-    // Copy Booking List
-    //====================================================
+    
     private static ListInterface<Booking>
             copyBookingList(
                     ListInterface<Booking> sourceList) {
