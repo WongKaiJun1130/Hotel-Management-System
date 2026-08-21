@@ -50,12 +50,11 @@ public class HouseKeepingUI {
         String[] options = {
             "1. Show Room Status",
             "2. Manage Room Status",
-            "3. Guest Check-Out ",
+            "3. Guest Check-Out",
             "4. Cleaning Queue (Dirty + In Progress)",
             "5. Report: Room Status History",
             "6. Report: Room Status Summary",
-            "7. Filter Rooms (Multi-Criteria)",
-            "8. Report: Business Cycle (Filter + Sort)",
+            "7. Report: Room Demand & Availability",
             "0. Back to Main Menu"
         };
 
@@ -66,8 +65,7 @@ public class HouseKeepingUI {
             () -> showRoomsCleanInProgress(),
             () -> reportStatusHistory(),
             () -> reportStatusSummary(),
-            () -> filterRoomsUI(),
-            () -> businessCycleReportUI(),
+            () -> roomDemandAndAvailabilityReportUI(),
             () -> Navigation.stack.pop()
         };
 
@@ -207,12 +205,10 @@ public class HouseKeepingUI {
             return;
         }
 
-        // FIX: Use safe getter method instead of directly accessing public static roomList
         printRoomTable(HousekeepingControl.getRoomsSortedByRoomNumber());
         printFooter();
     }
 
-    // FIX 1: NPE Safeguard during status access
     private static void printRoomTable(ListInterface<Room> rooms) {
         System.out.printf("  %-8s %-14s %-20s%n", "Room", "Type", "Status");
         System.out.printf("  %-8s %-14s %-20s%n", "------", "------------", "------------------");
@@ -291,7 +287,7 @@ public class HouseKeepingUI {
         InputUtility.pressEnterToContinue();
     }
 
-    // Filter Helpers
+    // Filter Prompts for Reports
     private static Integer promptRoomTypeFilter() {
         System.out.println("Filter by Room Type:");
         System.out.println("  1. Single Room");
@@ -353,284 +349,80 @@ public class HouseKeepingUI {
         }
     }
 
-    // 7. Filter Rooms
-    private static void filterRoomsUI() {
-        printHeader("FILTER ROOMS");
-
-        Integer typeFilter = promptRoomTypeFilter();
-        Integer statusFilter = promptStatusFilter();
-
-        ListInterface<Room> results = HousekeepingControl.filterRooms(typeFilter, statusFilter);
-
-        System.out.println();
-        System.out.println("  Type Filter   : " + (typeFilter == null ? "Any" : RoomTypeUtil.roomTypeName(typeFilter)));
-        System.out.println("  Status Filter : " + (statusFilter == null ? "Any" : RoomStatusUtil.statusName(statusFilter)));
-        System.out.println();
-
-        if (results.isEmpty()) {
-            System.out.println("  No rooms matched the selected filters.");
-        } else {
-            printRoomTable(results);
-            System.out.println();
-            System.out.println("  " + results.getSize() + " room(s) matched.");
-        }
-
-        printFooter();
-        InputUtility.pressEnterToContinue();
-    }
-
-    // FIX 2: NPE Safeguard & Safe Copy Iterator for Business Cycle Report
-    // 8. Report: Business Cycle (Filter + Sort + Terminal Visual Graphs)
-private static void businessCycleReportUI() {
-    printHeader("BUSINESS CYCLE REPORT - SETUP");
-
-    Integer typeFilter = promptRoomTypeFilter();
-    Integer statusFilter = promptStatusFilter();
-    int sortOption = promptSortOption();
-
-    ListInterface<Room> report = HousekeepingControl.generateBusinessCycleReport(typeFilter, statusFilter, sortOption);
-
-    printHeader("BUSINESS CYCLE REPORT");
-    System.out.println("  Type Filter   : " + (typeFilter == null ? "Any" : RoomTypeUtil.roomTypeName(typeFilter)));
-    System.out.println("  Status Filter : " + (statusFilter == null ? "Any" : RoomStatusUtil.statusName(statusFilter)));
-    System.out.println("  Sorted By     : " + sortLabel(sortOption));
-    System.out.println();
-
-    if (report.isEmpty()) {
-        System.out.println("  No rooms matched the selected filters.");
-        printFooter();
-        InputUtility.pressEnterToContinue();
-        return;
-    }
-
-    // 1. Table View
-    printRoomTable(report);
-
-    // 2. Aggregate Data
-    int[] statusBreakdown = new int[5];
-    int[] typeBreakdown = new int[3];
-
-    Iterator<Room> breakdownIterator = report.getIterator();
-    while (breakdownIterator.hasNext()) {
-        Room room = breakdownIterator.next();
-        if (room != null) {
-            if (room.getStatusHistory() != null && room.getStatusHistory().getCurrentData() != null) {
-                int status = room.getStatusHistory().getCurrentData().getStatusCode();
-                if (status >= 0 && status < statusBreakdown.length) {
-                    statusBreakdown[status]++;
-                }
-            }
-            int type = room.getRoomType();
-            if (type >= 0 && type < typeBreakdown.length) {
-                typeBreakdown[type]++;
-            }
-        }
-    }
-
-    // 3. Cross-Module Matching
-    BookingControl bookingControl = new BookingControl();
-    int readyWithMatch = 0;
-
-    Iterator<Room> matchIterator = report.getIterator();
-    while (matchIterator.hasNext()) {
-        Room room = matchIterator.next();
-        if (room != null && room.getStatusHistory() != null && room.getStatusHistory().getCurrentData() != null) {
-            int status = room.getStatusHistory().getCurrentData().getStatusCode();
-            if (status == RoomStatusUtil.Ready_For_CheckIN) {
-                ListInterface<Booking> matches = HousekeepingControl.getWaitingBookingsForRoom(room, bookingControl);
-                if (!matches.isEmpty()) {
-                    readyWithMatch++;
-                }
-            }
-        }
-    }
-
-    // 4. Terminal Visual Graphs (Bar Charts)
-    printHeader("BUSINESS CYCLE VISUAL ANALYSIS");
-
-    printBarChart("Status Distribution Graph",
-            new String[]{"Dirty", "Cleaning", "Inspected", "Ready", "Hold"},
-            new int[]{
-                statusBreakdown[RoomStatusUtil.Dirty],
-                statusBreakdown[RoomStatusUtil.Clean_In_Progress],
-                statusBreakdown[RoomStatusUtil.Inspected],
-                statusBreakdown[RoomStatusUtil.Ready_For_CheckIN],
-                statusBreakdown[RoomStatusUtil.Late_CheckOut_Hold]
-            });
-
-    printBarChart("Room Type Composition Graph",
-            new String[]{"Single", "Medium", "Large"},
-            new int[]{
-                typeBreakdown[RoomTypeUtil.Single_Room],
-                typeBreakdown[RoomTypeUtil.Medium_Room],
-                typeBreakdown[RoomTypeUtil.Large_Room]
-            });
-
-    // 5. Summary Readout
-    System.out.println();
-    System.out.println("  --------------------------------------------------");
-    System.out.println("  Total Filtered Set Size  : " + report.getSize() + " room(s)");
-    System.out.println("  Ready Rooms w/ Guest Match: " + readyWithMatch);
-    System.out.println("  --------------------------------------------------");
-
-    printFooter();
-    InputUtility.pressEnterToContinue();
-}
-
-    // 3. Check-Out
-    private static void guestCheckOut() {
-        printHeader("GUEST CHECK-OUT PROCESSING");
-
-        System.out.print("Enter Room Number: ");
-        String roomNum = InputUtility.getStringInput().trim();
-
-        Room room = HousekeepingControl.findRoom(roomNum);
-
-        if (room == null) {
-            System.out.println("Room " + roomNum + " not found.");
-            InputUtility.pressEnterToContinue();
-            return;
-        }
-
-        boolean success = HousekeepingControl.guestCheckOut(room);
-        if (success) {
-            System.out.println("Room " + room.getRoomNum() + " checked out. Status updated to: Dirty (needs cleaning).");
-
-            BookingControl bookingControl = new BookingControl();
-            Booking closedBooking = bookingControl.checkOutBookingByRoomID(room.getRoomNum());
-            if (closedBooking != null) {
-                System.out.println("Booking " + closedBooking.getBookingID() + " (" + closedBooking.getGuestName()
-                        + ") marked as Checked Out.");
-            }
-        } else {
-            System.out.println("Room " + room.getRoomNum() + " is already marked Dirty (needs cleaning).");
-        }
-        InputUtility.pressEnterToContinue();
-    }
-
-    // FIX 3: Safe copied list iterator for Cleaning Queue
-    private static void showRoomsCleanInProgress() {
-        printHeader("HOUSEKEEPING CLEANING QUEUE");
-
-        if (HousekeepingControl.roomIsEmpty()) {
-            System.out.println("  No rooms registered yet.");
-            printFooter();
-            InputUtility.pressEnterToContinue();
-            return;
-        }
-
-        ListInterface<Room> allRooms = HousekeepingControl.getRoomsSortedByRoomNumber();
-
-        System.out.println("  Awaiting Cleaning (Dirty)");
-        System.out.printf("  %-8s %-14s%n", "Room", "Type");
-        System.out.printf("  %-8s %-14s%n", "------", "------------");
-
-        boolean foundDirty = false;
-        Iterator<Room> dirtyIterator = allRooms.getIterator();
-        while (dirtyIterator.hasNext()) {
-            Room room = dirtyIterator.next();
-            if (room == null) continue;
-
-            StatusEntry current = (room.getStatusHistory() != null) ? room.getStatusHistory().getCurrentData() : null;
-            if (current != null && current.getStatusCode() == RoomStatusUtil.Dirty) {
-                System.out.println("  Room " + room.getRoomNum() + " [" + RoomTypeUtil.roomTypeName(room.getRoomType()) + "]");
-                foundDirty = true;
-            }
-        }
-        if (!foundDirty) {
-            System.out.println("  None.");
-        }
-
-        System.out.println();
-        System.out.println("  Currently Clean In Progress");
-        System.out.printf("  %-8s %-14s%n", "Room", "Type");
-        System.out.printf("  %-8s %-14s%n", "------", "------------");
-
-        boolean foundInProgress = false;
-        Iterator<Room> inProgressIterator = allRooms.getIterator();
-        while (inProgressIterator.hasNext()) {
-            Room room = inProgressIterator.next();
-            if (room == null) continue;
-
-            StatusEntry current = (room.getStatusHistory() != null) ? room.getStatusHistory().getCurrentData() : null;
-            if (current != null && current.getStatusCode() == RoomStatusUtil.Clean_In_Progress) {
-                System.out.println("  Room " + room.getRoomNum() + " [" + RoomTypeUtil.roomTypeName(room.getRoomType()) + "]");
-                foundInProgress = true;
-            }
-        }
-        if (!foundInProgress) {
-            System.out.println("  None.");
-        }
-
-        printFooter();
-        InputUtility.pressEnterToContinue();
-    }
-
     // 2. Manage Room Status
     private static void manageRoomStatus() {
         Room room = selectOrRegisterRoom();
         if (room == null) {
             return;
         }
-        showCurrentRoomState(room);
-        InputUtility.pressEnterToContinue();
 
-        StatusEntry current = (room.getStatusHistory() != null) ? room.getStatusHistory().getCurrentData() : null;
-        int currentStatus = (current != null) ? current.getStatusCode() : -1;
-        boolean canAssignToBooking = (currentStatus == RoomStatusUtil.Ready_For_CheckIN);
+        boolean continueManaging = true;
 
-        String[] options;
-        Runnable[] actions;
+        while (continueManaging) {
+            InputUtility.clearScreen();
+            showCurrentRoomState(room);
 
-        if (canAssignToBooking) {
-            options = new String[]{
-                "1. Advance to Next Status",
-                "2. Correct Mistake (Rollback)",
-                "3. Guest Requests Late Check-Out (Interrupt)",
-                "4. Resume Cleaning (After Late Check-Out Resolved)",
-                "5. Assign to Waiting Booking (Check-In)",
-                "0. Back"
-            };
-            actions = new Runnable[]{
-                () -> advanceStatus(room),
-                () -> rollbackStatus(room),
-                () -> interruptForLateCheckOut(room),
-                () -> resumeStatus(room),
-                () -> assignRoomToBooking(room),
-                () -> {}
-            };
-        } else {
-            options = new String[]{
-                "1. Advance to Next Status",
-                "2. Correct Mistake (Rollback)",
-                "3. Guest Requests Late Check-Out (Interrupt)",
-                "4. Resume Cleaning (After Late Check-Out Resolved)",
-                "0. Back"
-            };
-            actions = new Runnable[]{
-                () -> advanceStatus(room),
-                () -> rollbackStatus(room),
-                () -> interruptForLateCheckOut(room),
-                () -> resumeStatus(room),
-                () -> {}
-            };
+            StatusEntry current = (room.getStatusHistory() != null) ? room.getStatusHistory().getCurrentData() : null;
+            int currentStatus = (current != null) ? current.getStatusCode() : -1;
+            boolean canAssignToBooking = (currentStatus == RoomStatusUtil.Ready_For_CheckIN);
+
+            if (canAssignToBooking) {
+                System.out.println("  1. Advance to Next Status");
+                System.out.println("  2. Correct Mistake (Rollback)");
+                System.out.println("  3. Guest Requests Late Check-Out (Interrupt)");
+                System.out.println("  4. Resume Cleaning (After Late Check-Out Resolved)");
+                System.out.println("  5. Assign to Waiting Booking (Check-In)");
+                System.out.println("  0. Back");
+                System.out.println(border());
+                System.out.print("Enter your choice: ");
+
+                String choice = InputUtility.getStringInput().trim();
+                switch (choice) {
+                    case "1": advanceStatus(room); break;
+                    case "2": rollbackStatus(room); break;
+                    case "3": interruptForLateCheckOut(room); break;
+                    case "4": resumeStatus(room); break;
+                    case "5": assignRoomToBooking(room); break;
+                    case "0": continueManaging = false; break;
+                    default:
+                        System.out.println("Invalid choice!");
+                        InputUtility.pressEnterToContinue();
+                }
+            } else {
+                System.out.println("  1. Advance to Next Status");
+                System.out.println("  2. Correct Mistake (Rollback)");
+                System.out.println("  3. Guest Requests Late Check-Out (Interrupt)");
+                System.out.println("  4. Resume Cleaning (After Late Check-Out Resolved)");
+                System.out.println("  0. Back");
+                System.out.println(border());
+                System.out.print("Enter your choice: ");
+
+                String choice = InputUtility.getStringInput().trim();
+                switch (choice) {
+                    case "1": advanceStatus(room); break;
+                    case "2": rollbackStatus(room); break;
+                    case "3": interruptForLateCheckOut(room); break;
+                    case "4": resumeStatus(room); break;
+                    case "0": continueManaging = false; break;
+                    default:
+                        System.out.println("Invalid choice!");
+                        InputUtility.pressEnterToContinue();
+                }
+            }
         }
-
-        Utility.customMenu(
-                options,
-                "Manage Room " + room.getRoomNum(),
-                "Enter your choice: ",
-                actions
-        );
     }
 
     private static void showCurrentRoomState(Room room) {
         StatusEntry current = (room.getStatusHistory() != null) ? room.getStatusHistory().getCurrentData() : null;
         String statusName = (current != null) ? RoomStatusUtil.statusName(current.getStatusCode()) : "Unknown";
-        System.out.println();
-        System.out.println("  Room " + room.getRoomNum()
-                + " [" + RoomTypeUtil.roomTypeName(room.getRoomType()) + "]"
-                + "  |  Current Status: " + statusName);
+
+        printHeader("MANAGE ROOM " + room.getRoomNum());
+        System.out.println("  Room Type      : " + RoomTypeUtil.roomTypeName(room.getRoomType()));
+        System.out.println("  Current Status : " + statusName);
+        if (current != null && current.getNote() != null && !current.getNote().isEmpty()) {
+            System.out.println("  Status Note    : " + current.getNote());
+        }
+        System.out.println(border());
     }
 
     private static Room selectOrRegisterRoom() {
@@ -684,39 +476,41 @@ private static void businessCycleReportUI() {
         } else {
             System.out.println("Room " + room.getRoomNum() + " updated to: " + RoomStatusUtil.statusName(nextStatus));
         }
-        showCurrentRoomState(room);
         InputUtility.pressEnterToContinue();
     }
 
     private static void rollbackStatus(Room room) {
-        int restoredStatus = HousekeepingControl.rollbackStatus(room);
+        System.out.print("Note (optional rollback reason): ");
+        String note = InputUtility.getStringInput().trim();
+
+        int restoredStatus = HousekeepingControl.rollbackStatus(room, note);
         if (restoredStatus == -1) {
             System.out.println("Room " + room.getRoomNum() + ": already at earliest status, cannot roll back.");
         } else {
             System.out.println("Room " + room.getRoomNum() + " rolled back to: " + RoomStatusUtil.statusName(restoredStatus));
         }
-        showCurrentRoomState(room);
         InputUtility.pressEnterToContinue();
     }
 
     private static void interruptForLateCheckOut(Room room) {
-        System.out.print("Note (e.g. requested check-out time): ");
-        String note = InputUtility.getStringInput().trim();
-
+        String note = "Late check out";
         HousekeepingControl.interruptForLateCheckout(room, note);
-        System.out.println("Room " + room.getRoomNum() + " placed on hold: " + note);
-        showCurrentRoomState(room);
+        System.out.println("Room " + room.getRoomNum() + " status note updated to: " + note);
         InputUtility.pressEnterToContinue();
     }
 
     private static void resumeStatus(Room room) {
         int resumedStatus = HousekeepingControl.resumeStatus(room);
+
         if (resumedStatus == -1) {
-            System.out.println("Room " + room.getRoomNum() + ": no queued status to resume.");
+            System.out.println("Room " + room.getRoomNum() 
+                    + ": Room is not currently on Late Check-Out Hold.");
         } else {
-            System.out.println("Room " + room.getRoomNum() + " resumed to: " + RoomStatusUtil.statusName(resumedStatus));
+            System.out.println("Room " + room.getRoomNum() 
+                    + " resumed to status: " + RoomStatusUtil.statusName(resumedStatus));
+            System.out.println("Status Note: Resumed cleaning (After late check out)");
         }
-        showCurrentRoomState(room);
+
         InputUtility.pressEnterToContinue();
     }
 
@@ -773,11 +567,125 @@ private static void businessCycleReportUI() {
             System.out.println("Could not assign this booking - it may have already been processed. Please try again.");
         }
 
-        showCurrentRoomState(room);
         InputUtility.pressEnterToContinue();
     }
 
-    // 5. Report: Status History
+    // 3. Guest Check-Out
+    private static void guestCheckOut() {
+        printHeader("GUEST CHECK-OUT PROCESSING");
+
+        System.out.print("Enter Room Number: ");
+        String roomNum = InputUtility.getStringInput().trim();
+
+        if (roomNum.isEmpty()) {
+            System.out.println("Room number cannot be empty.");
+            InputUtility.pressEnterToContinue();
+            return;
+        }
+
+        Room room = HousekeepingControl.findRoom(roomNum);
+
+        if (room == null) {
+            System.out.println("Room " + roomNum + " not found.");
+            InputUtility.pressEnterToContinue();
+            return;
+        }
+
+        boolean housekeepingUpdated = HousekeepingControl.guestCheckOut(room);
+
+        BookingControl bookingControl = new BookingControl();
+        Booking closedBooking = bookingControl.checkOutBookingByRoomID(room.getRoomNum());
+
+        if (housekeepingUpdated) {
+            System.out.println("✔ Room " + room.getRoomNum() + " status updated to: Dirty (needs cleaning).");
+
+            if (closedBooking != null) {
+                System.out.println("✔ Matching Booking " + closedBooking.getBookingID()
+                        + " (" + closedBooking.getGuestName() + ") updated to: Checked Out.");
+            } else {
+                System.out.println("⚠ Housekeeping status updated, but no active 'Served' booking record was linked to Room "
+                        + room.getRoomNum() + ".");
+            }
+        } else {
+            System.out.println("✖ Room " + room.getRoomNum() + " is already marked Dirty (needs cleaning).");
+            if (closedBooking != null) {
+                System.out.println("✔ Associated Booking " + closedBooking.getBookingID() + " updated to: Checked Out.");
+            }
+        }
+
+        InputUtility.pressEnterToContinue();
+    }
+
+    // 4. Cleaning Queue
+    private static void showRoomsCleanInProgress() {
+        printHeader("HOUSEKEEPING CLEANING QUEUE");
+
+        if (HousekeepingControl.roomIsEmpty()) {
+            System.out.println("  No rooms registered yet.");
+            printFooter();
+            InputUtility.pressEnterToContinue();
+            return;
+        }
+
+        ListInterface<Room> snapshotList = HousekeepingControl.getRoomsSortedByRoomNumber();
+
+        System.out.println("  [Awaiting Cleaning - DIRTY]");
+        System.out.printf("  %-8s %-16s %-20s%n", "Room", "Type", "Status");
+        System.out.printf("  %-8s %-16s %-20s%n", "------", "----------------", "--------------------");
+
+        boolean foundDirty = false;
+        Iterator<Room> dirtyIterator = snapshotList.getIterator();
+
+        while (dirtyIterator.hasNext()) {
+            Room room = dirtyIterator.next();
+            if (room == null || room.getStatusHistory() == null) continue;
+
+            StatusEntry current = room.getStatusHistory().getCurrentData();
+            if (current != null && current.getStatusCode() == RoomStatusUtil.Dirty) {
+                System.out.printf("  %-8s %-16s %-20s%n",
+                        room.getRoomNum(),
+                        RoomTypeUtil.roomTypeName(room.getRoomType()),
+                        "Dirty (Needs Cleaning)");
+                foundDirty = true;
+            }
+        }
+
+        if (!foundDirty) {
+            System.out.println("  (None - No rooms currently awaiting cleaning)");
+        }
+
+        System.out.println();
+
+        System.out.println("  [Currently In Progress - CLEANING]");
+        System.out.printf("  %-8s %-16s %-20s%n", "Room", "Type", "Status");
+        System.out.printf("  %-8s %-16s %-20s%n", "------", "----------------", "--------------------");
+
+        boolean foundInProgress = false;
+        Iterator<Room> inProgressIterator = snapshotList.getIterator();
+
+        while (inProgressIterator.hasNext()) {
+            Room room = inProgressIterator.next();
+            if (room == null || room.getStatusHistory() == null) continue;
+
+            StatusEntry current = room.getStatusHistory().getCurrentData();
+            if (current != null && current.getStatusCode() == RoomStatusUtil.Clean_In_Progress) {
+                System.out.printf("  %-8s %-16s %-20s%n",
+                        room.getRoomNum(),
+                        RoomTypeUtil.roomTypeName(room.getRoomType()),
+                        "Cleaning In Progress");
+                foundInProgress = true;
+            }
+        }
+
+        if (!foundInProgress) {
+            System.out.println("  (None - No active cleaning tasks in progress)");
+        }
+
+        printFooter();
+        InputUtility.pressEnterToContinue();
+    }
+
+    // 5. Report: Room Status History
     private static void reportStatusHistory() {
         System.out.print("Enter Room Number: ");
         String roomNum = InputUtility.getStringInput().trim();
@@ -791,20 +699,29 @@ private static void businessCycleReportUI() {
 
         printHeader("HISTORY - ROOM " + room.getRoomNum() + " (" + RoomTypeUtil.roomTypeName(room.getRoomType()) + ")");
 
-        StatusEntry current = (room.getStatusHistory() != null) ? room.getStatusHistory().getCurrentData() : null;
-
-        if (room.getStatusHistory() != null) {
+        if (room.getStatusHistory() != null && !room.getStatusHistory().isEmpty()) {
+            StatusEntry current = room.getStatusHistory().getCurrentData();
             Iterator<StatusEntry> iterator = room.getStatusHistory().getIterator();
+
             int step = 1;
             while (iterator.hasNext()) {
                 StatusEntry entry = iterator.next();
                 if (entry == null) continue;
 
-                String marker = (entry == current) ? "  <-- CURRENT" : "";
-                String note = (entry.getNote() != null && !entry.getNote().isEmpty()) ? " (" + entry.getNote() + ")" : "";
-                System.out.printf("  %d. %-20s%s%s%n", step, RoomStatusUtil.statusName(entry.getStatusCode()), note, marker);
+                String activeMarker = (entry == current) ? "  <-- [CURRENT STATUS]" : "";
+                String noteText = (entry.getNote() != null && !entry.getNote().trim().isEmpty()) 
+                        ? " | Note: \"" + entry.getNote() + "\"" 
+                        : "";
+
+                System.out.printf("  %2d. %-20s%s%s%n", 
+                        step, 
+                        RoomStatusUtil.statusName(entry.getStatusCode()), 
+                        noteText, 
+                        activeMarker);
                 step++;
             }
+        } else {
+            System.out.println("  No status history recorded for this room.");
         }
 
         BookingControl bookingControl = new BookingControl();
@@ -814,13 +731,12 @@ private static void businessCycleReportUI() {
         if (waitingMatches.isEmpty()) {
             System.out.println("  No waiting bookings currently match this room's type.");
         } else {
-            System.out.println("  Waiting bookings for this room type:");
+            System.out.println("  Waiting bookings for " + RoomTypeUtil.roomTypeName(room.getRoomType()) + ":");
             Iterator<Booking> bookingIterator = waitingMatches.getIterator();
             while (bookingIterator.hasNext()) {
                 Booking booking = bookingIterator.next();
                 if (booking != null) {
-                    System.out.println("    " + booking.getBookingID() + " - " + booking.getGuestName()
-                            + " (wants " + booking.getRoomType() + ")");
+                    System.out.println("    - " + booking.getBookingID() + " (" + booking.getGuestName() + ")");
                 }
             }
         }
@@ -829,12 +745,12 @@ private static void businessCycleReportUI() {
         InputUtility.pressEnterToContinue();
     }
 
-    // 6. Report: Status Summary
+    // 6. Report: Room Status Summary
     private static void reportStatusSummary() {
         printHeader("ROOM STATUS SUMMARY REPORT");
 
         if (HousekeepingControl.roomIsEmpty()) {
-            System.out.println("No rooms registered yet.");
+            System.out.println("  No rooms registered yet.");
             printFooter();
             InputUtility.pressEnterToContinue();
             return;
@@ -843,18 +759,19 @@ private static void businessCycleReportUI() {
         int[] statusCounts = HousekeepingControl.getStatusCounts();
         int[] typeCounts = HousekeepingControl.getTypeCounts();
 
-        System.out.println("Dirty                  : " + statusCounts[RoomStatusUtil.Dirty]);
-        System.out.println("Cleaning In Progress   : " + statusCounts[RoomStatusUtil.Clean_In_Progress]);
-        System.out.println("Inspected              : " + statusCounts[RoomStatusUtil.Inspected]);
-        System.out.println("Ready for Check-In     : " + statusCounts[RoomStatusUtil.Ready_For_CheckIN]);
-        System.out.println("Late Check-Out Hold    : " + statusCounts[RoomStatusUtil.Late_CheckOut_Hold]);
-        System.out.println("Total Rooms            : " + HousekeepingControl.getRoomCount());
+        System.out.println("  Dirty                  : " + statusCounts[RoomStatusUtil.Dirty]);
+        System.out.println("  Cleaning In Progress   : " + statusCounts[RoomStatusUtil.Clean_In_Progress]);
+        System.out.println("  Inspected              : " + statusCounts[RoomStatusUtil.Inspected]);
+        System.out.println("  Ready for Check-In     : " + statusCounts[RoomStatusUtil.Ready_For_CheckIN]);
+        System.out.println("  Late Check-Out Hold    : " + statusCounts[RoomStatusUtil.Late_CheckOut_Hold]);
+        System.out.println("  ----------------------------------------");
+        System.out.println("  Total Rooms            : " + HousekeepingControl.getRoomCount());
 
         System.out.println();
-        System.out.println("Rooms by Type:");
-        System.out.println("Single Room            : " + typeCounts[RoomTypeUtil.Single_Room]);
-        System.out.println("Medium Room            : " + typeCounts[RoomTypeUtil.Medium_Room]);
-        System.out.println("Large Room             : " + typeCounts[RoomTypeUtil.Large_Room]);
+        System.out.println("  Rooms by Type:");
+        System.out.println("  Single Room            : " + typeCounts[RoomTypeUtil.Single_Room]);
+        System.out.println("  Medium Room            : " + typeCounts[RoomTypeUtil.Medium_Room]);
+        System.out.println("  Large Room             : " + typeCounts[RoomTypeUtil.Large_Room]);
 
         printBarChart("Status Chart",
                 new String[]{"Dirty", "Cleaning", "Inspected", "Ready", "Hold"},
@@ -880,9 +797,101 @@ private static void businessCycleReportUI() {
                 HousekeepingControl.getReadyRoomsForWaitingGuests(bookingControl);
 
         System.out.println();
-        System.out.println("Cross-Module (Booking):");
-        System.out.println("Total Waiting Bookings : " + waitingBookings.getSize());
-        System.out.println("Ready Rooms w/ a Match : " + readyMatches.getSize());
+        System.out.println("  Cross-Module (Booking Integration):");
+        System.out.println("  Total Waiting Bookings : " + waitingBookings.getSize());
+        System.out.println("  Ready Rooms w/ Match   : " + readyMatches.getSize());
+
+        printFooter();
+        InputUtility.pressEnterToContinue();
+    }
+
+    // 7. Report: Room Demand & Availability Report
+    private static void roomDemandAndAvailabilityReportUI() {
+        printHeader("ROOM DEMAND & AVAILABILITY REPORT - SETUP");
+
+        Integer typeFilter = promptRoomTypeFilter();
+        Integer statusFilter = promptStatusFilter();
+        int sortOption = promptSortOption();
+
+        ListInterface<Room> report = HousekeepingControl.generateBusinessCycleReport(typeFilter, statusFilter, sortOption);
+
+        printHeader("ROOM DEMAND & AVAILABILITY REPORT");
+        System.out.println("  Type Filter   : " + (typeFilter == null ? "Any" : RoomTypeUtil.roomTypeName(typeFilter)));
+        System.out.println("  Status Filter : " + (statusFilter == null ? "Any" : RoomStatusUtil.statusName(statusFilter)));
+        System.out.println("  Sorted By     : " + sortLabel(sortOption));
+        System.out.println();
+
+        if (report.isEmpty()) {
+            System.out.println("  No rooms matched the selected filters.");
+            printFooter();
+            InputUtility.pressEnterToContinue();
+            return;
+        }
+
+        printRoomTable(report);
+
+        int[] statusBreakdown = new int[5];
+        int[] typeBreakdown = new int[3];
+
+        Iterator<Room> breakdownIterator = report.getIterator();
+        while (breakdownIterator.hasNext()) {
+            Room room = breakdownIterator.next();
+            if (room != null) {
+                if (room.getStatusHistory() != null && room.getStatusHistory().getCurrentData() != null) {
+                    int status = room.getStatusHistory().getCurrentData().getStatusCode();
+                    if (status >= 0 && status < statusBreakdown.length) {
+                        statusBreakdown[status]++;
+                    }
+                }
+                int type = room.getRoomType();
+                if (type >= 0 && type < typeBreakdown.length) {
+                    typeBreakdown[type]++;
+                }
+            }
+        }
+
+        BookingControl bookingControl = new BookingControl();
+        int readyWithMatch = 0;
+
+        Iterator<Room> matchIterator = report.getIterator();
+        while (matchIterator.hasNext()) {
+            Room room = matchIterator.next();
+            if (room != null && room.getStatusHistory() != null && room.getStatusHistory().getCurrentData() != null) {
+                int status = room.getStatusHistory().getCurrentData().getStatusCode();
+                if (status == RoomStatusUtil.Ready_For_CheckIN) {
+                    ListInterface<Booking> matches = HousekeepingControl.getWaitingBookingsForRoom(room, bookingControl);
+                    if (!matches.isEmpty()) {
+                        readyWithMatch++;
+                    }
+                }
+            }
+        }
+
+        printHeader("DEMAND & AVAILABILITY VISUAL ANALYSIS");
+
+        printBarChart("Status Distribution",
+                new String[]{"Dirty", "Cleaning", "Inspected", "Ready", "Hold"},
+                new int[]{
+                    statusBreakdown[RoomStatusUtil.Dirty],
+                    statusBreakdown[RoomStatusUtil.Clean_In_Progress],
+                    statusBreakdown[RoomStatusUtil.Inspected],
+                    statusBreakdown[RoomStatusUtil.Ready_For_CheckIN],
+                    statusBreakdown[RoomStatusUtil.Late_CheckOut_Hold]
+                });
+
+        printBarChart("Type Composition",
+                new String[]{"Single", "Medium", "Large"},
+                new int[]{
+                    typeBreakdown[RoomTypeUtil.Single_Room],
+                    typeBreakdown[RoomTypeUtil.Medium_Room],
+                    typeBreakdown[RoomTypeUtil.Large_Room]
+                });
+
+        System.out.println();
+        System.out.println("  --------------------------------------------------");
+        System.out.println("  Filtered Set Size       : " + report.getSize() + " room(s)");
+        System.out.println("  Ready Rooms w/ Match    : " + readyWithMatch);
+        System.out.println("  --------------------------------------------------");
 
         printFooter();
         InputUtility.pressEnterToContinue();

@@ -16,7 +16,7 @@ public class MainUI {
     public static void MainUI() {
 
         // Display Hotel Logo
-        displayLogo();
+        
         Utility.customMenu(
             new String[]{
                 "1. Standard Booking Management",
@@ -29,7 +29,7 @@ public class MainUI {
 
                 "0. Exit"
             },
-                "HOTEL MANAGEMENT SYSTEM",
+                "TARUMT RESORT - MANAGEMENT SYSTEM",
                 "Select option: ",
                 new Runnable[]{
                 () -> bookingUI.bookingMenu(),
@@ -41,17 +41,5 @@ public class MainUI {
         );
     }
 
-    // Hotel Management System Logo
-    private static void displayLogo(){
-        System.out.println();
-        System.out.println("|==============================================|");
-        System.out.println("|                                              |");
-        System.out.println("|        *  HOTEL MANAGEMENT SYSTEM  *         |");
-        System.out.println("|                                              |");
-        System.out.println("|        Guest | Room | VIP | Loyalty          |");
-        System.out.println("|                                              |");
-        System.out.println("|==============================================|");
-        System.out.println();
-    }
 
 }   

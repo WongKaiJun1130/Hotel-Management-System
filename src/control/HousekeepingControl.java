@@ -170,33 +170,59 @@ public class HousekeepingControl {
         return nextStatus;
     }
 
-    public static int rollbackStatus(Room room) {
-        if (room == null || room.getStatusHistory() == null) return -1;
-        StatusEntry restored;
-        synchronized (roomList) {
-            restored = room.getStatusHistory().rollback();
+    public static int rollbackStatus(Room room, String note) {
+    if (room == null || room.getStatusHistory() == null) return -1;
+    StatusEntry restored;
+    synchronized (roomList) {
+        restored = room.getStatusHistory().rollback();
+        if (restored != null && note != null && !note.trim().isEmpty()) {
+            // Update the restored status note if a custom rollback reason was provided
+            room.getStatusHistory().addAndAdvance(new StatusEntry(restored.getStatusCode(), note.trim()));
         }
-        syncToDao();
-        return (restored == null) ? -1 : restored.getStatusCode();
     }
+    syncToDao();
+    return (restored == null) ? -1 : restored.getStatusCode();
+}
 
     public static void interruptForLateCheckout(Room room, String note) {
-        if (room == null || room.getStatusHistory() == null) return;
-        synchronized (roomList) {
-            room.getStatusHistory().insertAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, note));
-        }
-        syncToDao();
+    if (room == null || room.getStatusHistory() == null) return;
+    
+   
+    String finalNote = (note == null || note.trim().isEmpty()) ? "Late check out" : note.trim();
+    
+    synchronized (roomList) {
+        room.getStatusHistory().insertAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, finalNote));
     }
+    syncToDao();
+}
 
     public static int resumeStatus(Room room) {
-        if (room == null || room.getStatusHistory() == null) return -1;
-        StatusEntry resumed;
-        synchronized (roomList) {
-            resumed = room.getStatusHistory().redo();
+    if (room == null || room.getStatusHistory() == null) return -1;
+
+    synchronized (roomList) {
+        StatusEntry current = room.getStatusHistory().getCurrentData();
+
+        
+        if (current == null || current.getStatusCode() != RoomStatusUtil.Late_CheckOut_Hold) {
+            return -1;
         }
+
+        
+        StatusEntry previousEntry = room.getStatusHistory().rollback();
+        
+        
+        int resumedStatusCode = (previousEntry != null) 
+                ? previousEntry.getStatusCode() 
+                : RoomStatusUtil.Dirty;
+
+       
+        String note = "Resumed cleaning (After late check out)";
+        room.getStatusHistory().addAndAdvance(new StatusEntry(resumedStatusCode, note));
+        
         syncToDao();
-        return (resumed == null) ? -1 : resumed.getStatusCode();
+        return resumedStatusCode;
     }
+}
 
     public static boolean guestCheckOut(Room room) {
         if (room == null || room.getStatusHistory() == null) return false;

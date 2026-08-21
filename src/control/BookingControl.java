@@ -414,14 +414,40 @@ public class BookingControl {
     
     
     public Booking checkOutBookingByRoomID(String roomID) {
-        Booking booking = getActiveServedBookingByRoomID(roomID);
-        if (booking == null) {
-            return null;
-        }
-        booking.setRoomStatus("Checked Out");
-        bookingDatabase.saveToFile(bookingList);
-        return booking;
+    if (roomID == null || roomID.trim().isEmpty()) {
+        return null;
     }
+
+    String targetRoom = roomID.trim();
+    Booking matchedBooking = null;
+
+    // Iterate to find active served booking for this room ID
+    for (int i = 1; i <= bookingList.getSize(); i++) {
+        Booking booking = bookingList.getEntry(i);
+        if (booking == null) {
+            continue;
+        }
+
+        boolean hasRoomMatch = booking.getRoomID() != null 
+                && booking.getRoomID().trim().equalsIgnoreCase(targetRoom);
+        
+        boolean isServed = booking.getRoomStatus() != null 
+                && booking.getRoomStatus().trim().equalsIgnoreCase(STATUS_SERVED);
+
+        if (hasRoomMatch && isServed) {
+            matchedBooking = booking;
+            break;
+        }
+    }
+
+    if (matchedBooking != null) {
+        matchedBooking.setRoomStatus("Checked Out");
+        bookingDatabase.saveToFile(bookingList); // Sync changes back to file storage
+        return matchedBooking;
+    }
+
+    return null;
+}
 
     public Booking getActiveServedBookingByRoomID(String roomID) {
         if (roomID == null) {
