@@ -77,24 +77,24 @@ public class BookingUI {
         InputUtility.clearScreen();
         Utility.printHeader("ADD STANDARD RESERVATION");        
         String bookingID = bookingControl.generateBookingID();
-        System.out.println("Booking ID      : " + bookingID);
-        System.out.print("Guest Name      : ");
+        System.out.println("Booking ID                    : " + bookingID);
+        System.out.print("Guest Name                    : ");
         String guestName = InputUtility.getValidName();
-        System.out.print("Phone Number (not include '-')   : ");
+        System.out.print("Phone Number (not include '-'): ");
         String phoneNumber = InputUtility.getPhoneInput();
        
         Guest existingGuest = guestDatabase.searchGuestByNameAndPhone(guestName, phoneNumber);
         String guestID;
         if (existingGuest != null) {
             guestID = existingGuest.getGuestID();
-            System.out.println("Guest ID        : " + guestID);
+            System.out.println("Guest ID                      : " + guestID);
             System.out.println("Existing guest found.");
         } else {
             guestID = guestDatabase.generateGuestID();
-            System.out.println("Guest ID        : " + guestID);
+            System.out.println("Guest ID                      : " + guestID);
             System.out.println("New guest.");
         }
-        System.out.print("Room Type (single, medium, large): ");
+        System.out.print("Room Type (single, medium, large)   : ");
         String roomType = InputUtility.getValidRoomType();
         roomType = InputUtility.capitalizeFirstLetter(roomType);
         String roomID = bookingControl.assignRoomID(roomType);
@@ -103,8 +103,8 @@ public class BookingUI {
             InputUtility.pressEnterToContinue();
             return;
         }
-        System.out.println("Room ID         : " + roomID);
-        System.out.print("Check-In Date (DD-MM-YYYY) : ");
+        System.out.println("Room ID                       : " + roomID);
+        System.out.print("Check-In Date (DD-MM-YYYY)    : ");
         String checkInDate = InputUtility.getDateInput();
         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
         
@@ -337,17 +337,17 @@ public class BookingUI {
                         String oldCheckOutDate = booking.getCheckOutDate();
 
                         // Enter New Information
-                        System.out.print("\nNew Guest Name : ");
+                        System.out.print("\nNew Guest Name                       : ");
                         String newGuestName = InputUtility.getValidName();
 
-                        System.out.print("New Phone Number (not include '-') : ");
+                        System.out.print("New Phone Number (not include '-')   : ");
                         String newPhoneNumber = InputUtility.getPhoneInput();
 
-                        System.out.print("New Room Type (single, medium, large) : ");
+                        System.out.print("New Room Type (single, medium, large): ");
                         String newRoomType = InputUtility.getValidRoomType();
                         newRoomType = InputUtility.capitalizeFirstLetter(newRoomType);
 
-                        System.out.print("New Check-In Date (DD-MM-YYYY) : ");
+                        System.out.print("New Check-In Date (DD-MM-YYYY)       : ");
                         String newCheckInDate = InputUtility.getDateInput();
 
                         System.out.print("New");
