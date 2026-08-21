@@ -232,7 +232,7 @@ public class BookingUI {
 
     private void editBooking() {
         InputUtility.clearScreen();
-        System.out.println("========== UPDATE BOOKING ==========");
+        System.out.println("============ UPDATE BOOKING ============");
         while(true) {
             System.out.print("Enter Booking ID : ");
             String bookingID = InputUtility.getStringInput();
@@ -244,10 +244,10 @@ public class BookingUI {
 
             int choice;
             do {
-                System.out.println("\n========== BOOKING DETAILS ==========");
+                System.out.println("\n============ BOOKING DETAILS ===========");
                 displayBookingInformation(booking);
 
-                System.out.println("\n========== EDIT OPTION ==========");
+                System.out.println("\n============== EDIT OPTION =============");
                 System.out.println("1. Edit Guest Name");
                 System.out.println("2. Edit Phone Number");
                 System.out.println("3. Edit Room Type");
@@ -316,7 +316,7 @@ public class BookingUI {
                     case 4 -> {
                         System.out.print("\nNew Check-In Date (DD-MM-YYYY) : ");
                         String checkInDate = InputUtility.getDateInput();
-                        System.out.print("New");
+                        System.out.print("New ");
                         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
                         booking.setCheckInDate(checkInDate);
                         booking.setCheckOutDate(checkOutDate);
