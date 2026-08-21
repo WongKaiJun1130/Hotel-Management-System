@@ -1,4 +1,8 @@
 package boundary;
+/**
+ *
+ * @author Heng Chun Wai
+ */
 
 import control.LoyaltyControl;
 import entity.LoyaltyRecord;

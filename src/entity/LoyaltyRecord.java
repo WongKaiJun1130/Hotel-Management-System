@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 
 /*
- * Author: CHUNWAI
+ * Author: Heng Chun Wai
  */
 public class LoyaltyRecord implements Serializable {
 

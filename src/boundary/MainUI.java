@@ -1,16 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-
 package boundary;
-
-import utility.Utility;
 
 /**
  *
- * @author USER
+ * @author Wong Kai Jun, Yeong Wei Kin, Chia Kah Shun, Heng CHuan Wai
  */
+
+import utility.Utility;
+
 public class MainUI { 
     
     private static final BookingUI bookingUI = new BookingUI();

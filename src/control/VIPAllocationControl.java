@@ -1,5 +1,10 @@
 package control;
 
+/**
+ *
+ * @author Wong Kai Jun
+ */
+
 import adt.DoublyLinkedList;
 import adt.ListInterface;
 import adt.ListInterface.StackInterface;

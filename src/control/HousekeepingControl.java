@@ -6,7 +6,7 @@ package control;
 
 /**
  *
- * @author Kah Shun
+ * @author Chia Kah Shun
  */
 
 import adt.ListInterface;

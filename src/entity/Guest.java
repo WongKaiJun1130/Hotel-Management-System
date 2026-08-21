@@ -1,6 +1,11 @@
 
 package entity;
 
+/**
+ *
+ * @author Wong Kai Jun
+ */
+
 import java.io.Serializable;
 import java.util.Objects;
 

@@ -1,10 +1,9 @@
-
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Main.java to edit this template
- */
 package Hotel_Management_System;
 
+/**
+ *
+ * @author Wong Kai Jun, Yeong Wei Kin, Chia Kah Shun, Heng CHuan Wai
+ */
 
 import boundary.MainUI;
 import dao.BookingDao;

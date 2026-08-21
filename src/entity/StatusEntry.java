@@ -3,6 +3,10 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package entity;
+/**
+ *
+ * @author Chia Kah Shun
+ */
 
 
 import java.io.Serializable;
