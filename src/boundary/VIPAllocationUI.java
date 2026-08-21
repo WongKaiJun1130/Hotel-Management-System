@@ -1,6 +1,7 @@
 package boundary;
 /**
- *
+ * Module: VIP & Loyalty Tier Priority Room Allocation
+ * 
  * @author Wong Kai Jun
  */
 
@@ -21,11 +22,7 @@ import java.time.format.ResolverStyle;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
-/**
- * Module: VIP & Loyalty Tier Priority Room Allocation
- *
- * @author Wong Kai Jun
- */
+
 public class VIPAllocationUI {
 
     private VIPAllocationControl allocationControl;
