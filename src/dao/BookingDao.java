@@ -25,256 +25,257 @@ public class BookingDao {
 
 
         bookingList.add(new Booking(
-            "B0001",
-            "John Tan",
-            "0123456789",
-            "R0001",
-            "Large",
-            "L01",
-            "20-08-2026",
-            "22-08-2026",
-            "Served"
-    ));
+                "B0001",
+                "John Tan",
+                "0123456789",
+                "R0001",
+                "Large",
+                "L01",
+                "20-08-2026",
+                "22-08-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0002",
-            "Wong Lee",
-            "0134567890",
-            "R0002",
-            "Medium",
-            "M01",
-            "21-08-2026",
-            "24-08-2026",
-            "Served"
-    ));
+        bookingList.add(new Booking(
+                "B0002",
+                "Wong Lee",
+                "0134567890",
+                "R0002",
+                "Medium",
+                "M01",
+                "21-08-2026",
+                "24-08-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0003",
-            "Alice Lim",
-            "0145678901",
-            "R0003",
-            "Single",
-            "S01",
-            "25-08-2026",
-            "27-08-2026",
-            "Served"
-    ));
+        bookingList.add(new Booking(
+                "B0003",
+                "Alice Lim",
+                "0145678901",
+                "R0003",
+                "Single",
+                "S01",
+                "25-08-2026",
+                "27-08-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0004",
-            "David Wong",
-            "0166789012",
-            "R0004",
-            "Large",
-            "L02",
-            "28-08-2026",
-            "30-08-2026",
-            "Served"
-    ));
+        bookingList.add(new Booking(
+                "B0004",
+                "David Wong",
+                "0166789012",
+                "R0004",
+                "Large",
+                "L02",
+                "28-08-2026",
+                "30-08-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0005",
-            "Jason Lee",
-            "0177890123",
-            "R0005",
-            "Medium",
-            "M02",
-            "01-09-2026",
-            "03-09-2026",
-            "Served"
-    ));
+        bookingList.add(new Booking(
+                "B0005",
+                "Jason Lee",
+                "0177890123",
+                "R0005",
+                "Medium",
+                "M02",
+                "01-09-2026",
+                "03-09-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0011",
-            "Daniel Lim",
-            "0112233445",
-            "R0011",
-            "Large",
-            "L03",
-            "03-08-2026",
-            "05-08-2026",
-            "Served"
-    ));
+        bookingList.add(new Booking(
+                "B0006",
+                "Sarah Tan",
+                "0188901234",
+                "R0006",
+                "Single",
+                "S02",
+                "10-07-2026",
+                "12-07-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0012",
-            "Michelle Tan",
-            "0113344556",
-            "R0012",
-            "Medium",
-            "M03",
-            "07-08-2026",
-            "09-08-2026",
-            "Served"
-    ));
+        bookingList.add(new Booking(
+                "B0007",
+                "Michael Chen",
+                "0199012345",
+                "R0007",
+                "Medium",
+                "M03",
+                "13-07-2026",
+                "15-07-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0013",
-            "Andrew Lee",
-            "0114455667",
-            "R0013",
-            "Large",
-            "L04",
-            "12-08-2026",
-            "14-08-2026",
-            "Served"
-    ));
+        bookingList.add(new Booking(
+                "B0008",
+                "Emily Wong",
+                "0121122334",
+                "R0008",
+                "Large",
+                "L03",
+                "16-07-2026",
+                "18-07-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0014",
-            "Samantha Wong",
-            "0115566778",
-            "R0014",
-            "Single",
-            "S04",
-            "18-08-2026",
-            "20-08-2026",
-            "Served"
-    ));
+        bookingList.add(new Booking(
+                "B0009",
+                "Kevin Lim",
+                "0132233445",
+                "R0009",
+                "Single",
+                "S03",
+                "19-07-2026",
+                "21-07-2026",
+                "Served"
+        ));
 
-    bookingList.add(new Booking(
-            "B0015",
-            "Brian Ng",
-            "0116677889",
-            "R0015",
-            "Medium",
-            "M05",
-            "05-09-2026",
-            "07-09-2026",
-            "Served"
-    ));
-
-
-    //================================================
-    // Waiting Booking
-    //================================================
-
-    bookingList.add(new Booking(
-            "B0006",
-            "Sarah Tan",
-            "0188901234",
-            "R0006",
-            "Single",
-            "S02",
-            "10-07-2026",
-            "12-07-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0007",
-            "Michael Chen",
-            "0199012345",
-            "R0007",
-            "Medium",
-            "M04",
-            "13-07-2026",
-            "15-07-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0008",
-            "Emily Wong",
-            "0121122334",
-            "R0008",
-            "Large",
-            "L05",
-            "16-07-2026",
-            "18-07-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0009",
-            "Kevin Lim",
-            "0132233445",
-            "R0009",
-            "Single",
-            "S03",
-            "19-07-2026",
-            "21-07-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0010",
-            "Jessica Ng",
-            "0143344556",
-            "R0010",
-            "Medium",
-            "M06",
-            "22-07-2026",
-            "24-07-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0016",
-            "Rachel Lee",
-            "0117788990",
-            "R0016",
-            "Single",
-            "S05",
-            "20-08-2026",
-            "22-08-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0017",
-            "Steven Wong",
-            "0118899001",
-            "R0017",
-            "Large",
-            "L06",
-            "22-08-2026",
-            "24-08-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0018",
-            "Nicole Tan",
-            "0119900112",
-            "R0018",
-            "Medium",
-            "M07",
-            "24-08-2026",
-            "26-08-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0019",
-            "Aaron Lim",
-            "0121011223",
-            "R0019",
-            "Large",
-            "L07",
-            "27-08-2026",
-            "29-08-2026",
-            "Waiting"
-    ));
-
-    bookingList.add(new Booking(
-            "B0020",
-            "Chloe Lee",
-            "0132122334",
-            "R0020",
-            "Single",
-            "S06",
-            "08-09-2026",
-            "10-09-2026",
-            "Waiting"
-    ));
+        bookingList.add(new Booking(
+                "B0010",
+                "Jessica Ng",
+                "0143344556",
+                "R0010",
+                "Medium",
+                "M04",
+                "22-07-2026",
+                "24-07-2026",
+                "Served"
+        ));
 
 
-    System.out.println(
-            bookingList.getSize()
-            + " Booking Created In Memory!"
-    );
-}
+        //================================================
+        // Waiting Bookings
+        // B0011 - B0020
+        //================================================
+
+        bookingList.add(new Booking(
+                "B0011",
+                "Daniel Lim",
+                "0112233445",
+                "R0011",
+                "Large",
+                "L04",
+                "03-08-2026",
+                "05-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0012",
+                "Michelle Tan",
+                "0113344556",
+                "R0012",
+                "Medium",
+                "M05",
+                "07-08-2026",
+                "09-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0013",
+                "Andrew Lee",
+                "0114455667",
+                "R0013",
+                "Large",
+                "L05",
+                "12-08-2026",
+                "14-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0014",
+                "Samantha Wong",
+                "0115566778",
+                "R0014",
+                "Single",
+                "S04",
+                "18-08-2026",
+                "20-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0015",
+                "Brian Ng",
+                "0116677889",
+                "R0015",
+                "Medium",
+                "M06",
+                "05-09-2026",
+                "07-09-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0016",
+                "Rachel Lee",
+                "0117788990",
+                "R0016",
+                "Single",
+                "S05",
+                "20-08-2026",
+                "22-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0017",
+                "Steven Wong",
+                "0118899001",
+                "R0017",
+                "Large",
+                "L06",
+                "22-08-2026",
+                "24-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0018",
+                "Nicole Tan",
+                "0119900112",
+                "R0018",
+                "Medium",
+                "M07",
+                "24-08-2026",
+                "26-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0019",
+                "Aaron Lim",
+                "0121011223",
+                "R0019",
+                "Large",
+                "L07",
+                "27-08-2026",
+                "29-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0020",
+                "Chloe Lee",
+                "0132122334",
+                "R0020",
+                "Single",
+                "S06",
+                "08-09-2026",
+                "10-09-2026",
+                "Waiting"
+        ));
+
+
+        System.out.println(
+                bookingList.getSize()
+                + " Booking Created In Memory!"
+        );
+    }
 
 
     //====================================================
