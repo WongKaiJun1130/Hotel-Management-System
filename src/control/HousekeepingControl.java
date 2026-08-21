@@ -143,44 +143,64 @@ public class HousekeepingControl {
     public static Room registerRoom(String roomNum, int roomType) {
         Room room = new Room(roomNum, roomType);
         room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room Registered"));
-        roomList.add(room);
+        synchronized (roomList) {
+            roomList.add(room);
+        }
         syncToDao();
         return room;
     }
 
     public static Room findRoom(String roomNum) {
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            if (room.getRoomNum().equalsIgnoreCase(roomNum)) {
-                return room;
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                if (room.getRoomNum().equalsIgnoreCase(roomNum)) {
+                    return room;
+                }
             }
         }
         return null;
     }
 
     public static boolean roomIsEmpty() {
-        return roomList.isEmpty();
+        synchronized (roomList) {
+            return roomList.isEmpty();
+        }
     }
 
     public static int getRoomCount() {
-        return roomList.getSize();
+        synchronized (roomList) {
+            return roomList.getSize();
+        }
     }
 
     public static Room getRoomAt(int index) {
-        return roomList.getEntry(index);
+        synchronized (roomList) {
+            return roomList.getEntry(index);
+        }
     }
 
 
     // Status transitions
+    //
+    // NOTE: these mutate a Room's own StatusEntry history, which is
+    // reachable through roomList (and therefore visible to the
+    // autoAdvanceDueRooms() background thread) - synchronize on roomList
+    // here too, otherwise the timer thread can be mid-iteration over
+    // roomList while the UI thread mutates a room's status list
+    // concurrently, corrupting the underlying DoublyLinkedList.
     public static int advanceStatus(Room room, String note) {
-        StatusEntry current = room.getStatusHistory().getCurrentData();
-        int nextStatus = RoomStatusUtil.nextStatusAfter(current.getStatusCode());
+        int nextStatus;
+        synchronized (roomList) {
+            StatusEntry current = room.getStatusHistory().getCurrentData();
+            nextStatus = RoomStatusUtil.nextStatusAfter(current.getStatusCode());
 
-        if (nextStatus == -1) {
-            return -1;
+            if (nextStatus == -1) {
+                return -1;
+            }
+
+            room.getStatusHistory().insertAndAdvance(new StatusEntry(nextStatus, note));
         }
-
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(nextStatus, note));
         syncToDao();
         return nextStatus;
     }
@@ -189,7 +209,10 @@ public class HousekeepingControl {
     // code, or -1 if already at the earliest entry
 
     public static int rollbackStatus(Room room) {
-        StatusEntry restored = room.getStatusHistory().rollback();
+        StatusEntry restored;
+        synchronized (roomList) {
+            restored = room.getStatusHistory().rollback();
+        }
         syncToDao();
         return (restored == null) ? -1 : restored.getStatusCode();
     }
@@ -197,14 +220,19 @@ public class HousekeepingControl {
     // Guest requests late check-out mid-cleaning: splice a hold entry in
     // without discarding whatever cleaning step was queued next
     public static void interruptForLateCheckout(Room room, String note) {
-        room.getStatusHistory().spliceAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, note));
+        synchronized (roomList) {
+            room.getStatusHistory().spliceAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, note));
+        }
         syncToDao();
     }
 
     // Continue the cleaning flow after the interruption is resolved
     // Returns the resumed status code, or -1 if nothing was queued
     public static int resumeStatus(Room room) {
-        StatusEntry resumed = room.getStatusHistory().redo();
+        StatusEntry resumed;
+        synchronized (roomList) {
+            resumed = room.getStatusHistory().redo();
+        }
         syncToDao();
         return (resumed == null) ? -1 : resumed.getStatusCode();
     }
@@ -212,12 +240,14 @@ public class HousekeepingControl {
     // Guest checks out: room goes back to Dirty, ready to be re-cleaned.
     // Returns false if the room was already Dirty
     public static boolean guestCheckOut(Room room) {
-        int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
-        if (currentStatus == RoomStatusUtil.Dirty) {
-            return false;
-        }
+        synchronized (roomList) {
+            int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
+            if (currentStatus == RoomStatusUtil.Dirty) {
+                return false;
+            }
 
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Guest checked out - needs cleaning"));
+            room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Guest checked out - needs cleaning"));
+        }
         syncToDao();
         return true;
     }
@@ -230,10 +260,12 @@ public class HousekeepingControl {
 
     public static int[] getStatusCounts() {
         int[] counts = new int[5];
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            int status = roomList.getEntry(i).getStatusHistory().getCurrentData().getStatusCode();
-            if (status >= 0 && status < counts.length) {
-                counts[status]++;
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                int status = roomList.getEntry(i).getStatusHistory().getCurrentData().getStatusCode();
+                if (status >= 0 && status < counts.length) {
+                    counts[status]++;
+                }
             }
         }
         return counts;
@@ -243,10 +275,12 @@ public class HousekeepingControl {
 
     public static int[] getTypeCounts() {
         int[] counts = new int[3];
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            int type = roomList.getEntry(i).getRoomType();
-            if (type >= 0 && type < counts.length) {
-                counts[type]++;
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                int type = roomList.getEntry(i).getRoomType();
+                if (type >= 0 && type < counts.length) {
+                    counts[type]++;
+                }
             }
         }
         return counts;
@@ -304,15 +338,17 @@ public class HousekeepingControl {
     public static ListInterface<Room> filterRooms(Integer roomType, Integer status) {
         ListInterface<Room> result = new DoublyLinkedList<>();
 
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
 
-            boolean typeMatches = (roomType == null) || (room.getRoomType() == roomType);
-            boolean statusMatches = (status == null) || (currentStatus == status);
+                boolean typeMatches = (roomType == null) || (room.getRoomType() == roomType);
+                boolean statusMatches = (status == null) || (currentStatus == status);
 
-            if (typeMatches && statusMatches) {
-                result.add(room);
+                if (typeMatches && statusMatches) {
+                    result.add(room);
+                }
             }
         }
 
@@ -368,11 +404,18 @@ public class HousekeepingControl {
     }
 
     private static Room[] toArray(ListInterface<Room> list) {
-        Room[] rooms = new Room[list.getSize()];
-        for (int i = 1; i <= list.getSize(); i++) {
-            rooms[i - 1] = list.getEntry(i);
+        // sortRooms() is also called with roomList itself (see
+        // getRoomsSortedByRoomNumber/Status/Type below), so this needs
+        // the same roomList lock as every other roomList reader -
+        // otherwise the background auto-advance thread could be
+        // mutating roomList mid-copy here.
+        synchronized (roomList) {
+            Room[] rooms = new Room[list.getSize()];
+            for (int i = 1; i <= list.getSize(); i++) {
+                rooms[i - 1] = list.getEntry(i);
+            }
+            return rooms;
         }
-        return rooms;
     }
 
     private static ListInterface<Room> fromArray(Room[] rooms) {
@@ -433,18 +476,20 @@ public class HousekeepingControl {
 
         ListInterface<Booking> waitingBookings = bookingControl.getWaitingBookings();
 
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            int status = room.getStatusHistory().getCurrentData().getStatusCode();
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                int status = room.getStatusHistory().getCurrentData().getStatusCode();
 
-            if (status != RoomStatusUtil.Ready_For_CheckIN) {
-                continue;
-            }
+                if (status != RoomStatusUtil.Ready_For_CheckIN) {
+                    continue;
+                }
 
-            for (int j = 1; j <= waitingBookings.getSize(); j++) {
-                Booking booking = waitingBookings.getEntry(j);
-                if (matchesRoomType(room.getRoomType(), booking.getRoomType())) {
-                    matches.add(new RoomBookingMatch(room, booking));
+                for (int j = 1; j <= waitingBookings.getSize(); j++) {
+                    Booking booking = waitingBookings.getEntry(j);
+                    if (matchesRoomType(room.getRoomType(), booking.getRoomType())) {
+                        matches.add(new RoomBookingMatch(room, booking));
+                    }
                 }
             }
         }

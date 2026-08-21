@@ -1,5 +1,10 @@
 package adt;
 
+/**
+ *
+ * @author Wong Kai Jun, Yeong Wei Kin, Chia Kah Shun, Heng CHuan Wai
+ */
+
 import java.util.Iterator;
 
 //================================================
