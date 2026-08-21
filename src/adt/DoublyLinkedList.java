@@ -1,8 +1,4 @@
 package adt;
-/**
- *
- * @author Wong Kai Jun, Yeong Wei Kin, Chia Kah Shun, Heng CHuan Wai
- */
 
 /**
  *
@@ -119,6 +115,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         return (current == null) ? null : current.data;
     }
 
+    // Stack Methods
     @Override
     public void push(T newEntry) {
         add(newEntry);
@@ -326,6 +323,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
+    // Queue Methods
     @Override
     public void enqueue(T data) {
         add(data);
@@ -357,6 +355,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         size = 0;
     }
     
+    // ArrayList
     public static class ArrayList<T> implements ArrayListInterface<T>, Serializable, Iterable<T> {
         private T[] array;
         private int numberOfEntries;
@@ -603,6 +602,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
+    // ArrayStack
     public static class ArrayStack<T> implements StackInterface<T> {
 
         private T[] array;
@@ -680,6 +680,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
+    // ArrayQueue
     public static class ArrayQueue<T> implements QueueInterface<T> {
 
         private T[] queue;

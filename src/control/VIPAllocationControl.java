@@ -1,10 +1,5 @@
 package control;
 
-/**
- *
- * @author Wong Kai Jun
- */
-
 import adt.DoublyLinkedList;
 import adt.ListInterface;
 import adt.ListInterface.StackInterface;
@@ -24,42 +19,26 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 
-/**
- * Module: VIP & Loyalty Tier Priority Room Allocation
- *
- * This control class manages VIP and loyalty-tier guest allocation
- * using Stack ADT. The highest-priority guest is stored at the
- * top of the stack according to loyalty tier and arrival time.
- *
- * The module also integrates with Guest, Booking, Loyalty and
- * Housekeeping / Room modules.
- *
- * @author Wong Kai Jun
- */
+//Author: Kai Jun
 public class VIPAllocationControl {
 
-    //==========================================================
-    // Stack ADT
-    // Highest Priority Guest Is At The Top
-    //==========================================================
+    //ADT Declaration
     private StackInterface<Guest> vipStack = new DoublyLinkedList<>();
 
+    //Guest ID
     private int nextGuestID;
 
-    //==========================================================
-    // Other Classes / Modules
-    //==========================================================
+    //Database Declaration
     private GuestDao guestDatabase;
     private BookingDao bookingDatabase;
     private LoyaltyControl loyaltyControl;
     private RoomDao roomDao;
 
+    //Date Format
     private static final DateTimeFormatter ARRIVAL_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     private static final DateTimeFormatter CHECK_IN_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
 
-    //==========================================================
-    // Constructor
-    //==========================================================
+    //Constructor
     public VIPAllocationControl() {
         guestDatabase = new GuestDao();
         bookingDatabase = new BookingDao();
@@ -69,16 +48,13 @@ public class VIPAllocationControl {
         loadGuestDatabase();
     }
 
-    //==========================================================
-    // Generate Next Guest ID
-    //==========================================================
+    //Generate Guest ID
     public String generateGuestID() {
+        updateNextGuestID(guestDatabase.retrieveFromFile());
         return String.format("R%04d", nextGuestID);
     }
 
-    //==========================================================
-    // 1. Add Guest To VIP Stack
-    //==========================================================
+    //Add Guest
     public boolean addGuestToStack(Guest guest) {
 
         if (guest == null) {
@@ -90,10 +66,7 @@ public class VIPAllocationControl {
         return addGuestToStack(guest, lifetimePoints);
     }
 
-    //==========================================================
-    // 1. Add Guest To VIP Stack
-    // Guest + Loyalty Module
-    //==========================================================
+    //Add Guest With Points
     public boolean addGuestToStack(Guest guest, int lifetimePoints) {
 
         if (guest == null) {
@@ -104,54 +77,41 @@ public class VIPAllocationControl {
             return false;
         }
 
-        //======================================================
-        // Check VIP Stack Duplicate
-        //======================================================
+        //Check Stack Duplicate
         if (searchGuestByIDWithoutRefresh(guest.getGuestID()) != null) {
             return false;
         }
 
-        //======================================================
-        // Check Guest Database Duplicate
-        //======================================================
+        //Check Guest Duplicate
         Guest existingGuest = guestDatabase.searchGuestByID(guest.getGuestID());
 
         if (existingGuest != null) {
             return false;
         }
 
-        //======================================================
-        // Create Loyalty Member
-        //======================================================
+        //Create Loyalty Member
         boolean loyaltyCreated = loyaltyControl.createLoyaltyMember(guest, lifetimePoints);
 
         if (!loyaltyCreated) {
             return false;
         }
 
-        //======================================================
-        // Save Guest
-        //======================================================
+        //Save Guest
         guestDatabase.addGuest(guest);
 
-        //======================================================
-        // Get Latest Tier
-        //======================================================
+        //Sync Loyalty Tier
         syncGuestTierFromLoyaltyModule(guest);
 
-        //======================================================
-        // Add Into Stack
-        //======================================================
+        //Insert Guest
         insertPriority(guest);
 
+        //Update Guest ID
         updateNextGuestID(guestDatabase.retrieveFromFile());
 
         return true;
     }
 
-    //==========================================================
-    // Get Minimum Lifetime Points
-    //==========================================================
+    //Get Minimum Points
     private int getMinimumPointsForTier(String loyaltyTier) {
 
         if (loyaltyTier == null) {
@@ -173,9 +133,7 @@ public class VIPAllocationControl {
         return 0;
     }
 
-    //==========================================================
-    // Synchronize Guest Tier With Loyalty Module
-    //==========================================================
+    //Sync Loyalty Tier
     private boolean syncGuestTierFromLoyaltyModule(Guest guest) {
 
         if (guest == null || guest.getGuestID() == null) {
@@ -203,14 +161,7 @@ public class VIPAllocationControl {
         return false;
     }
 
-    //==========================================================
-    // Booking Module Integration
-    //
-    // Get Waiting Booking
-    // -> Get Guest ID
-    // -> Get Full Guest Information
-    // -> Add Waiting Guest Into VIP Stack
-    //==========================================================
+    //Sync Booking Guests
     public int syncWaitingBookingsIntoVipStack() {
 
         if (bookingDatabase == null) {
@@ -233,51 +184,46 @@ public class VIPAllocationControl {
                 continue;
             }
 
-            //==================================================
-            // Get Full Guest Information From Guest Module
-            //==================================================
+            //Get Guest Information
             Guest guest = guestDatabase.searchGuestByID(booking.getGuestID().trim());
 
             if (guest == null) {
                 continue;
             }
 
-            //==================================================
-            // Only Waiting Guest
-            //==================================================
+            //Check Waiting Guest
             if (guest.getRoomStatus() == null || !guest.getRoomStatus().equalsIgnoreCase("Waiting")) {
                 continue;
             }
 
-            //==================================================
-            // Avoid Duplicate
-            //==================================================
+            //Check Duplicate
             if (searchGuestByIDWithoutRefresh(guest.getGuestID()) != null) {
                 continue;
             }
 
+            //Sync Loyalty Tier
             syncGuestTierFromLoyaltyModule(guest);
 
+            //Insert Guest
             insertPriority(guest);
 
             totalAdded++;
         }
 
+        //Update Guest ID
+        updateNextGuestID(guestDatabase.retrieveFromFile());
+
         return totalAdded;
     }
 
-    //==========================================================
-    // Refresh Stack Using Latest Loyalty Tier
-    //==========================================================
+    //Refresh Priority Stack
     public int refreshPriorityStackFromLoyaltyModule() {
 
         if (vipStack == null || vipStack.isEmpty()) {
             return 0;
         }
 
-        StackInterface<Guest> oldStack = vipStack;
-
-        vipStack = new DoublyLinkedList<>();
+        StackInterface<Guest> oldStack = new DoublyLinkedList<>();
 
         int totalTierChanged = 0;
 
@@ -301,9 +247,7 @@ public class VIPAllocationControl {
         return totalTierChanged;
     }
 
-    //==========================================================
-    // Loyalty Record
-    //==========================================================
+    //Get Loyalty Record
     public LoyaltyRecord getLoyaltyRecordFromLoyaltyModule(String guestID) {
 
         if (guestID == null || guestID.trim().isEmpty()) {
@@ -317,9 +261,7 @@ public class VIPAllocationControl {
         return loyaltyControl.searchGuest(guestID.trim());
     }
 
-    //==========================================================
-    // Lifetime Points
-    //==========================================================
+    //Get Lifetime Points
     public int getLifetimePointsFromLoyaltyModule(String guestID) {
 
         LoyaltyRecord record = getLoyaltyRecordFromLoyaltyModule(guestID);
@@ -331,9 +273,7 @@ public class VIPAllocationControl {
         return record.getLifetimePoints();
     }
 
-    //==========================================================
-    // Loyalty Tier
-    //==========================================================
+    //Get Loyalty Tier
     public String getLoyaltyTierFromLoyaltyModule(String guestID) {
 
         LoyaltyRecord record = getLoyaltyRecordFromLoyaltyModule(guestID);
@@ -345,24 +285,14 @@ public class VIPAllocationControl {
         return record.getLoyaltyTier();
     }
 
-    //==========================================================
-    // Insert Guest Based On Priority Using Stack
-    //
-    // TOP
-    // Elite
-    // Diamond
-    // Platinum
-    // Standard
-    // BOTTOM
-    //
-    // Same Priority -> Earlier Arrival First
-    //==========================================================
+    //Insert Guest By Priority
     private void insertPriority(Guest guest) {
 
         if (guest == null) {
             return;
         }
 
+        //Temporary Stack
         StackInterface<Guest> temporaryStack = new DoublyLinkedList<>();
 
         while (!vipStack.isEmpty() && !shouldInsertBefore(guest, vipStack.peek())) {
@@ -371,20 +301,20 @@ public class VIPAllocationControl {
 
         vipStack.push(guest);
 
+        //Restore Stack
         while (!temporaryStack.isEmpty()) {
             vipStack.push(temporaryStack.pop());
         }
     }
 
-    //==========================================================
-    // Compare Guest Priority
-    //==========================================================
+    //Compare Guest Priority
     private boolean shouldInsertBefore(Guest newGuest, Guest currentGuest) {
 
         if (newGuest == null || currentGuest == null) {
             return false;
         }
 
+        //Compare Loyalty Tier
         if (newGuest.getPriority() > currentGuest.getPriority()) {
             return true;
         }
@@ -393,19 +323,46 @@ public class VIPAllocationControl {
             return false;
         }
 
+        //Compare Lifetime Points
+        int newPoints = getLifetimePointsFromLoyaltyModule(newGuest.getGuestID());
+        int currentPoints = getLifetimePointsFromLoyaltyModule(currentGuest.getGuestID());
+
+        if (newPoints < 0) {
+            newPoints = 0;
+        }
+
+        if (currentPoints < 0) {
+            currentPoints = 0;
+        }
+
+        if (newPoints > currentPoints) {
+            return true;
+        }
+
+        if (newPoints < currentPoints) {
+            return false;
+        }
+
+        //Compare Arrival Time
         LocalDateTime newArrival = parseArrivalDateTime(newGuest.getArrivalDateTime());
         LocalDateTime currentArrival = parseArrivalDateTime(currentGuest.getArrivalDateTime());
 
-        if (newArrival == null || currentArrival == null) {
+        if (newArrival == null && currentArrival == null) {
+            return false;
+        }
+
+        if (newArrival != null && currentArrival == null) {
+            return true;
+        }
+
+        if (newArrival == null) {
             return false;
         }
 
         return newArrival.isBefore(currentArrival);
     }
 
-    //==========================================================
-    // Parse Arrival DateTime
-    //==========================================================
+    //Parse Arrival DateTime
     private LocalDateTime parseArrivalDateTime(String arrivalDateTime) {
 
         if (arrivalDateTime == null || arrivalDateTime.trim().isEmpty()) {
@@ -419,20 +376,18 @@ public class VIPAllocationControl {
         }
     }
 
-    //==========================================================
-    // 2. Allocate Room
-    //
-    // Stack pop()
-    //==========================================================
+    //Allocate Room
     public Guest allocateRoom() {
 
         syncWaitingBookingsIntoVipStack();
+
         refreshPriorityStackFromLoyaltyModule();
 
         if (vipStack == null || vipStack.isEmpty()) {
             return null;
         }
 
+        //Stack Pop
         Guest guest = vipStack.pop();
 
         if (guest == null) {
@@ -444,51 +399,40 @@ public class VIPAllocationControl {
         return guest;
     }
 
-    //==========================================================
-    // 3. View Next Priority Guest
-    //
-    // Stack peek()
-    //==========================================================
+    //View Next Priority Guest
     public Guest getNextPriorityGuest() {
 
         syncWaitingBookingsIntoVipStack();
+
         refreshPriorityStackFromLoyaltyModule();
 
         if (vipStack == null || vipStack.isEmpty()) {
             return null;
         }
 
+        //Stack Peek
         return vipStack.peek();
     }
 
-    //==========================================================
-    // 4. Display Allocation Stack
-    //
-    // Includes:
-    // VIP Guest Database
-    // +
-    // Waiting Booking Guests
-    //==========================================================
+    //Display Allocation Stack
     public ListInterface<Guest> getAllGuestAllocations() {
 
-        //======================================================
-        // Get Latest Booking Guests
-        //======================================================
+        //Sync Booking Guests
         syncWaitingBookingsIntoVipStack();
 
+        //Refresh Priority
         refreshPriorityStackFromLoyaltyModule();
 
         ListInterface<Guest> guestList = new DoublyLinkedList<>();
 
+        //Temporary Stack
         StackInterface<Guest> temporaryStack = new DoublyLinkedList<>();
 
         if (vipStack == null || vipStack.isEmpty()) {
             return guestList;
         }
 
-        //======================================================
-        // Read Stack From Top To Bottom
-        //======================================================
+        //Read Stack
         while (!vipStack.isEmpty()) {
 
             Guest guest = vipStack.pop();
@@ -499,9 +443,7 @@ public class VIPAllocationControl {
             }
         }
 
-        //======================================================
-        // Restore VIP Stack
-        //======================================================
+        //Restore Stack
         while (!temporaryStack.isEmpty()) {
             vipStack.push(temporaryStack.pop());
         }
@@ -509,11 +451,7 @@ public class VIPAllocationControl {
         return guestList;
     }
 
-    //==========================================================
-    // 5. Search Guest
-    //
-    // Waiting + Allocated
-    //==========================================================
+    //Search Guest
     public ListInterface<Guest> searchGuest(String keyword) {
 
         ListInterface<Guest> matchingGuests = new DoublyLinkedList<>();
@@ -545,6 +483,7 @@ public class VIPAllocationControl {
                     + String.valueOf(guest.getPhoneNumber()) + " "
                     + String.valueOf(guest.getLoyaltyTier()) + " "
                     + guest.getPriority() + " "
+                    + String.valueOf(getLifetimePointsFromLoyaltyModule(guest.getGuestID())) + " "
                     + String.valueOf(guest.getRoomType()) + " "
                     + String.valueOf(guest.getRoomStatus()) + " "
                     + String.valueOf(guest.getCheckInDate()) + " "
@@ -558,20 +497,17 @@ public class VIPAllocationControl {
         return matchingGuests;
     }
 
-    //==========================================================
-    // Search Waiting Guest
-    //==========================================================
+    //Search Waiting Guest
     public Guest searchGuestByID(String guestID) {
 
         syncWaitingBookingsIntoVipStack();
+
         refreshPriorityStackFromLoyaltyModule();
 
         return searchGuestByIDWithoutRefresh(guestID);
     }
 
-    //==========================================================
-    // Search Stack Without Refresh
-    //==========================================================
+    //Search Guest In Stack
     private Guest searchGuestByIDWithoutRefresh(String guestID) {
 
         if (guestID == null || guestID.trim().isEmpty()) {
@@ -598,6 +534,7 @@ public class VIPAllocationControl {
             }
         }
 
+        //Restore Stack
         while (!temporaryStack.isEmpty()) {
             vipStack.push(temporaryStack.pop());
         }
@@ -605,9 +542,7 @@ public class VIPAllocationControl {
         return foundGuest;
     }
 
-    //==========================================================
-    // Search All Guest
-    //==========================================================
+    //Search All Guest
     public Guest searchAllGuestByID(String guestID) {
 
         if (guestID == null || guestID.trim().isEmpty()) {
@@ -623,11 +558,7 @@ public class VIPAllocationControl {
         return guest;
     }
 
-    //==========================================================
-    // 6. Available Rooms
-    //
-    // Housekeeping / Room Module
-    //==========================================================
+    //Get Available Rooms
     public DoublyLinkedList<Room> getAvailableRoomsFromRoomModule() {
 
         DoublyLinkedList<Room> availableRooms = new DoublyLinkedList<>();
@@ -660,9 +591,7 @@ public class VIPAllocationControl {
         return availableRooms;
     }
 
-    //==========================================================
-    // Total Hotel Rooms
-    //==========================================================
+    //Get Total Rooms
     public int getTotalRoomsFromRoomModule() {
 
         if (roomDao == null) {
@@ -678,9 +607,7 @@ public class VIPAllocationControl {
         return allRooms.getSize();
     }
 
-    //==========================================================
-    // Room Type Name
-    //==========================================================
+    //Get Room Type
     public String getRoomTypeName(Room room) {
 
         if (room == null) {
@@ -690,9 +617,7 @@ public class VIPAllocationControl {
         return RoomTypeUtil.roomTypeName(room.getRoomType());
     }
 
-    //==========================================================
-    // Room Status Name
-    //==========================================================
+    //Get Room Status
     public String getRoomStatusName(Room room) {
 
         if (room == null || room.getStatusHistory() == null || room.getStatusHistory().getCurrentData() == null) {
@@ -704,11 +629,7 @@ public class VIPAllocationControl {
         return RoomStatusUtil.statusName(statusCode);
     }
 
-    //==========================================================
-    // 7. Remove Guest
-    //
-    // Uses Temporary Stack
-    //==========================================================
+    //Remove Guest
     public Guest removeGuestByID(String guestID) {
 
         if (guestID == null || guestID.trim().isEmpty()) {
@@ -737,6 +658,7 @@ public class VIPAllocationControl {
             temporaryStack.push(guest);
         }
 
+        //Restore Stack
         while (!temporaryStack.isEmpty()) {
             vipStack.push(temporaryStack.pop());
         }
@@ -744,9 +666,7 @@ public class VIPAllocationControl {
         return removedGuest;
     }
 
-    //==========================================================
-    // Check Report Date
-    //==========================================================
+    //Check Report Date
     private boolean isGuestInReportPeriod(Guest guest, int year, int month) {
 
         if (guest == null || guest.getCheckInDate() == null || guest.getCheckInDate().trim().isEmpty()) {
@@ -765,18 +685,14 @@ public class VIPAllocationControl {
         }
     }
 
-    //==========================================================
-    // Report Filtering
-    //==========================================================
+    //Filter Report
     private boolean matchesReportFilters(Guest guest, int year, int month, String loyaltyFilter, String roomTypeFilter) {
 
         if (!isGuestInReportPeriod(guest, year, month)) {
             return false;
         }
 
-        //======================================================
-        // Loyalty Tier Filter
-        //======================================================
+        //Filter Loyalty Tier
         if (loyaltyFilter != null && !loyaltyFilter.equalsIgnoreCase("All")) {
 
             LoyaltyRecord record = getLoyaltyRecordFromLoyaltyModule(guest.getGuestID());
@@ -786,9 +702,7 @@ public class VIPAllocationControl {
             }
         }
 
-        //======================================================
-        // Room Type Filter
-        //======================================================
+        //Filter Room Type
         if (roomTypeFilter != null && !roomTypeFilter.equalsIgnoreCase("All")) {
 
             if (guest.getRoomType() == null) {
@@ -806,9 +720,7 @@ public class VIPAllocationControl {
         return true;
     }
 
-    //==========================================================
-    // Normalize Room Type
-    //==========================================================
+    //Normalize Room Type
     private String normalizeRoomType(String roomType) {
 
         if (roomType == null) {
@@ -817,7 +729,7 @@ public class VIPAllocationControl {
 
         String value = roomType.trim();
 
-        if (value.equalsIgnoreCase("Single") || value.equalsIgnoreCase("Small") || value.equalsIgnoreCase("Small Room")) {
+        if (value.equalsIgnoreCase("Single") || value.equalsIgnoreCase("Single Room") || value.equalsIgnoreCase("Small") || value.equalsIgnoreCase("Small Room")) {
             return "Small Room";
         }
 
@@ -825,16 +737,14 @@ public class VIPAllocationControl {
             return "Medium Room";
         }
 
-        if (value.equalsIgnoreCase("Large") || value.equalsIgnoreCase("Big") || value.equalsIgnoreCase("Big Room")) {
+        if (value.equalsIgnoreCase("Large") || value.equalsIgnoreCase("Large Room") || value.equalsIgnoreCase("Big") || value.equalsIgnoreCase("Big Room")) {
             return "Big Room";
         }
 
         return value;
     }
 
-    //==========================================================
-    // 8. Loyalty Tier Report With Filtering
-    //==========================================================
+    //Loyalty Tier Report
     public int[] getLoyaltyTierCountsFromLoyaltyModule(int year, int month, String loyaltyFilter, String roomTypeFilter) {
 
         int[] counts = new int[4];
@@ -875,16 +785,12 @@ public class VIPAllocationControl {
         return counts;
     }
 
-    //==========================================================
-    // Compatibility Version
-    //==========================================================
+    //Loyalty Tier Report Default
     public int[] getLoyaltyTierCountsFromLoyaltyModule(int year, int month) {
         return getLoyaltyTierCountsFromLoyaltyModule(year, month, "All", "All");
     }
 
-    //==========================================================
-    // Total Loyalty Members With Filter
-    //==========================================================
+    //Get Total Loyalty Members
     public int getTotalLoyaltyMembersFromLoyaltyModule(int year, int month, String loyaltyFilter, String roomTypeFilter) {
 
         int[] counts = getLoyaltyTierCountsFromLoyaltyModule(year, month, loyaltyFilter, roomTypeFilter);
@@ -892,16 +798,12 @@ public class VIPAllocationControl {
         return counts[0] + counts[1] + counts[2] + counts[3];
     }
 
-    //==========================================================
-    // Compatibility Version
-    //==========================================================
+    //Get Total Loyalty Members Default
     public int getTotalLoyaltyMembersFromLoyaltyModule(int year, int month) {
         return getTotalLoyaltyMembersFromLoyaltyModule(year, month, "All", "All");
     }
 
-    //==========================================================
-    // 9. Room Type Report With Filtering
-    //==========================================================
+    //Room Type Report
     public int[] getRoomTypeCounts(int year, int month, String loyaltyFilter, String roomTypeFilter) {
 
         int[] counts = new int[3];
@@ -938,16 +840,12 @@ public class VIPAllocationControl {
         return counts;
     }
 
-    //==========================================================
-    // Compatibility Version
-    //==========================================================
+    //Room Type Report Default
     public int[] getRoomTypeCounts(int year, int month) {
         return getRoomTypeCounts(year, month, "All", "All");
     }
 
-    //==========================================================
-    // Total Guest With Filter
-    //==========================================================
+    //Get Total Guests
     public int getTotalGuests(int year, int month, String loyaltyFilter, String roomTypeFilter) {
 
         int[] counts = getRoomTypeCounts(year, month, loyaltyFilter, roomTypeFilter);
@@ -955,21 +853,15 @@ public class VIPAllocationControl {
         return counts[0] + counts[1] + counts[2];
     }
 
-    //==========================================================
-    // Compatibility Version
-    //==========================================================
+    //Get Total Guests Default
     public int getTotalGuests(int year, int month) {
         return getTotalGuests(year, month, "All", "All");
     }
 
-    //==========================================================
-    // Load Guest Database
-    //==========================================================
+    //Load Guest Data
     public int loadGuestDatabase() {
 
         DoublyLinkedList<Guest> guests = guestDatabase.retrieveFromFile();
-
-        vipStack = new DoublyLinkedList<>();
 
         if (guests == null || guests.isEmpty()) {
 
@@ -988,8 +880,10 @@ public class VIPAllocationControl {
                 continue;
             }
 
+            //Sync Loyalty Tier
             syncGuestTierFromLoyaltyModule(guest);
 
+            //Load Waiting Guest
             if (guest.getRoomStatus() != null && guest.getRoomStatus().equalsIgnoreCase("Waiting")) {
 
                 insertPriority(guest);
@@ -998,19 +892,16 @@ public class VIPAllocationControl {
             }
         }
 
-        //======================================================
-        // Also Read Waiting Booking Guests
-        //======================================================
+        //Sync Booking Guests
         syncWaitingBookingsIntoVipStack();
 
+        //Update Guest ID
         updateNextGuestID(guests);
 
         return totalLoaded;
     }
 
-    //==========================================================
-    // Update Next Guest ID
-    //==========================================================
+    //Update Guest ID
     private void updateNextGuestID(ListInterface<Guest> guests) {
 
         int highestID = 0;
@@ -1045,16 +936,15 @@ public class VIPAllocationControl {
                 }
 
             } catch (NumberFormatException exception) {
-                // Ignore Invalid Guest ID
+
+                //Ignore Invalid ID
             }
         }
 
         nextGuestID = highestID + 1;
     }
 
-    //==========================================================
-    // Stack Empty
-    //==========================================================
+    //Check Stack Empty
     public boolean isStackEmpty() {
 
         syncWaitingBookingsIntoVipStack();
@@ -1062,9 +952,7 @@ public class VIPAllocationControl {
         return vipStack == null || vipStack.isEmpty();
     }
 
-    //==========================================================
-    // Total Waiting Guests
-    //==========================================================
+    //Get Total Waiting Guests
     public int getTotalGuests() {
 
         syncWaitingBookingsIntoVipStack();

@@ -6,8 +6,9 @@ package utility;
 
 /**
  *
- * @author USER
+ * @author Wong Kai Jun, Yeong Wei Kin, Chia Kah Shun, Heng CHuan Wai
  */
+
 public class Utility {
     //==========================================================
     // UI CONSTANTS
@@ -15,6 +16,8 @@ public class Utility {
     public static final String MENU_BORDER = "+----------------------------------------------------------+";
 
     public static final String DETAIL_BORDER = "+----------------------------------------------------------+";
+    
+    public static final String HOTEL_NAME = "TARUMT RESORTS";
     
     public static void customMenu(String[] options, String menuTitle, String customMessage, Runnable[] actions) {
         boolean resume;

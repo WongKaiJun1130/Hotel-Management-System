@@ -9,10 +9,6 @@ package entity;
 import java.io.Serializable;
 import java.util.Objects;
 
-/**
- *
- * @author user
- */
 public class Guest implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -6,7 +6,7 @@ package utility;
 
 /**
  *
- * @author USER
+ * @author Chia Kah Shun
  */
 public class RoomStatusUtil {
     
