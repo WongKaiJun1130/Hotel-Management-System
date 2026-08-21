@@ -350,7 +350,7 @@ public class BookingUI {
                         System.out.print("New Check-In Date (DD-MM-YYYY)       : ");
                         String newCheckInDate = InputUtility.getDateInput();
 
-                        System.out.print("New");
+                        System.out.print("New ");
                         String newCheckOutDate = InputUtility.getCheckOutDate(newCheckInDate);
 
                         // Display Old Information
