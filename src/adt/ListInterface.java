@@ -3,18 +3,15 @@ package adt;
  *
  * @author Wong Kai Jun, Yeong Wei Kin, Chia Kah Shun, Heng CHuan Wai
  */
-
 import java.util.Iterator;
 
-//================================================
 // List Interface for DoublyLinkedList
-//================================================
 public interface ListInterface<T> {
 
-    void insertAndAdvance(T data);
+    void addAndAdvance(T data);
     T rollback();
     T redo();
-    void spliceAfterCurrent(T data);
+    void insertAfterCurrent(T data);
     T getCurrentData();
     boolean add(T data);
     int getSize();
@@ -26,9 +23,7 @@ public interface ListInterface<T> {
     Iterator<T> getIterator();
 
 
-    //================================================
     // Array List Interface
-    //================================================
     public interface ArrayListInterface<T> {
 
         boolean add(T newEntry);
@@ -48,9 +43,7 @@ public interface ListInterface<T> {
     }
 
 
-    //================================================
     // Stack Interface
-    //================================================
     public interface StackInterface<T> {
 
         void push(T newEntry);
@@ -61,10 +54,7 @@ public interface ListInterface<T> {
         int getCurrentSize();
     }
 
-
-    //================================================
     // Queue Interface
-    //================================================
     public interface QueueInterface<T> {
 
         Iterator<T> getIterator();

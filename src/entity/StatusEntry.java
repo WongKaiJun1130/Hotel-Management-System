@@ -10,10 +10,6 @@ package entity;
 
 
 import java.io.Serializable;
-/**
- *
- * @author USER
- */
 public class StatusEntry implements Serializable{
     
     private int statusCode;

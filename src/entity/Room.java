@@ -11,10 +11,6 @@ package entity;
 
 import adt.DoublyLinkedList;
 import java.io.Serializable;
-/**
- *
- * @author USER
- */
 public class Room implements Serializable{
     
     private String roomNum;

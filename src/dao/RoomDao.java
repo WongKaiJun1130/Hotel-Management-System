@@ -14,24 +14,17 @@ import adt.DoublyLinkedList;
  */
 public class RoomDao {
 
-    //====================================================
-    // In-Memory Room Data
-    //====================================================
+  
     private static DoublyLinkedList<Room> roomData = new DoublyLinkedList<>();
     
     
 
-    //====================================================
-    // Create Initial Room Data
-    //====================================================
+    
     public static ListInterface<Room> createRoomData() {
 
     DoublyLinkedList<Room> rooms = new DoublyLinkedList<>();
 
-    //================================================
-    // SINGLE ROOMS S01 - S10
-    //================================================
-    // S01-S05 Dirty
+    
         for (int i = 1; i <= 5; i++) {
             rooms.add(
                     newRoom(
@@ -47,10 +40,7 @@ public class RoomDao {
             );
         }
 
-        //================================================
-        // MEDIUM ROOMS M01 - M10
-        //================================================
-        // M01-M05 Cleaning
+        
         String[] staff = {
             "Maria", "John", "Amy", "Ben", "Cara"
         };
@@ -65,7 +55,7 @@ public class RoomDao {
             );
         }
 
-        // M06-M10 Ready
+        
         for (int i = 6; i <= 10; i++) {
             rooms.add(
                     advanceTo(
@@ -77,9 +67,7 @@ public class RoomDao {
             );
         }
 
-        //================================================
-        // LARGE ROOMS L01 - L10
-        //================================================
+        
         // L01-L04 Inspected
         for (int i = 1; i <= 4; i++) {
 
@@ -103,7 +91,7 @@ public class RoomDao {
                 )
         );
 
-        // L06-L07 Late Checkout Hold
+        
         rooms.add(
                 lateCheckoutRoom(
                         "L06",
@@ -142,21 +130,17 @@ public class RoomDao {
         return rooms;
     }
 
-    //====================================================
-    // Create New Room
-    //====================================================
+    
     private static Room newRoom(String roomNumber, int roomType) {
 
         Room room = new Room(roomNumber, roomType);
 
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room registered!"));
+        room.getStatusHistory().addAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room registered!"));
 
         return room;
     }
 
-    //====================================================
-    // Advance Room To Target Status
-    //====================================================
+    
     private static Room advanceTo(String roomNumber, int roomType, int targetStatus, String note) {
 
         Room room = newRoom(roomNumber, roomType);
@@ -179,7 +163,7 @@ public class RoomDao {
                 statusNote = "";
             }
 
-            room.getStatusHistory().insertAndAdvance(new StatusEntry(nextStatus, statusNote));
+            room.getStatusHistory().addAndAdvance(new StatusEntry(nextStatus, statusNote));
 
             currentStatus = nextStatus;
         }
@@ -187,23 +171,19 @@ public class RoomDao {
         return room;
     }
 
-    //====================================================
-    // Create Late Check-Out Room
-    //====================================================
+    
     private static Room lateCheckoutRoom(String roomNumber, int roomType) {
 
         Room room = advanceTo(roomNumber, roomType, RoomStatusUtil.Inspected, "Passed inspection");
 
         room.getStatusHistory().rollback();
 
-        room.getStatusHistory().spliceAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, "Guest requested late check-out"));
+        room.getStatusHistory().insertAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, "Guest requested late check-out"));
 
         return room;
     }
 
-    //====================================================
-    // Save Room Data In Memory
-    //====================================================
+    
     public void saveToFile(ListInterface<Room> roomList) {
 
         roomData = new DoublyLinkedList<>();
@@ -222,9 +202,7 @@ public class RoomDao {
         }
     }
 
-    //====================================================
-    // Retrieve Room Data From Memory
-    //====================================================
+    
     public DoublyLinkedList<Room> retrieveFromFile() {
 
         DoublyLinkedList<Room> copiedRoomList = new DoublyLinkedList<>();
@@ -245,9 +223,7 @@ public class RoomDao {
         return copiedRoomList;
     }
 
-    //====================================================
-    // Add Room
-    //====================================================
+    
     public boolean addRoom(Room room) {
 
         if (room == null) {
@@ -267,9 +243,7 @@ public class RoomDao {
         return true;
     }
 
-    //====================================================
-    // Get Room By Position
-    //====================================================
+    
     public Room getRoom(int position) {
 
         if (position < 1 || position > roomData.getSize()) {
@@ -279,9 +253,7 @@ public class RoomDao {
         return roomData.getEntry(position);
     }
 
-    //====================================================
-    // Remove Room By Position
-    //====================================================
+    
     public Room removeRoom(int position) {
 
         if (position < 1 || position > roomData.getSize()) {
@@ -291,9 +263,7 @@ public class RoomDao {
         return roomData.remove(position);
     }
 
-    //====================================================
-    // Remove Room By Room Number
-    //====================================================
+    
     public Room removeRoomByNumber(String roomNumber) {
 
         if (roomNumber == null || roomNumber.trim().isEmpty()) {
@@ -315,9 +285,7 @@ public class RoomDao {
         return null;
     }
 
-    //====================================================
-    // Search Room By Room Number
-    //====================================================
+    
     public Room searchRoomByNumber(String roomNumber) {
 
         if (roomNumber == null || roomNumber.trim().isEmpty()) {
@@ -340,23 +308,17 @@ public class RoomDao {
         return null;
     }
 
-    //====================================================
-    // Get Total Rooms
-    //====================================================
+    
     public int getTotalRooms() {
         return roomData.getSize();
     }
 
-    //====================================================
-    // Check Room Data Is Empty
-    //====================================================
+    
     public boolean isRoomDataEmpty() {
         return roomData == null || roomData.isEmpty();
     }
 
-    //====================================================
-    // Get All Room Data
-    //====================================================
+    
     public DoublyLinkedList<Room> getAllRooms() {
         return roomData;
     }

@@ -1,6 +1,11 @@
 
 package utility;
 
+/**
+ *
+ * @author Wong Kai Jun, Yeong Wei Kin, Chia Kah Shun, Heng CHuan Wai
+ */
+
 import adt.DoublyLinkedList;
 import adt.ListInterface.StackInterface;
 

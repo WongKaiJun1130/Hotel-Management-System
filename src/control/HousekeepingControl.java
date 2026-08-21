@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package control;
 
 /**
@@ -9,81 +5,53 @@ package control;
  * @author Chia Kah Shun
  */
 
-import adt.ListInterface;
 import adt.DoublyLinkedList;
-import entity.StatusEntry;
-import utility.RoomStatusUtil;  
-import utility.RoomTypeUtil;
-import entity.Room;
-import entity.Booking;
+import adt.ListInterface;
 import dao.RoomDao;
-import java.util.Iterator;
+import entity.Booking;
+import entity.Room;
+import entity.StatusEntry;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import utility.RoomStatusUtil;
+import utility.RoomTypeUtil;
 
 public class HousekeepingControl {
 
     // ADT declaration
     public static ListInterface<Room> roomList = new DoublyLinkedList<>();
-    
     private static boolean dummyRoomsLoaded = false;
-
-    // Single DAO instance backing this control. Every mutation made
-    // through HousekeepingControl gets pushed back into RoomDao via
-    // syncToDao(), so RoomDao's copy never goes stale - any other
-    // module reading through RoomDao.retrieveFromFile() (e.g.
-    // VIPAllocationControl) sees the live housekeeping state instead
-    // of the original dummy-data snapshot.
     private static RoomDao roomDao = new RoomDao();
 
-    // Loads the 20 dummy rooms (built by RoomDao, directly in memory - no
-    // file storage) into the room registry. Guarded so it only loads once -
-    // calling it again after rooms have already been registered/modified
-    // won't wipe out that in-memory progress.
-    public static void loadDummyRooms() {
-          if (dummyRoomsLoaded) {
-              return;
-          }
-          ListInterface<Room> dummyRooms = roomDao.retrieveFromFile();
-          Iterator<Room> iterator = dummyRooms.getIterator();
-          while (iterator.hasNext()) {
-              roomList.add(iterator.next());
-          }
-          dummyRoomsLoaded = true;
-      }
-
-    // Pushes the current in-memory roomList back into RoomDao. Called
-    // after every mutation (register, status change, checkout, etc.)
-    // so RoomDao stays the up-to-date single source of truth for other
-    // modules that go through it instead of HousekeepingControl.
-    private static void syncToDao() {
-        roomDao.saveToFile(roomList);
-    }
-
-    // ==============================
-    // Auto-advance: rooms move to the next status on their own after
-    // sitting unchanged for AUTO_ADVANCE_INTERVAL_MILLIS. Runs on a
-    // background daemon thread that starts counting the moment the
-    // scheduler is started (call this once, e.g. at program startup).
-    // ==============================
-
-    // How long a room can sit at its current status before it's
-    // auto-advanced to the next stage. Set small (e.g. 15 * 1000 for
-    // 15 seconds) while testing; 15 minutes for the real thing.
-    private static final long AUTO_ADVANCE_INTERVAL_MILLIS = 60 * 1000; // TESTING: 15 seconds (set to 15 * 60 * 1000 for the real 15 min)
-
-    // How often the scheduler checks all rooms. Independent of the
-    // interval above - just needs to be frequent enough that a room
-    // isn't left waiting long after it becomes due.
-    private static final long CHECK_FREQUENCY_MILLIS = 30 * 1000; // every 30 seconds
-
+    private static final long AUTO_ADVANCE_INTERVAL_MILLIS = 60 * 1000; // 60 seconds
+    private static final long CHECK_FREQUENCY_MILLIS = 30 * 1000;       // 30 seconds
     private static Timer autoAdvanceTimer;
 
-    // Starts the background timer as a daemon thread (so it never
-    // blocks the program from exiting normally). Safe to call more
-    // than once - only the first call actually starts anything.
-    public static void startAutoAdvanceScheduler() {
+    public static void loadDummyRooms() {
+        if (dummyRoomsLoaded) {
+            return;
+        }
+        ListInterface<Room> dummyRooms = roomDao.retrieveFromFile();
+        if (dummyRooms != null) {
+            Iterator<Room> iterator = dummyRooms.getIterator();
+            while (iterator.hasNext()) {
+                roomList.add(iterator.next());
+            }
+        }
+        dummyRoomsLoaded = true;
+    }
+
+    private static void syncToDao() {
+        synchronized (roomList) {
+            roomDao.saveToFile(roomList);
+        }
+    }
+
+    public static synchronized void startAutoAdvanceScheduler() {
         if (autoAdvanceTimer != null) {
             return;
         }
@@ -97,44 +65,45 @@ public class HousekeepingControl {
         }, CHECK_FREQUENCY_MILLIS, CHECK_FREQUENCY_MILLIS);
     }
 
-    // Checks every room's current status entry; if it has been sitting
-    // for at least AUTO_ADVANCE_INTERVAL_MILLIS and there is a valid
-    // next status, advances it automatically.
+    public static synchronized void stopAutoAdvanceScheduler() {
+        if (autoAdvanceTimer != null) {
+            autoAdvanceTimer.cancel();
+            autoAdvanceTimer = null;
+        }
+    }
+
     private static void autoAdvanceDueRooms() {
         long now = System.currentTimeMillis();
+        List<Room> roomsToAdvance = new ArrayList<>();
 
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            StatusEntry current = room.getStatusHistory().getCurrentData();
+        // Phase 1: Read and collect target rooms under lock safely
+        synchronized (roomList) {
+            Iterator<Room> iterator = roomList.getIterator();
+            while (iterator.hasNext()) {
+                Room room = iterator.next();
+                if (room == null || room.getStatusHistory() == null) continue;
 
-            if (current == null) {
-                continue;
+                StatusEntry current = room.getStatusHistory().getCurrentData();
+                if (current == null || current.getStatusCode() == RoomStatusUtil.Late_CheckOut_Hold) {
+                    continue;
+                }
+
+                long elapsed = now - current.getTimestamp();
+                if (elapsed >= AUTO_ADVANCE_INTERVAL_MILLIS) {
+                    int nextStatus = RoomStatusUtil.nextStatusAfter(current.getStatusCode());
+                    if (nextStatus != -1) {
+                        roomsToAdvance.add(room);
+                    }
+                }
             }
+        }
 
-            // Rooms on hold for a guest's late check-out must stay put
-            // until a supervisor manually resumes them - never auto-advance
-            // out of this status, regardless of how long it's been sitting.
-            if (current.getStatusCode() == RoomStatusUtil.Late_CheckOut_Hold) {
-                continue;
-            }
-
-            long elapsed = now - current.getTimestamp();
-            if (elapsed < AUTO_ADVANCE_INTERVAL_MILLIS) {
-                continue;
-            }
-
-            int nextStatus = RoomStatusUtil.nextStatusAfter(current.getStatusCode());
-            if (nextStatus == -1) {
-                continue;
-            }
-
+        // Phase 2: Perform status advancement outside the iteration loop
+        for (Room room : roomsToAdvance) {
             advanceStatus(room, "Auto-advanced after " + formatInterval(AUTO_ADVANCE_INTERVAL_MILLIS));
         }
     }
 
-    // Formats the interval as seconds if it's under a minute, otherwise
-    // as minutes - so the note text stays accurate whether you're
-    // testing with a short interval or running the real 15-minute one.
     private static String formatInterval(long millis) {
         if (millis < 60000) {
             return (millis / 1000) + " sec";
@@ -142,208 +111,236 @@ public class HousekeepingControl {
         return (millis / 60000) + " min";
     }
 
-    // Room register
-
     public static Room registerRoom(String roomNum, int roomType) {
         Room room = new Room(roomNum, roomType);
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room Registered"));
-        roomList.add(room);
+        room.getStatusHistory().addAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Room Registered"));
+        synchronized (roomList) {
+            roomList.add(room);
+        }
         syncToDao();
         return room;
     }
 
     public static Room findRoom(String roomNum) {
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            if (room.getRoomNum().equalsIgnoreCase(roomNum)) {
-                return room;
+        if (roomNum == null) return null;
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                if (room != null && room.getRoomNum().equalsIgnoreCase(roomNum)) {
+                    return room;
+                }
             }
         }
         return null;
     }
 
     public static boolean roomIsEmpty() {
-        return roomList.isEmpty();
+        synchronized (roomList) {
+            return roomList.isEmpty();
+        }
     }
 
     public static int getRoomCount() {
-        return roomList.getSize();
+        synchronized (roomList) {
+            return roomList.getSize();
+        }
     }
 
     public static Room getRoomAt(int index) {
-        return roomList.getEntry(index);
+        synchronized (roomList) {
+            return roomList.getEntry(index);
+        }
     }
 
-
-    // Status transitions
     public static int advanceStatus(Room room, String note) {
-        StatusEntry current = room.getStatusHistory().getCurrentData();
-        int nextStatus = RoomStatusUtil.nextStatusAfter(current.getStatusCode());
+        if (room == null || room.getStatusHistory() == null) return -1;
+        int nextStatus;
+        synchronized (roomList) {
+            StatusEntry current = room.getStatusHistory().getCurrentData();
+            if (current == null) return -1;
 
-        if (nextStatus == -1) {
-            return -1;
+            nextStatus = RoomStatusUtil.nextStatusAfter(current.getStatusCode());
+            if (nextStatus == -1) {
+                return -1;
+            }
+
+            room.getStatusHistory().addAndAdvance(new StatusEntry(nextStatus, note));
         }
-
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(nextStatus, note));
         syncToDao();
         return nextStatus;
     }
 
-    // Supervisor logged the wrong status. Returns the restored status
-    // code, or -1 if already at the earliest entry
-
-    public static int rollbackStatus(Room room) {
-        StatusEntry restored = room.getStatusHistory().rollback();
-        syncToDao();
-        return (restored == null) ? -1 : restored.getStatusCode();
+    public static int rollbackStatus(Room room, String note) {
+    if (room == null || room.getStatusHistory() == null) return -1;
+    StatusEntry restored;
+    synchronized (roomList) {
+        restored = room.getStatusHistory().rollback();
+        if (restored != null && note != null && !note.trim().isEmpty()) {
+            // Update the restored status note if a custom rollback reason was provided
+            room.getStatusHistory().addAndAdvance(new StatusEntry(restored.getStatusCode(), note.trim()));
+        }
     }
+    syncToDao();
+    return (restored == null) ? -1 : restored.getStatusCode();
+}
 
-    // Guest requests late check-out mid-cleaning: splice a hold entry in
-    // without discarding whatever cleaning step was queued next
     public static void interruptForLateCheckout(Room room, String note) {
-        room.getStatusHistory().spliceAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, note));
-        syncToDao();
+    if (room == null || room.getStatusHistory() == null) return;
+    
+   
+    String finalNote = (note == null || note.trim().isEmpty()) ? "Late check out" : note.trim();
+    
+    synchronized (roomList) {
+        room.getStatusHistory().insertAfterCurrent(new StatusEntry(RoomStatusUtil.Late_CheckOut_Hold, finalNote));
     }
+    syncToDao();
+}
 
-    // Continue the cleaning flow after the interruption is resolved
-    // Returns the resumed status code, or -1 if nothing was queued
     public static int resumeStatus(Room room) {
-        StatusEntry resumed = room.getStatusHistory().redo();
-        syncToDao();
-        return (resumed == null) ? -1 : resumed.getStatusCode();
-    }
+    if (room == null || room.getStatusHistory() == null) return -1;
 
-    // Guest checks out: room goes back to Dirty, ready to be re-cleaned.
-    // Returns false if the room was already Dirty
-    public static boolean guestCheckOut(Room room) {
-        int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
-        if (currentStatus == RoomStatusUtil.Dirty) {
-            return false;
+    synchronized (roomList) {
+        StatusEntry current = room.getStatusHistory().getCurrentData();
+
+        
+        if (current == null || current.getStatusCode() != RoomStatusUtil.Late_CheckOut_Hold) {
+            return -1;
         }
 
-        room.getStatusHistory().insertAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Guest checked out - needs cleaning"));
+        
+        StatusEntry previousEntry = room.getStatusHistory().rollback();
+        
+        
+        int resumedStatusCode = (previousEntry != null) 
+                ? previousEntry.getStatusCode() 
+                : RoomStatusUtil.Dirty;
+
+       
+        String note = "Resumed cleaning (After late check out)";
+        room.getStatusHistory().addAndAdvance(new StatusEntry(resumedStatusCode, note));
+        
+        syncToDao();
+        return resumedStatusCode;
+    }
+}
+
+    public static boolean guestCheckOut(Room room) {
+        if (room == null || room.getStatusHistory() == null) return false;
+        synchronized (roomList) {
+            StatusEntry current = room.getStatusHistory().getCurrentData();
+            if (current != null && current.getStatusCode() == RoomStatusUtil.Dirty) {
+                return false;
+            }
+
+            room.getStatusHistory().addAndAdvance(new StatusEntry(RoomStatusUtil.Dirty, "Guest checked out - needs cleaning"));
+        }
         syncToDao();
         return true;
     }
 
-
-    // Queries for reports
-
-    // Index matches RoomStatusUtil status codes: Dirty, Clean_In_Progress,
-    // Inspected, Ready_For_CheckIN, Late_CheckOut_Hold
-
     public static int[] getStatusCounts() {
         int[] counts = new int[5];
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            int status = roomList.getEntry(i).getStatusHistory().getCurrentData().getStatusCode();
-            if (status >= 0 && status < counts.length) {
-                counts[status]++;
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                if (room != null && room.getStatusHistory() != null && room.getStatusHistory().getCurrentData() != null) {
+                    int status = room.getStatusHistory().getCurrentData().getStatusCode();
+                    if (status >= 0 && status < counts.length) {
+                        counts[status]++;
+                    }
+                }
             }
         }
         return counts;
     }
-
-    // Index matches RoomTypeUtil type codes: Normal_Room, Deluxe_Room, VIP_Room
 
     public static int[] getTypeCounts() {
         int[] counts = new int[3];
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            int type = roomList.getEntry(i).getRoomType();
-            if (type >= 0 && type < counts.length) {
-                counts[type]++;
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                if (room != null) {
+                    int type = room.getRoomType();
+                    if (type >= 0 && type < counts.length) {
+                        counts[type]++;
+                    }
+                }
             }
         }
         return counts;
     }
 
-
-    // ==============================
-    // Search
-    // ==============================
-
-    // Flexible keyword search across room number, room type name, and
-    // status name. Case-insensitive partial match - e.g. "vip" finds
-    // every VIP room, "dirty" finds every dirty room, "101" finds room
-    // 101. Mirrors VIPAllocationControl.searchGuest()'s pattern.
     public static ListInterface<Room> searchRooms(String keyword) {
         ListInterface<Room> result = new DoublyLinkedList<>();
-
         if (keyword == null || keyword.trim().isEmpty()) {
             return result;
         }
 
         String searchKeyword = keyword.trim().toLowerCase();
 
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            StatusEntry current = room.getStatusHistory().getCurrentData();
+        synchronized (roomList) {
+            Iterator<Room> iterator = roomList.getIterator();
+            while (iterator.hasNext()) {
+                Room room = iterator.next();
+                if (room == null) continue;
 
-            String searchData = room.getRoomNum() + " "
-                    + RoomTypeUtil.roomTypeName(room.getRoomType()) + " "
-                    + RoomStatusUtil.statusName(current.getStatusCode());
+                StatusEntry current = (room.getStatusHistory() != null) ? room.getStatusHistory().getCurrentData() : null;
+                String statusLabel = (current != null) ? RoomStatusUtil.statusName(current.getStatusCode()) : "";
+                
+                String searchData = room.getRoomNum() + " "
+                        + RoomTypeUtil.roomTypeName(room.getRoomType()) + " "
+                        + statusLabel;
 
-            if (searchData.toLowerCase().contains(searchKeyword)) {
-                result.add(room);
+                if (searchData.toLowerCase().contains(searchKeyword)) {
+                    result.add(room);
+                }
             }
         }
-
         return result;
     }
 
-
-    // ==============================
-    // Filter (multi-criteria)
-    // ==============================
-
-    // Filters by any combination of room type and status at once. Pass
-    // null for either parameter to mean "any" for that field - e.g.
-    // filterRooms(RoomTypeUtil.VIP_Room, null) returns every VIP room
-    // regardless of status; filterRooms(null, RoomStatusUtil.Dirty)
-    // returns every Dirty room regardless of type; supplying both
-    // narrows to rooms matching BOTH criteria simultaneously. This is
-    // distinct from searchRooms(): search is a single free-text keyword
-    // match, filter is structured, multi-field, and exact.
     public static ListInterface<Room> filterRooms(Integer roomType, Integer status) {
         ListInterface<Room> result = new DoublyLinkedList<>();
 
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                if (room == null || room.getStatusHistory() == null || room.getStatusHistory().getCurrentData() == null) {
+                    continue;
+                }
 
-            boolean typeMatches = (roomType == null) || (room.getRoomType() == roomType);
-            boolean statusMatches = (status == null) || (currentStatus == status);
+                int currentStatus = room.getStatusHistory().getCurrentData().getStatusCode();
+                boolean typeMatches = (roomType == null) || (room.getRoomType() == roomType);
+                boolean statusMatches = (status == null) || (currentStatus == status);
 
-            if (typeMatches && statusMatches) {
-                result.add(room);
+                if (typeMatches && statusMatches) {
+                    result.add(room);
+                }
             }
         }
 
         return result;
     }
 
-
-    // ==============================
-    // Sort
-    // ==============================
-    // sortRooms() works on ANY list you hand it (not just roomList), so
-    // the same sorting logic can be reused on a filtered subset - that's
-    // what makes the business-cycle report below possible without
-    // duplicating the insertion sort. Returns a NEW list in sorted order;
-    // the list passed in is left untouched. sortOption: 1 = room number,
-    // 2 = status, 3 = room type.
     public static ListInterface<Room> sortRooms(ListInterface<Room> roomsToSort, int sortOption) {
+        if (roomsToSort == null || roomsToSort.isEmpty()) {
+            return new DoublyLinkedList<>();
+        }
+
         Room[] rooms = toArray(roomsToSort);
 
         switch (sortOption) {
             case 2:
                 insertionSort(rooms, (a, b) -> {
-                    int statusA = a.getStatusHistory().getCurrentData().getStatusCode();
-                    int statusB = b.getStatusHistory().getCurrentData().getStatusCode();
+                    int statusA = (a.getStatusHistory() != null && a.getStatusHistory().getCurrentData() != null) 
+                            ? a.getStatusHistory().getCurrentData().getStatusCode() : -1;
+                    int statusB = (b.getStatusHistory() != null && b.getStatusHistory().getCurrentData() != null) 
+                            ? b.getStatusHistory().getCurrentData().getStatusCode() : -1;
                     return Integer.compare(statusA, statusB);
                 });
                 break;
             case 3:
-                insertionSort(rooms, (a, b) -> Integer.compare(a.getRoomType(), b.getRoomType()));
+                insertionSort(rooms, Comparator.comparingInt(Room::getRoomType));
                 break;
             default:
                 insertionSort(rooms, (a, b) -> a.getRoomNum().compareToIgnoreCase(b.getRoomNum()));
@@ -353,18 +350,14 @@ public class HousekeepingControl {
         return fromArray(rooms);
     }
 
-    // Sorts by room number, alphanumeric ascending.
     public static ListInterface<Room> getRoomsSortedByRoomNumber() {
         return sortRooms(roomList, 1);
     }
 
-    // Sorts by status, following the natural cleaning-flow order:
-    // Dirty -> Cleaning In Progress -> Inspected -> Ready -> Late Check-Out Hold
     public static ListInterface<Room> getRoomsSortedByStatus() {
         return sortRooms(roomList, 2);
     }
 
-    // Sorts by room type: Normal -> Deluxe -> VIP
     public static ListInterface<Room> getRoomsSortedByType() {
         return sortRooms(roomList, 3);
     }
@@ -385,11 +378,6 @@ public class HousekeepingControl {
         return sorted;
     }
 
-    // Classic insertion sort: O(n^2) worst case, O(n) best case on
-    // already-sorted input, stable. Chosen over a library sort since
-    // Room is stored in our own custom ADT, not a java.util.List, and
-    // insertion sort is simple to trace/explain for a small list like
-    // a hotel's room registry.
     private static void insertionSort(Room[] rooms, Comparator<Room> comparator) {
         for (int i = 1; i < rooms.length; i++) {
             Room key = rooms[i];
@@ -404,49 +392,37 @@ public class HousekeepingControl {
         }
     }
 
-
-    // ==============================
-    // Business-Cycle Report: filter + sort combined
-    // ==============================
-    // End-of-cycle operational report: rooms are first FILTERED by any
-    // combination of type/status (null = no filter on that field), then
-    // the filtered subset is SORTED by the chosen field, in a single
-    // pipeline - exactly the "filter on multiple criteria + sort ->
-    // structured report" algorithm management asks for at the close of
-    // each business cycle. Both filterRooms() and sortRooms() are reused
-    // as-is; this method's job is purely to chain them.
     public static ListInterface<Room> generateBusinessCycleReport(Integer roomTypeFilter, Integer statusFilter, int sortOption) {
         ListInterface<Room> filtered = filterRooms(roomTypeFilter, statusFilter);
         return sortRooms(filtered, sortOption);
     }
 
-
-    // ==============================
-    // Cross-module report: Housekeeping + Booking
-    // ==============================
-
-    // Matches rooms currently Ready for Check-In with bookings still
-    // waiting for a room of the same type. This is a genuine
-    // cross-module report - it correlates Room (this module) with
-    // Booking (a different module, via BookingControl), not just
-    // Housekeeping's own data.
+    // =========================================================
+    // Cross-Module Booking Matching Methods & Static Inner Class
+    // =========================================================
     public static ListInterface<RoomBookingMatch> getReadyRoomsForWaitingGuests(BookingControl bookingControl) {
         ListInterface<RoomBookingMatch> matches = new DoublyLinkedList<>();
+        if (bookingControl == null) return matches;
 
         ListInterface<Booking> waitingBookings = bookingControl.getWaitingBookings();
 
-        for (int i = 1; i <= roomList.getSize(); i++) {
-            Room room = roomList.getEntry(i);
-            int status = room.getStatusHistory().getCurrentData().getStatusCode();
+        synchronized (roomList) {
+            for (int i = 1; i <= roomList.getSize(); i++) {
+                Room room = roomList.getEntry(i);
+                if (room == null || room.getStatusHistory() == null || room.getStatusHistory().getCurrentData() == null) {
+                    continue;
+                }
 
-            if (status != RoomStatusUtil.Ready_For_CheckIN) {
-                continue;
-            }
+                int status = room.getStatusHistory().getCurrentData().getStatusCode();
+                if (status != RoomStatusUtil.Ready_For_CheckIN) {
+                    continue;
+                }
 
-            for (int j = 1; j <= waitingBookings.getSize(); j++) {
-                Booking booking = waitingBookings.getEntry(j);
-                if (matchesRoomType(room.getRoomType(), booking.getRoomType())) {
-                    matches.add(new RoomBookingMatch(room, booking));
+                for (int j = 1; j <= waitingBookings.getSize(); j++) {
+                    Booking booking = waitingBookings.getEntry(j);
+                    if (booking != null && matchesRoomType(room.getRoomType(), booking.getRoomType())) {
+                        matches.add(new RoomBookingMatch(room, booking));
+                    }
                 }
             }
         }
@@ -454,17 +430,15 @@ public class HousekeepingControl {
         return matches;
     }
 
-    // Same correlation as above, but scoped to a single room - used
-    // by the Room Status History report so it can show which waiting
-    // bookings (if any) this specific room could be assigned to.
     public static ListInterface<Booking> getWaitingBookingsForRoom(Room room, BookingControl bookingControl) {
         ListInterface<Booking> matches = new DoublyLinkedList<>();
+        if (room == null || bookingControl == null) return matches;
 
         ListInterface<Booking> waitingBookings = bookingControl.getWaitingBookings();
 
         for (int j = 1; j <= waitingBookings.getSize(); j++) {
             Booking booking = waitingBookings.getEntry(j);
-            if (matchesRoomType(room.getRoomType(), booking.getRoomType())) {
+            if (booking != null && matchesRoomType(room.getRoomType(), booking.getRoomType())) {
                 matches.add(booking);
             }
         }
@@ -472,17 +446,10 @@ public class HousekeepingControl {
         return matches;
     }
 
-    // Booking and Housekeeping use different room-type vocabularies
-    // (see RoomTypeUtil.matchesLabel for details), so the comparison is
-    // delegated there instead of a direct string match.
-    private static boolean matchesRoomType(
-        int housekeepingRoomType,
-        String bookingRoomType) {
-        return RoomTypeUtil.matchesLabel(housekeepingRoomType, bookingRoomType  );
+    private static boolean matchesRoomType(int housekeepingRoomType, String bookingRoomType) {
+        return RoomTypeUtil.matchesLabel(housekeepingRoomType, bookingRoomType);
     }
 
-    // Pairs a Room with a Booking for display - not a persisted
-    // entity, purely a result holder for the cross-module report.
     public static class RoomBookingMatch {
         private final Room room;
         private final Booking booking;
@@ -499,5 +466,36 @@ public class HousekeepingControl {
         public Booking getBooking() {
             return booking;
         }
+    }
+
+    public static boolean processGuestCheckOut(String roomNum, BookingControl bookingControl, StringBuilder resultMessage) {
+        Room room = findRoom(roomNum);
+
+        if (room == null) {
+            resultMessage.append("Room ").append(roomNum).append(" not found.");
+            return false;
+        }
+
+        boolean statusUpdated = guestCheckOut(room);
+        if (!statusUpdated) {
+            resultMessage.append("Room ").append(room.getRoomNum()).append(" is already marked Dirty (needs cleaning).");
+            return false;
+        }
+
+        resultMessage.append("Room ").append(room.getRoomNum())
+                .append(" checked out. Housekeeping Status updated to: Dirty (needs cleaning).\n");
+
+        if (bookingControl != null) {
+            Booking closedBooking = bookingControl.checkOutBookingByRoomID(room.getRoomNum());
+            if (closedBooking != null) {
+                resultMessage.append("Booking ").append(closedBooking.getBookingID())
+                        .append(" (").append(closedBooking.getGuestName())
+                        .append(") updated to: Checked Out.");
+            } else {
+                resultMessage.append("No active booking record found for Room ").append(room.getRoomNum()).append(".");
+            }
+        }
+
+        return true;
     }
 }

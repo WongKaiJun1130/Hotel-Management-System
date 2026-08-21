@@ -11,140 +11,32 @@ public class GuestDao {
 
     private static DoublyLinkedList<Guest> guests = new DoublyLinkedList<>();
 
-    //====================================================
-    // Create Initial Guest Data In Memory
-    //====================================================
     public static void createGuestData() {
         
         guests = new DoublyLinkedList<>();
 
-        //================================================
-        // Guest Records Matching Booking Database
-        // Booking ID and Guest ID are DIFFERENT:
-        // B0001 = Booking ID
-        // R0001 = Guest ID
-        //================================================
-
-        //================================================
-        // Allocated Guests
-        // R0001 - R0010
-        //================================================
-
-        guests.add(new Guest(
-                "R0001",
-                "John Tan",
-                "0123456789",
-                "Elite",
-                "Large Room",
-                "Allocated",
-                "20/08/2026",
-                "20/08/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0002",
-                "Wong Lee",
-                "0134567890",
-                "Diamond",
-                "Medium Room",
-                "Allocated",
-                "21/08/2026",
-                "21/08/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0003",
-                "Alice Lim",
-                "0145678901",
-                "Platinum",
-                "Single Room",
-                "Allocated",
-                "25/08/2026",
-                "25/08/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0004",
-                "David Wong",
-                "0166789012",
-                "Elite",
-                "Large Room",
-                "Allocated",
-                "28/08/2026",
-                "28/08/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0005",
-                "Jason Lee",
-                "0177890123",
-                "Standard",
-                "Medium Room",
-                "Allocated",
-                "01/09/2026",
-                "01/09/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0006",
-                "Sarah Tan",
-                "0188901234",
-                "Diamond",
-                "Single Room",
-                "Allocated",
-                "10/07/2026",
-                "10/07/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0007",
-                "Michael Chen",
-                "0199012345",
-                "Platinum",
-                "Medium Room",
-                "Allocated",
-                "13/07/2026",
-                "13/07/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0008",
-                "Emily Wong",
-                "0121122334",
-                "Elite",
-                "Large Room",
-                "Allocated",
-                "16/07/2026",
-                "16/07/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0009",
-                "Kevin Lim",
-                "0132233445",
-                "Standard",
-                "Single Room",
-                "Allocated",
-                "19/07/2026",
-                "19/07/2026 12:00"
-        ));
-
-        guests.add(new Guest(
-                "R0010",
-                "Jessica Ng",
-                "0143344556",
-                "Diamond",
-                "Medium Room",
-                "Allocated",
-                "22/07/2026",
-                "22/07/2026 12:00"
-        ));
-
-
-        //================================================
-        // Waiting Guests
-        // R0011 - R0020
-        //================================================
+        guests.add(new Guest("R0001", "John Tan", "0123456789", "Elite", "Large Room", "Allocated", "20/08/2026", "20/08/2026 12:00"));
+        guests.add(new Guest("R0002", "Wong Lee", "0134567890", "Diamond", "Medium Room", "Allocated", "21/08/2026", "21/08/2026 12:00"));
+        guests.add(new Guest("R0003", "Alice Lim", "0145678901", "Platinum", "Single Room", "Allocated", "25/08/2026", "25/08/2026 12:00"));
+        guests.add(new Guest("R0004", "David Wong", "0166789012", "Elite", "Large Room", "Allocated", "28/08/2026", "28/08/2026 12:00"));
+        guests.add(new Guest("R0005", "Jason Lee", "0177890123", "Standard", "Medium Room", "Allocated", "01/09/2026", "01/09/2026 12:00"));
+        guests.add(new Guest("R0011", "Daniel Lim", "0112233445", "Diamond", "Large Room", "Allocated", "03/08/2026", "03/08/2026 10:15"));
+        guests.add(new Guest("R0012", "Michelle Tan", "0113344556", "Platinum", "Medium Room", "Allocated", "07/08/2026", "07/08/2026 11:30"));
+        guests.add(new Guest("R0013", "Andrew Lee", "0114455667", "Elite", "Large Room", "Allocated", "12/08/2026", "12/08/2026 09:45"));
+        guests.add(new Guest("R0014", "Samantha Wong", "0115566778", "Standard", "Single Room", "Allocated", "18/08/2026", "18/08/2026 14:00"));
+        guests.add(new Guest("R0015", "Brian Ng", "0116677889", "Diamond", "Medium Room", "Allocated", "05/09/2026", "05/09/2026 13:30"));
+        
+        
+        guests.add(new Guest("R0006", "Sarah Tan", "0188901234", "Diamond", "Single Room", "Waiting", "10/07/2026", "10/07/2026 12:00"));
+        guests.add(new Guest("R0007", "Michael Chen", "0199012345", "Platinum", "Medium Room", "Waiting", "13/07/2026", "13/07/2026 12:00"));
+        guests.add(new Guest("R0008", "Emily Wong", "0121122334", "Elite", "Large Room", "Waiting", "16/07/2026", "16/07/2026 12:00"));
+        guests.add(new Guest("R0009", "Kevin Lim", "0132233445", "Standard", "Single Room", "Waiting", "19/07/2026", "19/07/2026 12:00"));
+        guests.add(new Guest("R0010", "Jessica Ng", "0143344556", "Diamond", "Medium Room", "Waiting", "22/07/2026", "22/07/2026 12:00"));
+        guests.add(new Guest("R0016", "Rachel Lee", "0117788990", "Platinum", "Single Room", "Waiting", "20/08/2026", "20/08/2026 15:15"));
+        guests.add(new Guest("R0017", "Steven Wong", "0118899001", "Elite", "Large Room", "Waiting", "22/08/2026", "22/08/2026 08:30"));
+        guests.add(new Guest("R0018", "Nicole Tan", "0119900112", "Standard", "Medium Room", "Waiting", "24/08/2026", "24/08/2026 10:45"));
+        guests.add(new Guest("R0019", "Aaron Lim", "0121011223", "Diamond", "Large Room", "Waiting", "27/08/2026", "27/08/2026 13:00"));
+        guests.add(new Guest("R0020", "Chloe Lee", "0132122334", "Platinum", "Single Room", "Waiting", "08/09/2026", "08/09/2026 09:20"));
 
         guests.add(new Guest(
                 "R0011",
@@ -262,6 +154,9 @@ public class GuestDao {
                 + " Guests Created In Memory!"
         );
     }
+
+
+    
     //====================================================
     // Store Guest Data In Memory
     //====================================================
@@ -285,9 +180,7 @@ public class GuestDao {
         System.out.println("Guest Database Updated In Memory!");
     }
 
-    //====================================================
-    // Retrieve Guest Data From Memory
-    //====================================================
+    
     public DoublyLinkedList<Guest> retrieveFromFile() {
 
         if (guests == null || guests.isEmpty()) {
@@ -297,9 +190,7 @@ public class GuestDao {
         return guests;
     }
 
-    //====================================================
-    // Add Guest
-    //====================================================
+    
     public boolean addGuest(Guest guest) {
 
         if (guest == null) {
@@ -319,10 +210,7 @@ public class GuestDao {
         return true;
     }
 
-    //====================================================
-    // Search Guest By Guest ID
-    // Example: R0001
-    //====================================================
+   
     public Guest searchGuestByID(String guestID) {
 
         if (guestID == null || guestID.trim().isEmpty()) {
@@ -345,9 +233,7 @@ public class GuestDao {
         return null;
     }
 
-    //====================================================
-    // Remove Guest By Guest ID
-    //====================================================
+    
     public Guest removeGuestByID(String guestID) {
 
         if (guestID == null || guestID.trim().isEmpty()) {
@@ -370,9 +256,7 @@ public class GuestDao {
         return null;
     }
 
-    //====================================================
-    // Get Guest By Position
-    //====================================================
+    
     public Guest getGuest(int position) {
 
         if (position < 1 || position > guests.getSize()) {
@@ -382,9 +266,7 @@ public class GuestDao {
         return guests.getEntry(position);
     }
 
-    //====================================================
-    // Get Total Guests
-    //====================================================
+    
     public int getTotalGuests() {
 
         if (guests == null) {
@@ -394,25 +276,17 @@ public class GuestDao {
         return guests.getSize();
     }
 
-    //====================================================
-    // Check Guest Data Is Empty
-    //====================================================
+    
     public boolean isGuestDataEmpty() {
         return guests == null || guests.isEmpty();
     }
 
-    //====================================================
-    // Get All Guests
-    //====================================================
+    
     public DoublyLinkedList<Guest> getAllGuests() {
         return guests;
     }
 
-    //====================================================
-    // Generate Next Guest ID
-    // Example:
-    // R0001 ... R0010 -> Next = R0011
-    //====================================================
+    
     public String generateGuestID() {
 
         int maxID = 0;
@@ -448,9 +322,7 @@ public class GuestDao {
         return String.format("R%04d", maxID + 1);
     }
 
-    //====================================================
-    // Find Existing Guest By Name And Phone Number
-    //====================================================
+    
     public Guest searchGuestByNameAndPhone(String guestName, String phoneNumber) {
 
         if (guestName == null || guestName.trim().isEmpty()) {
@@ -484,26 +356,17 @@ public class GuestDao {
         return null;
     }
 
-    //====================================================
-    // Get Existing Guest Or Create New Guest
-    // Used By Booking Module
-    //====================================================
+    
     public Guest getOrCreateGuest(String guestName, String phoneNumber, String roomType, String checkInDate) {
 
-        //================================================
-        // Check Existing Guest
-        //================================================
+        
         Guest existingGuest = searchGuestByNameAndPhone(guestName, phoneNumber);
 
         if (existingGuest != null) {
             return existingGuest;
         }
 
-        //================================================
-        // Generate New Guest ID
-        // Booking ID remains BXXXX
-        // Guest ID remains RXXXX
-        //================================================
+        
         String guestID = generateGuestID();
 
         // New guest starts as Standard loyalty tier
@@ -526,18 +389,13 @@ public class GuestDao {
             guestRoomType = "Single Room";
         }
 
-        //================================================
-        // Convert Booking Date:
-        // 20-08-2026 -> 20/08/2026
-        //================================================
+        
         String guestCheckInDate = convertBookingDateToGuestDate(checkInDate);
 
         // Default arrival time
         String arrivalDateTime = guestCheckInDate + " 12:00";
 
-        //================================================
-        // Create New Guest
-        //================================================
+        
         Guest newGuest = new Guest(
                 guestID,
                 guestName,
@@ -554,15 +412,6 @@ public class GuestDao {
         return newGuest;
     }
 
-    //====================================================
-    // Convert Booking Date To Guest Date
-    //
-    // BookingDatabase:
-    // DD-MM-YYYY
-    //
-    // GuestDao:
-    // DD/MM/YYYY
-    //====================================================
     private String convertBookingDateToGuestDate(String bookingDate) {
 
         if (bookingDate == null || bookingDate.trim().isEmpty()) {

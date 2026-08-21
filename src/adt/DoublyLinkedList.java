@@ -1,4 +1,5 @@
 package adt;
+
 /**
  *
  * @author Wong Kai Jun, Yeong Wei Kin, Chia Kah Shun, Heng CHuan Wai
@@ -28,7 +29,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
     }
 
     @Override
-    public void insertAndAdvance(T data) {
+    public void addAndAdvance(T data) {
         Node<T> newNode = new Node<>(data);
 
         if (isEmpty()) {
@@ -70,7 +71,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         current = current.previous;
         return current.data;
     }
-
+    
     @Override
     public T redo() {
         if (current == null || current.next == null) {
@@ -82,7 +83,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
     }
 
     @Override
-    public void spliceAfterCurrent(T data) {
+    public void insertAfterCurrent(T data) {
         Node<T> newNode = new Node<>(data);
 
         if (isEmpty()) {
@@ -114,6 +115,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         return (current == null) ? null : current.data;
     }
 
+    // Stack Methods
     @Override
     public void push(T newEntry) {
         add(newEntry);
@@ -142,9 +144,10 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         return getSize();
     }
 
+    // List Methods
     @Override
     public boolean add(T data) {
-        insertAndAdvance(data);
+        addAndAdvance(data);
         return true;
     }
 
@@ -276,7 +279,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         return size == 0;
     }
 
-   
     @Override
     public Iterator<T> getIterator() {
         return new DoublyLinkedListIterator();
@@ -321,6 +323,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
+    // Queue Methods
     @Override
     public void enqueue(T data) {
         add(data);
@@ -351,7 +354,8 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         current = null;
         size = 0;
     }
-
+    
+    // ArrayList
     public static class ArrayList<T> implements ArrayListInterface<T>, Serializable, Iterable<T> {
         private T[] array;
         private int numberOfEntries;
@@ -508,7 +512,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
                 array[i + 1] = array[i];
             }
         }
-
+        
         private void removeGap(int givenPosition) {
             int removedIndex = givenPosition - 1;
             int lastIndex = numberOfEntries - 1;
@@ -598,6 +602,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
+    // ArrayStack
     public static class ArrayStack<T> implements StackInterface<T> {
 
         private T[] array;
@@ -675,6 +680,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
+    // ArrayQueue
     public static class ArrayQueue<T> implements QueueInterface<T> {
 
         private T[] queue;
