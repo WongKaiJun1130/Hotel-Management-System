@@ -93,7 +93,7 @@ public class InputUtility {
         LocalDate checkIn = LocalDate.parse(checkInDate, FORMATTER);
 
         while (true) {
-            System.out.print("Check-Out Date  : ");
+            System.out.print("Check-Out Date (DD-MM-YYYY) : ");
             String checkOutDate = getDateInput();
             LocalDate checkOut = LocalDate.parse(checkOutDate, FORMATTER);
             if (checkOut.isAfter(checkIn)) {

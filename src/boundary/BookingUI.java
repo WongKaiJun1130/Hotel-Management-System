@@ -80,7 +80,7 @@ public class BookingUI {
         System.out.println("Booking ID      : " + bookingID);
         System.out.print("Guest Name      : ");
         String guestName = InputUtility.getValidName();
-        System.out.print("Phone Number    : ");
+        System.out.print("Phone Number (not include '-')   : ");
         String phoneNumber = InputUtility.getPhoneInput();
        
         Guest existingGuest = guestDatabase.searchGuestByNameAndPhone(guestName, phoneNumber);
@@ -94,7 +94,7 @@ public class BookingUI {
             System.out.println("Guest ID        : " + guestID);
             System.out.println("New guest.");
         }
-        System.out.print("Room Type       : ");
+        System.out.print("Room Type (single, medium, large): ");
         String roomType = InputUtility.getValidRoomType();
         roomType = InputUtility.capitalizeFirstLetter(roomType);
         String roomID = bookingControl.assignRoomID(roomType);
@@ -104,7 +104,7 @@ public class BookingUI {
             return;
         }
         System.out.println("Room ID         : " + roomID);
-        System.out.print("Check-In Date   : ");
+        System.out.print("Check-In Date (DD-MM-YYYY) : ");
         String checkInDate = InputUtility.getDateInput();
         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
         
@@ -269,7 +269,7 @@ public class BookingUI {
                     }
 
                     case 2 -> {
-                        System.out.print("\nNew Phone Number : ");
+                        System.out.print("\nNew Phone Number (not include '-') : ");
                         booking.setPhoneNumber(InputUtility.getPhoneInput());
                         if (bookingControl.updateBooking(booking)) {
                             System.out.println("\nPhone number updated.");
@@ -279,7 +279,7 @@ public class BookingUI {
                     }
 
                     case 3 -> {
-                        System.out.print("\nNew Room Type : ");
+                        System.out.print("\nNew Room Type (single, medium, large) : ");
                         String newRoomType = InputUtility.getValidRoomType();
                         newRoomType = InputUtility.capitalizeFirstLetter(newRoomType);
                         String oldRoomType = booking.getRoomType();
@@ -314,7 +314,7 @@ public class BookingUI {
                     }
 
                     case 4 -> {
-                        System.out.print("\nNew Check-In Date : ");
+                        System.out.print("\nNew Check-In Date (DD-MM-YYYY) : ");
                         String checkInDate = InputUtility.getDateInput();
                         System.out.print("New");
                         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
@@ -340,14 +340,14 @@ public class BookingUI {
                         System.out.print("\nNew Guest Name : ");
                         String newGuestName = InputUtility.getValidName();
 
-                        System.out.print("New Phone Number : ");
+                        System.out.print("New Phone Number (not include '-') : ");
                         String newPhoneNumber = InputUtility.getPhoneInput();
 
-                        System.out.print("New Room Type  : ");
+                        System.out.print("New Room Type (single, medium, large) : ");
                         String newRoomType = InputUtility.getValidRoomType();
                         newRoomType = InputUtility.capitalizeFirstLetter(newRoomType);
 
-                        System.out.print("New Check-In Date : ");
+                        System.out.print("New Check-In Date (DD-MM-YYYY) : ");
                         String newCheckInDate = InputUtility.getDateInput();
 
                         System.out.print("New");
@@ -543,11 +543,11 @@ public class BookingUI {
         InputUtility.clearScreen();
         System.out.println("             TARUMT RESORTS               ");
         System.out.println("======== MONTHLY BOOKING CALENDAR ========");
-        System.out.print("Enter Year  : ");
+        System.out.print("Enter Year (YYYY): ");
         int year = InputUtility.getIntInput();
         int month;
         while (true) {
-            System.out.print("Enter Month : ");
+            System.out.print("Enter Month (1-12): ");
             month = InputUtility.getIntInput();
             if (month >= 1 && month <= 12) {
                 break;
@@ -754,12 +754,12 @@ public class BookingUI {
         System.out.println("                  TARUMT RESORTS               ");
         System.out.println("========== MONTHLY ROOM OCCUPANCY REPORT ==========");
 
-        System.out.print("Enter Year  : ");
+        System.out.print("Enter Year (YYYY) : ");
         int year = InputUtility.getIntInput();
         int month;
         
         while (true) {
-            System.out.print("Enter Month : ");
+            System.out.print("Enter Month (1-12) : ");
             month = InputUtility.getIntInput();
             if (month >= 1 && month <= 12) {
                 break;
