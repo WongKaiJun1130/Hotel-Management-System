@@ -726,7 +726,7 @@ public class BookingUI {
                 elite++;
             }
         }
-        System.out.println("                       TARUMT RESORTS                      ");
+        System.out.println("\n                       TARUMT RESORTS                      ");
         System.out.println("================== MONTHLY BOOKING SUMMARY ================");
         System.out.println("Month                    : " + yearMonth.getMonth() + " " + yearMonth.getYear());
         System.out.println("Total Bookings           : " + bookingList.getSize());
@@ -833,7 +833,7 @@ public class BookingUI {
                 "No.",
                 "Room Type",
                 "Rooms",
-                "Ready Rooms",
+                "Available",
                 "Occupancy Rate",
                 "Status"
         );
