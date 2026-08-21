@@ -77,24 +77,24 @@ public class BookingUI {
         InputUtility.clearScreen();
         Utility.printHeader("ADD STANDARD RESERVATION");        
         String bookingID = bookingControl.generateBookingID();
-        System.out.println("Booking ID                    : " + bookingID);
-        System.out.print("Guest Name                    : ");
+        System.out.println("Booking ID                       : " + bookingID);
+        System.out.print("Guest Name                       : ");
         String guestName = InputUtility.getValidName();
-        System.out.print("Phone Number (not include '-'): ");
+        System.out.print("Phone Number (not include '-')   : ");
         String phoneNumber = InputUtility.getPhoneInput();
        
         Guest existingGuest = guestDatabase.searchGuestByNameAndPhone(guestName, phoneNumber);
         String guestID;
         if (existingGuest != null) {
             guestID = existingGuest.getGuestID();
-            System.out.println("Guest ID                      : " + guestID);
+            System.out.println("Guest ID                         : " + guestID);
             System.out.println("Existing guest found.");
         } else {
             guestID = guestDatabase.generateGuestID();
-            System.out.println("Guest ID                      : " + guestID);
+            System.out.println("Guest ID                         : " + guestID);
             System.out.println("New guest.");
         }
-        System.out.print("Room Type (single, medium, large)   : ");
+        System.out.print("Room Type (single, medium, large): ");
         String roomType = InputUtility.getValidRoomType();
         roomType = InputUtility.capitalizeFirstLetter(roomType);
         String roomID = bookingControl.assignRoomID(roomType);
@@ -103,8 +103,8 @@ public class BookingUI {
             InputUtility.pressEnterToContinue();
             return;
         }
-        System.out.println("Room ID                       : " + roomID);
-        System.out.print("Check-In Date (DD-MM-YYYY)    : ");
+        System.out.println("Room ID                          : " + roomID);
+        System.out.print("Check-In Date (DD-MM-YYYY)       : ");
         String checkInDate = InputUtility.getDateInput();
         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
         
@@ -176,7 +176,7 @@ public class BookingUI {
 
     private void cancelBooking() {
         InputUtility.clearScreen();
-        System.out.println("========== CANCEL BOOKING ==========");
+        System.out.println("============ CANCEL BOOKING ============");
 
         while(true) {
             System.out.print("Enter Booking ID : ");
@@ -187,7 +187,7 @@ public class BookingUI {
                 System.out.println("\nBooking ID does not exist. Please enter again.");
                 continue;  // return to the start of while loop
             }
-            System.out.println("\n========== BOOKING DETAILS ==========");
+            System.out.println("\n=========== BOOKING DETAILS ============");
             displayBookingInformation(booking);
             System.out.print("\nProceed with cancellation? (Y/N): ");
             String choice = InputUtility.getYOrNInput();
@@ -232,7 +232,7 @@ public class BookingUI {
 
     private void editBooking() {
         InputUtility.clearScreen();
-        System.out.println("========== UPDATE BOOKING ==========");
+        System.out.println("============ UPDATE BOOKING ============");
         while(true) {
             System.out.print("Enter Booking ID : ");
             String bookingID = InputUtility.getStringInput();
@@ -244,10 +244,10 @@ public class BookingUI {
 
             int choice;
             do {
-                System.out.println("\n========== BOOKING DETAILS ==========");
+                System.out.println("\n============ BOOKING DETAILS ===========");
                 displayBookingInformation(booking);
 
-                System.out.println("\n========== EDIT OPTION ==========");
+                System.out.println("\n============== EDIT OPTION =============");
                 System.out.println("1. Edit Guest Name");
                 System.out.println("2. Edit Phone Number");
                 System.out.println("3. Edit Room Type");
@@ -316,7 +316,7 @@ public class BookingUI {
                     case 4 -> {
                         System.out.print("\nNew Check-In Date (DD-MM-YYYY) : ");
                         String checkInDate = InputUtility.getDateInput();
-                        System.out.print("New");
+                        System.out.print("New ");
                         String checkOutDate = InputUtility.getCheckOutDate(checkInDate);
                         booking.setCheckInDate(checkInDate);
                         booking.setCheckOutDate(checkOutDate);
@@ -350,7 +350,7 @@ public class BookingUI {
                         System.out.print("New Check-In Date (DD-MM-YYYY)       : ");
                         String newCheckInDate = InputUtility.getDateInput();
 
-                        System.out.print("New");
+                        System.out.print("New ");
                         String newCheckOutDate = InputUtility.getCheckOutDate(newCheckInDate);
 
                         // Display Old Information
@@ -591,8 +591,8 @@ public class BookingUI {
 
     private void displayMonthlyBookingDetails(YearMonth yearMonth) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        System.out.println("                                                     TARUMT RESORTS                                                                 ");
-        System.out.println("\n============================================== MONTHLY BOOKING DETAILS ==========================================================");
+        System.out.println("                                                   TARUMT RESORTS                                                              ");
+        System.out.println("============================================= MONTHLY BOOKING DETAILS ========================================================");
 
         for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
             LocalDate currentDate = yearMonth.atDay(day);

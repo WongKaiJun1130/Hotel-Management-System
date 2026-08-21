@@ -92,7 +92,7 @@ public class BookingDao {
                 "S02",
                 "10-07-2026",
                 "12-07-2026",
-                "Waiting"
+                "Served"
         ));
 
         bookingList.add(new Booking(
@@ -104,7 +104,7 @@ public class BookingDao {
                 "M03",
                 "13-07-2026",
                 "15-07-2026",
-                "Waiting"
+                "Served"
         ));
 
         bookingList.add(new Booking(
@@ -116,7 +116,7 @@ public class BookingDao {
                 "L03",
                 "16-07-2026",
                 "18-07-2026",
-                "Waiting"
+                "Served"
         ));
 
         bookingList.add(new Booking(
@@ -128,7 +128,7 @@ public class BookingDao {
                 "S03",
                 "19-07-2026",
                 "21-07-2026",
-                "Waiting"
+                "Served"
         ));
 
         bookingList.add(new Booking(
@@ -140,6 +140,132 @@ public class BookingDao {
                 "M04",
                 "22-07-2026",
                 "24-07-2026",
+                "Served"
+        ));
+
+
+        //================================================
+        // Waiting Bookings
+        // B0011 - B0020
+        //================================================
+
+        bookingList.add(new Booking(
+                "B0011",
+                "Daniel Lim",
+                "0112233445",
+                "R0011",
+                "Large",
+                "L04",
+                "03-08-2026",
+                "05-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0012",
+                "Michelle Tan",
+                "0113344556",
+                "R0012",
+                "Medium",
+                "M05",
+                "07-08-2026",
+                "09-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0013",
+                "Andrew Lee",
+                "0114455667",
+                "R0013",
+                "Large",
+                "L05",
+                "12-08-2026",
+                "14-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0014",
+                "Samantha Wong",
+                "0115566778",
+                "R0014",
+                "Single",
+                "S04",
+                "18-08-2026",
+                "20-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0015",
+                "Brian Ng",
+                "0116677889",
+                "R0015",
+                "Medium",
+                "M06",
+                "05-09-2026",
+                "07-09-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0016",
+                "Rachel Lee",
+                "0117788990",
+                "R0016",
+                "Single",
+                "S05",
+                "20-08-2026",
+                "22-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0017",
+                "Steven Wong",
+                "0118899001",
+                "R0017",
+                "Large",
+                "L06",
+                "22-08-2026",
+                "24-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0018",
+                "Nicole Tan",
+                "0119900112",
+                "R0018",
+                "Medium",
+                "M07",
+                "24-08-2026",
+                "26-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0019",
+                "Aaron Lim",
+                "0121011223",
+                "R0019",
+                "Large",
+                "L07",
+                "27-08-2026",
+                "29-08-2026",
+                "Waiting"
+        ));
+
+        bookingList.add(new Booking(
+                "B0020",
+                "Chloe Lee",
+                "0132122334",
+                "R0020",
+                "Single",
+                "S06",
+                "08-09-2026",
+                "10-09-2026",
                 "Waiting"
         ));
 

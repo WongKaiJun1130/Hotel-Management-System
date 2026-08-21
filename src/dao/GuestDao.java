@@ -38,10 +38,128 @@ public class GuestDao {
         guests.add(new Guest("R0019", "Aaron Lim", "0121011223", "Diamond", "Large Room", "Waiting", "27/08/2026", "27/08/2026 13:00"));
         guests.add(new Guest("R0020", "Chloe Lee", "0132122334", "Platinum", "Single Room", "Waiting", "08/09/2026", "08/09/2026 09:20"));
 
-        System.out.println(guests.getSize() + " Guests Created In Memory!");
+        guests.add(new Guest(
+                "R0011",
+                "Daniel Lim",
+                "0112233445",
+                "Diamond",
+                "Large Room",
+                "Waiting",
+                "03/08/2026",
+                "03/08/2026 10:15"
+        ));
+
+        guests.add(new Guest(
+                "R0012",
+                "Michelle Tan",
+                "0113344556",
+                "Platinum",
+                "Medium Room",
+                "Waiting",
+                "07/08/2026",
+                "07/08/2026 11:30"
+        ));
+
+        guests.add(new Guest(
+                "R0013",
+                "Andrew Lee",
+                "0114455667",
+                "Elite",
+                "Large Room",
+                "Waiting",
+                "12/08/2026",
+                "12/08/2026 09:45"
+        ));
+
+        guests.add(new Guest(
+                "R0014",
+                "Samantha Wong",
+                "0115566778",
+                "Standard",
+                "Single Room",
+                "Waiting",
+                "18/08/2026",
+                "18/08/2026 14:00"
+        ));
+
+        guests.add(new Guest(
+                "R0015",
+                "Brian Ng",
+                "0116677889",
+                "Diamond",
+                "Medium Room",
+                "Waiting",
+                "05/09/2026",
+                "05/09/2026 13:30"
+        ));
+
+        guests.add(new Guest(
+                "R0016",
+                "Rachel Lee",
+                "0117788990",
+                "Platinum",
+                "Single Room",
+                "Waiting",
+                "20/08/2026",
+                "20/08/2026 15:15"
+        ));
+
+        guests.add(new Guest(
+                "R0017",
+                "Steven Wong",
+                "0118899001",
+                "Elite",
+                "Large Room",
+                "Waiting",
+                "22/08/2026",
+                "22/08/2026 08:30"
+        ));
+
+        guests.add(new Guest(
+                "R0018",
+                "Nicole Tan",
+                "0119900112",
+                "Standard",
+                "Medium Room",
+                "Waiting",
+                "24/08/2026",
+                "24/08/2026 10:45"
+        ));
+
+        guests.add(new Guest(
+                "R0019",
+                "Aaron Lim",
+                "0121011223",
+                "Diamond",
+                "Large Room",
+                "Waiting",
+                "27/08/2026",
+                "27/08/2026 13:00"
+        ));
+
+        guests.add(new Guest(
+                "R0020",
+                "Chloe Lee",
+                "0132122334",
+                "Platinum",
+                "Single Room",
+                "Waiting",
+                "08/09/2026",
+                "08/09/2026 09:20"
+        ));
+
+
+        System.out.println(
+                guests.getSize()
+                + " Guests Created In Memory!"
+        );
     }
 
+
     
+    //====================================================
+    // Store Guest Data In Memory
+    //====================================================
     public void saveToFile(DoublyLinkedList<Guest> guestList) {
 
         guests = new DoublyLinkedList<>();
