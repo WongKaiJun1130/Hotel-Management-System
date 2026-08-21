@@ -1,106 +1,137 @@
 package boundary;
-/**
- *
- * @author Heng Chun Wai
- */
 
 import control.LoyaltyControl;
 import entity.LoyaltyRecord;
 import entity.RedemptionRecord;
 import utility.InputUtility;
-import utility.Utility;
 import adt.DoublyLinkedList;
 
 import java.time.LocalDate;
 
+//Author: Kai Jun
 public class LoyaltyAndRewardsUI {
 
     private LoyaltyControl loyaltyControl;
 
-    //====================================================
-    // Constructor
-    //====================================================
+    private static final String HOTEL_BORDER = "+------------------------------------------------+";
+
+    //Constructor
     public LoyaltyAndRewardsUI() {
         loyaltyControl = new LoyaltyControl();
     }
 
+    //Constructor
     public LoyaltyAndRewardsUI(LoyaltyControl loyaltyControl) {
         this.loyaltyControl = loyaltyControl;
     }
 
-    //====================================================
-    // Loyalty And Rewards Menu
-    //====================================================
-    public void loyaltyMenu() {
-        String[] options = {
-
-            "1. Display Loyalty Members",
-            "2. Search Loyalty Member",
-            "3. Redeem Reward",
-            "4. Points Expiry Management",
-            "5. Daily Reward Redemption Report",
-            "6. Top Loyalty Members Report",
-            "7. Add Loyalty Points",
-            "0. Back"
-        };
-
-
-        Runnable[] actions = {
-
-            () -> displayLoyaltyMembers(),
-
-            () -> searchLoyaltyMember(),
-
-            () -> redeemReward(),
-
-            () -> pointsExpiryManagement(),
-
-            () -> dailyRewardRedemptionReport(),
-
-            () -> topLoyaltyMembersReport(),
-
-            () -> addLoyaltyPoints(),
-
-            () -> {}
-        };
-
-        Utility.customMenu(
-                options,
-                "LOYALTY AND REWARDS MENU",
-                "Enter Choice: ",
-                actions
-        );
+    //Hotel Header
+    private void printHotelHeader() {
+        System.out.println(HOTEL_BORDER);
+        printCenteredText("TARUMT RESORTS", 48);
+        printCenteredText("HOTEL MANAGEMENT SYSTEM", 48);
+        System.out.println(HOTEL_BORDER);
     }
 
-    //====================================================
-    // 1. Display Loyalty Members
-    //====================================================
+    //Loyalty Menu
+    public void loyaltyMenu() {
+
+        int choice;
+
+        do {
+
+            InputUtility.clearScreen();
+
+            printHotelHeader();
+
+            System.out.println("|            LOYALTY AND REWARDS MENU            |");
+            System.out.println(HOTEL_BORDER);
+            System.out.println("| 1. Display Loyalty Members                     |");
+            System.out.println("| 2. Search Loyalty Member                       |");
+            System.out.println("| 3. Redeem Reward                               |");
+            System.out.println("| 4. Points Expiry Management                    |");
+            System.out.println("| 5. Daily Reward Redemption Report              |");
+            System.out.println("| 6. Top Loyalty Members Report                  |");
+            System.out.println("| 7. Add Loyalty Points                          |");
+            System.out.println("| 0. Back                                        |");
+            System.out.println(HOTEL_BORDER);
+
+            System.out.print("Enter Choice: ");
+
+            choice = InputUtility.getIntInput();
+
+            switch (choice) {
+
+                case 1:
+                    displayLoyaltyMembers();
+                    break;
+
+                case 2:
+                    searchLoyaltyMember();
+                    break;
+
+                case 3:
+                    redeemReward();
+                    break;
+
+                case 4:
+                    pointsExpiryManagement();
+                    break;
+
+                case 5:
+                    dailyRewardRedemptionReport();
+                    break;
+
+                case 6:
+                    topLoyaltyMembersReport();
+                    break;
+
+                case 7:
+                    addLoyaltyPoints();
+                    break;
+
+                case 0:
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+                    InputUtility.pressEnterToContinue();
+                    break;
+            }
+
+        } while (choice != 0);
+    }
+
+    //Display Loyalty Members
     private void displayLoyaltyMembers() {
 
         InputUtility.clearScreen();
 
-            System.out.println("+------------------------------------------------+");
-            System.out.println("|            DISPLAY LOYALTY MEMBERS             |");
-            System.out.println("+------------------------------------------------+");
-            System.out.println("| 1. Standard                                    |");
-            System.out.println("| 2. Platinum                                    |");
-            System.out.println("| 3. Diamond                                     |");
-            System.out.println("| 4. Elite                                       |");
-            System.out.println("| 5. All                                         |");
-            System.out.println("| 0. Back                                        |");
-            System.out.println("+------------------------------------------------+");
+        printHotelHeader();
 
-            System.out.print("Please Enter your choice : ");
+        System.out.println("|            DISPLAY LOYALTY MEMBERS             |");
+        System.out.println(HOTEL_BORDER);
+        System.out.println("| 1. Standard                                    |");
+        System.out.println("| 2. Platinum                                    |");
+        System.out.println("| 3. Diamond                                     |");
+        System.out.println("| 4. Elite                                       |");
+        System.out.println("| 5. All                                         |");
+        System.out.println("| 0. Back                                        |");
+        System.out.println(HOTEL_BORDER);
 
-            String tier = selectTier();
+        System.out.print("Please Enter your choice : ");
 
-            if (tier == null) {
-                return;
-            }
+        String tier = selectTier();
+
+        if (tier == null) {
+            return;
+        }
 
         DoublyLinkedList<LoyaltyRecord> result = loyaltyControl.getGuestsByTier(tier);
 
         InputUtility.clearScreen();
+
+        printHotelHeader();
 
         System.out.printf("Selected Tier: %s%n", tier);
 
@@ -111,9 +142,7 @@ public class LoyaltyAndRewardsUI {
         InputUtility.clearScreen();
     }
 
-    //====================================================
-    // Select Tier
-    //====================================================
+    //Select Tier
     private String selectTier() {
 
         while (true) {
@@ -148,9 +177,7 @@ public class LoyaltyAndRewardsUI {
         }
     }
 
-    //====================================================
-    // Display Loyalty Result
-    //====================================================
+    //Display Loyalty Result
     private void displayLoyaltyResult(DoublyLinkedList<LoyaltyRecord> result, String title) {
 
         if (result == null || result.isEmpty()) {
@@ -203,18 +230,15 @@ public class LoyaltyAndRewardsUI {
         System.out.println(fullBorder);
     }
 
-    //====================================================
-    // 2. Search Loyalty Member
-    //====================================================
+    //Search Loyalty Member
     private void searchLoyaltyMember() {
 
         InputUtility.clearScreen();
 
-        String fullBorder = "+------------------------------------------------+";
+        printHotelHeader();
 
-        System.out.println(fullBorder);
         System.out.println("|             SEARCH LOYALTY MEMBER              |");
-        System.out.println(fullBorder);
+        System.out.println(HOTEL_BORDER);
 
         System.out.print("Please enter Guest ID (RXXXX) : ");
 
@@ -225,16 +249,16 @@ public class LoyaltyAndRewardsUI {
         if (record == null) {
 
             System.out.println();
-            System.out.println(fullBorder);
+            System.out.println(HOTEL_BORDER);
             System.out.println("| Loyalty member not found.                      |");
-            System.out.println(fullBorder);
+            System.out.println(HOTEL_BORDER);
 
         } else {
 
             System.out.println();
-            System.out.println(fullBorder);
+            System.out.println(HOTEL_BORDER);
             System.out.println("|            LOYALTY MEMBER DETAILS              |");
-            System.out.println(fullBorder);
+            System.out.println(HOTEL_BORDER);
 
             System.out.printf("| %-18s : %-25s |%n", "Guest ID", record.getGuestID());
             System.out.printf("| %-18s : %-25s |%n", "Guest Name", limitText(record.getGuestName(), 25));
@@ -243,7 +267,7 @@ public class LoyaltyAndRewardsUI {
             System.out.printf("| %-18s : %-25d |%n", "Lifetime Points", record.getLifetimePoints());
             System.out.printf("| %-18s : %-25s |%n", "Expiry Date", record.getExpiryDate());
 
-            System.out.println(fullBorder);
+            System.out.println(HOTEL_BORDER);
         }
 
         InputUtility.pressEnterToContinue();
@@ -251,20 +275,19 @@ public class LoyaltyAndRewardsUI {
         InputUtility.clearScreen();
     }
 
-    //====================================================
-    // 3. Redeem Reward
-    //====================================================
+    //Redeem Reward
     private void redeemReward() {
 
         InputUtility.clearScreen();
 
-        String fullBorder = "+------------------------------------------------+";
+        printHotelHeader();
+
+        String fullBorder = HOTEL_BORDER;
 
         String detailBorder = "+--------------------+---------------------------+";
 
         String rewardBorder = "+------+----------------------------------+------------+";
 
-        System.out.println(fullBorder);
         System.out.println("|                 REDEEM REWARD                  |");
         System.out.println(fullBorder);
 
@@ -426,26 +449,23 @@ public class LoyaltyAndRewardsUI {
         InputUtility.clearScreen();
     }
 
-    //====================================================
-    // 4. Points Expiry Management
-    //====================================================
+    //Points Expiry Management
     private void pointsExpiryManagement() {
 
         int choice;
 
-        InputUtility.clearScreen();
-
         do {
 
-            String border = "+------------------------------------------------+";
+            InputUtility.clearScreen();
 
-            System.out.println(border);
+            printHotelHeader();
+
             System.out.println("|          POINTS EXPIRY MANAGEMENT              |");
-            System.out.println(border);
+            System.out.println(HOTEL_BORDER);
             System.out.println("| 1. View Points Expiring Within 30 Days         |");
             System.out.println("| 2. Process Expired Points                      |");
             System.out.println("| 0. Back to Loyalty Main Menu                   |");
-            System.out.println(border);
+            System.out.println(HOTEL_BORDER);
 
             System.out.print("Please enter your choice: ");
 
@@ -462,29 +482,28 @@ public class LoyaltyAndRewardsUI {
                     break;
 
                 case 0:
-                    InputUtility.clearScreen();
                     break;
 
                 default:
                     System.out.println("\nInvalid choice. Please try again.");
+                    InputUtility.pressEnterToContinue();
                     break;
             }
 
         } while (choice != 0);
     }
 
-    //====================================================
-    // View Points Expiring Within 30 Days
-    //====================================================
+    //View Expiring Points
     private void viewPointsExpiringWithin30Days() {
 
         InputUtility.clearScreen();
 
-        String border = "+------------------------------------------------+";
+        printHotelHeader();
+
+        String border = HOTEL_BORDER;
 
         String detailBorder = "+--------------------+---------------------------+";
 
-        System.out.println(border);
         System.out.println("|       POINTS EXPIRING WITHIN 30 DAYS           |");
         System.out.println(border);
 
@@ -524,18 +543,17 @@ public class LoyaltyAndRewardsUI {
         InputUtility.clearScreen();
     }
 
-    //====================================================
-    // Process Expired Points
-    //====================================================
+    //Process Expired Points
     private void processExpiredPoints() {
 
         InputUtility.clearScreen();
 
-        String border = "+------------------------------------------------+";
+        printHotelHeader();
+
+        String border = HOTEL_BORDER;
 
         String detailBorder = "+--------------------+---------------------------+";
 
-        System.out.println(border);
         System.out.println("|             PROCESS EXPIRED POINTS             |");
         System.out.println(border);
 
@@ -548,8 +566,6 @@ public class LoyaltyAndRewardsUI {
             System.out.println(border);
 
             InputUtility.pressEnterToContinue();
-
-            InputUtility.clearScreen();
 
             return;
         }
@@ -600,21 +616,7 @@ public class LoyaltyAndRewardsUI {
             String[] messageLines = loyaltyControl.getLastMessage().split("\\R");
 
             for (String line : messageLines) {
-
-                if (line.contains(":")) {
-
-                    String[] parts = line.split(":", 2);
-
-                    String label = parts[0].trim();
-
-                    String value = parts[1].trim();
-
-                    System.out.printf("| %-18s : %-25s |%n", limitText(label, 18), limitText(value, 25));
-
-                } else {
-
-                    System.out.printf("| %-46s |%n", limitText(line, 46));
-                }
+                System.out.printf("| %-46s |%n", limitText(line, 46));
             }
 
             System.out.println(border);
@@ -628,13 +630,9 @@ public class LoyaltyAndRewardsUI {
         }
 
         InputUtility.pressEnterToContinue();
-
-        InputUtility.clearScreen();
     }
 
-    //====================================================
-    // Display Expiring Points Table
-    //====================================================
+    //Display Expiring Points
     private void displayExpiringPointsTable(DoublyLinkedList<LoyaltyRecord> result) {
 
         String fullBorder = "+----------------------------------------------------------------------------------------------------------------+";
@@ -678,9 +676,7 @@ public class LoyaltyAndRewardsUI {
         System.out.println(fullBorder);
     }
 
-    //====================================================
-    // Display Expired Points Table
-    //====================================================
+    //Display Expired Points
     private void displayExpiredPointsTable(DoublyLinkedList<LoyaltyRecord> result) {
 
         String fullBorder = "+----------------------------------------------------------------------------------------------+";
@@ -724,28 +720,26 @@ public class LoyaltyAndRewardsUI {
         System.out.println(fullBorder);
     }
 
-    //====================================================
-    // 5. Daily Reward Redemption Report
-    //====================================================
+    //Daily Reward Report
     private void dailyRewardRedemptionReport() {
 
         InputUtility.clearScreen();
 
-        String border = "+---------------------------------------------+";
+        printHotelHeader();
 
-        System.out.println(border);
-        System.out.println("|       DAILY REWARD REDEMPTION REPORT        |");
+        String border = HOTEL_BORDER;
+
+        System.out.println("|       DAILY REWARD REDEMPTION REPORT           |");
         System.out.println(border);
 
         String[] rewards = loyaltyControl.getAllRewardNames();
 
         for (int i = 0; i < rewards.length; i++) {
-            System.out.printf("| %d. %-40s |%n", i + 1, limitText(rewards[i], 40));
+            System.out.printf("| %d. %-43s |%n", i + 1, limitText(rewards[i], 43));
         }
 
-        System.out.printf("| %d. %-40s |%n", rewards.length + 1, "All Rewards");
-
-        System.out.println("| 0. Back                                     |");
+        System.out.printf("| %d. %-43s |%n", rewards.length + 1, "All Rewards");
+        System.out.println("| 0. Back                                        |");
         System.out.println(border);
 
         System.out.print("Select Reward: ");
@@ -760,7 +754,7 @@ public class LoyaltyAndRewardsUI {
 
             System.out.println();
             System.out.println(border);
-            System.out.println("| Invalid reward choice.                      |");
+            System.out.println("| Invalid reward choice.                         |");
             System.out.println(border);
 
             InputUtility.pressEnterToContinue();
@@ -769,20 +763,15 @@ public class LoyaltyAndRewardsUI {
         }
 
         if (choice == rewards.length + 1) {
-
             displayAllRewardsReport();
-
         } else {
-
             displaySingleRewardReport(rewards[choice - 1]);
         }
 
         InputUtility.pressEnterToContinue();
     }
 
-    //====================================================
-    // Single Reward Report
-    //====================================================
+    //Single Reward Report
     private void displaySingleRewardReport(String rewardName) {
 
         DoublyLinkedList<RedemptionRecord> result = loyaltyControl.getTodayRedemptions(rewardName);
@@ -790,6 +779,8 @@ public class LoyaltyAndRewardsUI {
         int pointsEach = loyaltyControl.getRewardPoints(rewardName);
 
         InputUtility.clearScreen();
+
+        printHotelHeader();
 
         String fullBorder = "+---------------------------------------------------------+";
 
@@ -824,11 +815,8 @@ public class LoyaltyAndRewardsUI {
         }
 
         int standard = countTierInResult(result, "Standard");
-
         int platinum = countTierInResult(result, "Platinum");
-
         int diamond = countTierInResult(result, "Diamond");
-
         int elite = countTierInResult(result, "Elite");
 
         int total = result.getSize();
@@ -854,14 +842,14 @@ public class LoyaltyAndRewardsUI {
         System.out.println(detailBorder);
     }
 
-    //====================================================
-    // All Rewards Report
-    //====================================================
+    //All Rewards Report
     private void displayAllRewardsReport() {
 
         DoublyLinkedList<RedemptionRecord> result = loyaltyControl.getTodayRedemptions(LoyaltyControl.ALL_REWARDS);
 
         InputUtility.clearScreen();
+
+        printHotelHeader();
 
         String fullBorder = "+-----------------------------------------------------------------------------------------------------------------------+";
 
@@ -888,9 +876,7 @@ public class LoyaltyAndRewardsUI {
         displayRewardTierMatrix();
     }
 
-    //====================================================
-    // Reward And Tier Matrix Summary
-    //====================================================
+    //Reward Tier Matrix
     private void displayRewardTierMatrix() {
 
         String[] tiers = {"Standard", "Platinum", "Diamond", "Elite"};
@@ -956,7 +942,9 @@ public class LoyaltyAndRewardsUI {
         System.out.printf("| %-25s : %-89s |%n", "Total Points Used", String.format("%,d", loyaltyControl.calculateTodayTotalPointsUsed()));
 
         System.out.println(fullBorder);
+
         System.out.println();
+
         System.out.println(fullBorder);
 
         printCenteredText("REWARD COLUMN REFERENCE", insideWidth);
@@ -971,25 +959,22 @@ public class LoyaltyAndRewardsUI {
         System.out.println(fullBorder);
     }
 
-    //====================================================
-    // 6. Top Loyalty Members Report
-    //====================================================
+    //Top Loyalty Members Report
     private void topLoyaltyMembersReport() {
 
         InputUtility.clearScreen();
 
-        String menuBorder = "+------------------------------------------------+";
+        printHotelHeader();
 
-        System.out.println(menuBorder);
         System.out.println("|       TOP 5 POINTS USED MEMBERS REPORT         |");
-        System.out.println(menuBorder);
+        System.out.println(HOTEL_BORDER);
         System.out.println("| 1. Standard                                    |");
         System.out.println("| 2. Platinum                                    |");
         System.out.println("| 3. Diamond                                     |");
         System.out.println("| 4. Elite                                       |");
         System.out.println("| 5. All                                         |");
         System.out.println("| 0. Back                                        |");
-        System.out.println(menuBorder);
+        System.out.println(HOTEL_BORDER);
 
         System.out.print("Select Tier: ");
 
@@ -1000,6 +985,8 @@ public class LoyaltyAndRewardsUI {
         }
 
         InputUtility.clearScreen();
+
+        printHotelHeader();
 
         DoublyLinkedList<LoyaltyRecord> result = loyaltyControl.getTopFiveMembersByPointsUsed(tier);
 
@@ -1063,25 +1050,18 @@ public class LoyaltyAndRewardsUI {
         InputUtility.clearScreen();
     }
 
-    //====================================================
-    // 7. Add Loyalty Points
-    //====================================================
+    //Add Loyalty Points
     private void addLoyaltyPoints() {
 
         InputUtility.clearScreen();
 
-        String border = "+------------------------------------------------+";
+        printHotelHeader();
 
-        //====================================================
-        // Add Loyalty Points Title
-        //====================================================
-        System.out.println(border);
+        String border = HOTEL_BORDER;
+
         System.out.println("|              ADD LOYALTY POINTS                |");
         System.out.println(border);
 
-        //====================================================
-        // Display Point Level
-        //====================================================
         System.out.println("|                  POINT LEVEL                   |");
         System.out.println(border);
 
@@ -1092,9 +1072,6 @@ public class LoyaltyAndRewardsUI {
 
         System.out.println(border);
 
-        //====================================================
-        // Input Guest ID
-        //====================================================
         System.out.print("Enter Guest ID (RXXXX): ");
 
         String guestID = InputUtility.getStringInput();
@@ -1107,8 +1084,6 @@ public class LoyaltyAndRewardsUI {
             System.out.println(border);
 
             InputUtility.pressEnterToContinue();
-
-            InputUtility.clearScreen();
 
             return;
         }
@@ -1124,14 +1099,9 @@ public class LoyaltyAndRewardsUI {
 
             InputUtility.pressEnterToContinue();
 
-            InputUtility.clearScreen();
-
             return;
         }
 
-        //====================================================
-        // Search Loyalty Member
-        //====================================================
         LoyaltyRecord record = loyaltyControl.searchGuest(guestID);
 
         if (record == null) {
@@ -1143,23 +1113,15 @@ public class LoyaltyAndRewardsUI {
 
             InputUtility.pressEnterToContinue();
 
-            InputUtility.clearScreen();
-
             return;
         }
 
-        //====================================================
-        // Store Previous Information
-        //====================================================
         String oldTier = record.getLoyaltyTier();
 
         int oldLifetimePoints = record.getLifetimePoints();
 
         int oldAvailablePoints = record.getAvailablePoints();
 
-        //====================================================
-        // Display Current Member Information
-        //====================================================
         System.out.println();
         System.out.println(border);
         System.out.println("|            CURRENT MEMBER DETAILS              |");
@@ -1173,9 +1135,6 @@ public class LoyaltyAndRewardsUI {
 
         System.out.println(border);
 
-        //====================================================
-        // Room Type Selection
-        //====================================================
         System.out.println();
         System.out.println(border);
         System.out.println("|                  ROOM TYPE                     |");
@@ -1217,8 +1176,6 @@ public class LoyaltyAndRewardsUI {
 
                 InputUtility.pressEnterToContinue();
 
-                InputUtility.clearScreen();
-
                 return;
 
             default:
@@ -1230,24 +1187,9 @@ public class LoyaltyAndRewardsUI {
 
                 InputUtility.pressEnterToContinue();
 
-                InputUtility.clearScreen();
-
                 return;
         }
 
-        //====================================================
-        // OTHER MODULE / CONTROL FUNCTION
-        //
-        // Function:
-        // LoyaltyControl.addPoints()
-        //
-        // Small Room  = +100
-        // Medium Room = +200
-        // Big Room    = +300
-        //
-        // LoyaltyControl will also call updateTier()
-        // automatically.
-        //====================================================
         boolean success = loyaltyControl.addPoints(guestID, roomType);
 
         if (!success) {
@@ -1261,14 +1203,9 @@ public class LoyaltyAndRewardsUI {
 
             InputUtility.pressEnterToContinue();
 
-            InputUtility.clearScreen();
-
             return;
         }
 
-        //====================================================
-        // Search Updated Loyalty Information
-        //====================================================
         LoyaltyRecord updatedRecord = loyaltyControl.searchGuest(guestID);
 
         if (updatedRecord == null) {
@@ -1280,16 +1217,11 @@ public class LoyaltyAndRewardsUI {
 
             InputUtility.pressEnterToContinue();
 
-            InputUtility.clearScreen();
-
             return;
         }
 
         String newTier = updatedRecord.getLoyaltyTier();
 
-        //====================================================
-        // Display Updated Result
-        //====================================================
         System.out.println();
         System.out.println(border);
         System.out.println("|            LOYALTY POINTS UPDATED              |");
@@ -1306,9 +1238,6 @@ public class LoyaltyAndRewardsUI {
 
         System.out.println(border);
 
-        //====================================================
-        // Check Whether VIP Level Upgraded
-        //====================================================
         if (oldTier != null && newTier != null && !oldTier.equalsIgnoreCase(newTier)) {
 
             System.out.println();
@@ -1335,9 +1264,7 @@ public class LoyaltyAndRewardsUI {
         InputUtility.clearScreen();
     }
 
-    //====================================================
-    // Count Tier Inside Selected Report Result
-    //====================================================
+    //Count Tier
     private int countTierInResult(DoublyLinkedList<RedemptionRecord> result, String tier) {
 
         int count = 0;
@@ -1358,9 +1285,7 @@ public class LoyaltyAndRewardsUI {
         return count;
     }
 
-    //====================================================
-    // Reward Short Name
-    //====================================================
+    //Reward Short Name
     private String getRewardShortName(int index) {
 
         switch (index) {
@@ -1394,9 +1319,7 @@ public class LoyaltyAndRewardsUI {
         }
     }
 
-    //====================================================
-    // Limit Long Text For Table
-    //====================================================
+    //Limit Text
     private String limitText(String text, int length) {
 
         if (text == null) {
@@ -1414,9 +1337,7 @@ public class LoyaltyAndRewardsUI {
         return text.substring(0, length - 3) + "...";
     }
 
-    //====================================================
-    // Print Centered Text
-    //====================================================
+    //Center Text
     private void printCenteredText(String text, int insideWidth) {
 
         String safeText = limitText(text, insideWidth);
