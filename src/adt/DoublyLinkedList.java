@@ -20,9 +20,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
     private Node<T> current;
     private int size;
 
-    //==========================================================================
-    // Constructor
-    //==========================================================================
     public DoublyLinkedList() {
         head = null;
         tail = null;
@@ -30,9 +27,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         size = 0;
     }
 
-    //==========================================================================
-    // Insert And Advance
-    //==========================================================================
     @Override
     public void insertAndAdvance(T data) {
         Node<T> newNode = new Node<>(data);
@@ -67,9 +61,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         size++;
     }
 
-    //==========================================================================
-    // Rollback
-    //==========================================================================
     @Override
     public T rollback() {
         if (current == null || current.previous == null) {
@@ -80,9 +71,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         return current.data;
     }
 
-    //==========================================================================
-    // Redo
-    //==========================================================================
     @Override
     public T redo() {
         if (current == null || current.next == null) {
@@ -93,9 +81,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         return current.data;
     }
 
-    //==========================================================================
-    // Splice After Current
-    //==========================================================================
     @Override
     public void spliceAfterCurrent(T data) {
         Node<T> newNode = new Node<>(data);
@@ -124,17 +109,10 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         size++;
     }
 
-    //==========================================================================
-    // Get Current Data
-    //==========================================================================
     @Override
     public T getCurrentData() {
         return (current == null) ? null : current.data;
     }
-
-    //==========================================================================
-    // Stack Methods
-    //==========================================================================
 
     @Override
     public void push(T newEntry) {
@@ -163,10 +141,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
     public int getCurrentSize() {
         return getSize();
     }
-
-    //==========================================================================
-    // List Methods
-    //==========================================================================
 
     @Override
     public boolean add(T data) {
@@ -267,9 +241,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         return false;
     }
 
-    //==========================================================================
-    // Remove Node
-    //==========================================================================
     private void removeNode(Node<T> node) {
         if (node == null) {
             return;
@@ -300,17 +271,12 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
-    //==========================================================================
-    // Is Empty
-    //==========================================================================
     @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
-    //==========================================================================
-    // Iterator
-    //==========================================================================
+   
     @Override
     public Iterator<T> getIterator() {
         return new DoublyLinkedListIterator();
@@ -342,9 +308,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
-    //==========================================================================
-    // Node
-    //==========================================================================
     private static class Node<T> implements Serializable {
 
         private T data;
@@ -357,10 +320,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             this.next = null;
         }
     }
-
-    //==========================================================================
-    // Queue Methods
-    //==========================================================================
 
     @Override
     public void enqueue(T data) {
@@ -385,10 +344,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         return getEntry(1);
     }
 
-    //==========================================================================
-    // Clear
-    // Stack + Queue Common Method
-    //==========================================================================
     @Override
     public void clear() {
         head = null;
@@ -397,11 +352,7 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         size = 0;
     }
 
-    //==========================================================================
-    // ArrayList
-    //==========================================================================
     public static class ArrayList<T> implements ArrayListInterface<T>, Serializable, Iterable<T> {
-
         private T[] array;
         private int numberOfEntries;
         private static final int DEFAULT_CAPACITY = 10;
@@ -448,9 +399,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             return isSuccessful;
         }
 
-        //==========================================================================
-        // Increase Capacity
-        //==========================================================================
         private void increaseCapacity() {
             T[] oldArray = array;
             array = (T[]) new Object[oldArray.length * 2];
@@ -552,9 +500,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             return outputStr;
         }
 
-        //==========================================================================
-        // Make Room
-        //==========================================================================
         private void makeRoom(int newPosition) {
             int newIndex = newPosition - 1;
             int lastIndex = numberOfEntries - 1;
@@ -564,9 +509,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             }
         }
 
-        //==========================================================================
-        // Remove Gap
-        //==========================================================================
         private void removeGap(int givenPosition) {
             int removedIndex = givenPosition - 1;
             int lastIndex = numberOfEntries - 1;
@@ -576,9 +518,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             }
         }
 
-        //==========================================================================
-        // Sort
-        //==========================================================================
         public void sort(Comparator<T> comparator) {
             for (int i = 0; i < numberOfEntries - 1; i++) {
 
@@ -635,9 +574,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             return true;
         }
 
-        //==========================================================================
-        // Iterator
-        //==========================================================================
         @Override
         public Iterator<T> iterator() {
 
@@ -662,9 +598,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
-    //==========================================================================
-    // ArrayStack
-    //==========================================================================
     public static class ArrayStack<T> implements StackInterface<T> {
 
         private T[] array;
@@ -690,9 +623,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             array[topIndex] = newEntry;
         }
 
-        //==========================================================================
-        // Double Capacity
-        //==========================================================================
         private void doubleCapacity() {
             T[] oldArray = array;
             array = (T[]) new Object[oldArray.length * 2];
@@ -745,9 +675,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
         }
     }
 
-    //==========================================================================
-    // ArrayQueue
-    //==========================================================================
     public static class ArrayQueue<T> implements QueueInterface<T> {
 
         private T[] queue;
@@ -821,9 +748,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             numberOfEntries = 0;
         }
 
-        //==========================================================================
-        // Increase Capacity
-        //==========================================================================
         private void increaseCapacity() {
             T[] oldQueue = queue;
 
@@ -837,9 +761,6 @@ public class DoublyLinkedList<T> implements ListInterface<T>, StackInterface<T>,
             back = numberOfEntries - 1;
         }
 
-        //==========================================================================
-        // Iterator
-        //==========================================================================
         @Override
         public Iterator<T> getIterator() {
             return new ArrayQueueIterator();
