@@ -591,7 +591,7 @@ public class BookingUI {
 
     private void displayMonthlyBookingDetails(YearMonth yearMonth) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-        System.out.println("                                                   TARUMT RESORTS                                                              ");
+        System.out.println("                                                  TARUMT RESORTS                                                              ");
         System.out.println("============================================= MONTHLY BOOKING DETAILS ========================================================");
 
         for (int day = 1; day <= yearMonth.lengthOfMonth(); day++) {
@@ -727,7 +727,7 @@ public class BookingUI {
             }
         }
         System.out.println("                       TARUMT RESORTS                      ");
-        System.out.println("\n================ MONTHLY BOOKING SUMMARY ================");
+        System.out.println("================== MONTHLY BOOKING SUMMARY ================");
         System.out.println("Month                    : " + yearMonth.getMonth() + " " + yearMonth.getYear());
         System.out.println("Total Bookings           : " + bookingList.getSize());
         System.out.println("Waiting Bookings         : " + waiting);
